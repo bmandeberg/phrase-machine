@@ -29,8 +29,8 @@ body {
   font-size: 15px;
   min-width: 100vw;
   min-height: 100vh;
-  background: #ffffff;
-  color: $darkGray;
+  background: $lightestBlue;
+  color: $darkTextGray;
 }
 
 #root {
@@ -40,9 +40,21 @@ body {
   display: flex;
 }
 
-#container {
+#main-container {
   flex-grow: 1;
   display: flex;
   flex-direction: column;
   overflow: auto;
+  padding: $padding * 2;
+}
+
+.empty-lane {
+  height: 120px;
+  width: 100%;
+  background: darken($lightestBlue, 4%);
+  cursor: crosshair;
+  
+  &:hover {
+    background: $hoverBlue;
+  }
 }

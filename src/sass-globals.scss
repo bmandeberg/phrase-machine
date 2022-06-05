@@ -23,8 +23,12 @@ $lightMediumGray: #dfdfdf;
 $lightAlternateGray: #d3d3d3;
 $darkGray: #666666;
 $darkGrayHover: lighten($darkGray, 8%);
+$darkTextGray: #222222;
 $lightTextGray: #999999;
+$lightestBlue: #f3f9ff;
+$hoverBlue: #a8d6ff;
 $transitionTime: 0.3s;
+$padding: 16px;
 
 .no-select {
   -webkit-user-select: none;
