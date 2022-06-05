@@ -1,0 +1,59 @@
+@import '../sass-globals.scss';
+
+.lane {
+  $noteHeight: 10px;
+  display: flex;
+  border-left: 4px solid var(--lane-color);
+
+  .keys {
+    border-top: 1px solid $lightMediumGray;
+    border-bottom: 1px solid $lightMediumGray;
+
+    .key {
+      width: 10px;
+      height: $noteHeight;
+      box-sizing: border-box;
+      background: #ffffff;
+
+      &.e-key {
+        border-bottom: 1px solid $lightBlue;
+      }
+
+      &.black-key {
+        background: #000000;
+      }
+    }
+  }
+
+  .measure {
+    height: 100%;
+    width: var(--measure-width);
+    border: 1px solid $lightGray;
+    border-right: 2px solid $mediumGray;
+    box-sizing: border-box;
+
+    .note-lane {
+      background: #ffffff;
+      box-sizing: border-box;
+      width: 100%;
+      height: $noteHeight;
+
+      &.e-key {
+        border-bottom: 1px solid $lightBlue;
+      }
+
+      &.black-key {
+        background: $lightBlue;
+      }
+
+      &:last-of-type {
+        border-bottom: none;
+      }
+    }
+  }
+
+  .empty-measure {
+    height: 100%;
+    width: var(--measure-width);
+  }
+}
