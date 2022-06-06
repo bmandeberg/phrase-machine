@@ -99,6 +99,20 @@
       box-shadow: 0px 0px 2px lighten($blue, 30%);
       box-sizing: border-box;
       border: 1px solid lighten($blue, 35%);
+      cursor: grab;
+
+      &:hover {
+        background: $blueHover;
+      }
+
+      &.selected {
+        border: 2px solid $blue;
+        background: lighten($blue, 35%);
+
+        &:hover {
+          background: lighten($blue, 30%);
+        }
+      }
     }
   }
 }
