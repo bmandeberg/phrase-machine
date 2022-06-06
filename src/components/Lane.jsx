@@ -126,7 +126,7 @@ export default function Lane({ id, color, laneNum, lanePreset, setLaneState }) {
           key={note.x}
           className={classNames('note', { selected: selectedNotes.includes(note.id) })}
           style={{ left: note.x, bottom: (note.midiNote - minNote) * NOTE_HEIGHT + 1, width: note.width }}
-          onClick={() => setSelectedNotes([note.id])}></div>
+          onMouseDown={() => setSelectedNotes([note.id])}></div>
       )),
     [minNote, notes, selectedNotes]
   )
