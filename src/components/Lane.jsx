@@ -1,22 +1,61 @@
 import React, { useState, useMemo, useRef } from 'react'
+import { v4 as uuid } from 'uuid'
 import PropTypes from 'prop-types'
 import classNames from 'classnames'
+import { useGesture } from 'react-use-gesture'
+import { NOTE_HEIGHT } from '../globals'
 import './Lane.scss'
 
 export default function Lane({ id, color, laneNum, lanePreset, setLaneState }) {
   const [measures, setMeasures] = useState(lanePreset.measures)
+  const [notes, setNotes] = useState(lanePreset.notes)
   const [minNote, setMinNote] = useState(lanePreset.viewRange.min)
   const [maxNote, setMaxNote] = useState(lanePreset.viewRange.max)
+  const tempNote = useRef(null)
+  const lane = useRef()
 
-  console.log(minNote, maxNote)
+  const createNote = useGesture({
+    onDragStart: () => {
+      tempNote.current = null
+    },
+    onDrag: ({ movement: [mx, my], initial: [ix, iy], event }) => {
+      // create note
+      if (Math.abs(mx) >= 3 && !tempNote.current) {
+        const laneNum = maxNote - minNote - +event.target?.getAttribute('lane-num')
+        const left = lane.current?.getBoundingClientRect().left
+        if (left) {
+          tempNote.current = {
+            midiNote: laneNum + minNote,
+            velocity: 1,
+            x: ix - lane.current?.getBoundingClientRect().left,
+            width: mx,
+          }
+        }
+      } else if (tempNote.current) {
+        tempNote.current.width = Math.max(mx, 3)
+      }
+    },
+    onDragEnd: () => {
+      if (tempNote.current) {
+        setNotes((notes) => {
+          const notesCopy = notes.slice()
+          notesCopy.push(Object.assign({}, tempNote.current))
+          return notesCopy
+        })
+      }
+    },
+  })
 
   const measuresEls = useMemo(
     () =>
       measures.map((m) =>
         m ? (
-          <div className="measure">
+          <div className="measure" key={uuid()}>
             {[...Array(maxNote - minNote + 1)].map((_d, i) => (
               <div
+                key={uuid()}
+                {...createNote()}
+                lane-num={i}
                 className={classNames('note-lane', {
                   'black-key': isBlackKey(i),
                   'e-key': !isBlackKey(i) && nextKeyIsWhite(i),
@@ -24,29 +63,40 @@ export default function Lane({ id, color, laneNum, lanePreset, setLaneState }) {
             ))}
             <div className="ticks">
               {[...Array(7)].map((_d, i) => (
-                <div className={classNames('tick')}></div>
+                <div key={uuid()} className={classNames('tick')}></div>
               ))}
             </div>
           </div>
         ) : (
-          <div className="empty-measure"></div>
+          <div key={uuid()} className="empty-measure"></div>
         )
       ),
-    [maxNote, measures, minNote]
+    [createNote, maxNote, measures, minNote]
   )
 
   return (
-    <div className="lane" style={{ '--lane-color': color }}>
+    <div className="lane" style={{ '--lane-color': color, '--note-height': NOTE_HEIGHT + 'px' }}>
       <div className="keys">
         {[...Array(maxNote - minNote + 1)].map((_d, i) => (
           <div
+            key={uuid()}
             className={classNames('key', {
               'black-key': isBlackKey(i),
               'e-key': !isBlackKey(i) && nextKeyIsWhite(i),
             })}></div>
         ))}
       </div>
-      {measuresEls}
+      <div className="measures" ref={lane}>
+        {measuresEls}
+      </div>
+      <div className="notes">
+        {notes.map((note) => (
+          <div
+            key={note.x}
+            className="note"
+            style={{ left: note.x, bottom: (note.midiNote - minNote) * NOTE_HEIGHT + 1, width: note.width }}></div>
+        ))}
+      </div>
     </div>
   )
 }

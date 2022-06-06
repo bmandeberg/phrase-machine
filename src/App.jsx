@@ -9,6 +9,7 @@ if (!window.localStorage.getItem('phrasePresets')) {
 
 export default function App() {
   const [uiState, setUIState] = useState(JSON.parse(window.localStorage.getItem('phrasePresets')))
+  const [snap, setSnap] = useState(null)
 
   const setLaneState = useCallback(
     (id, state) => {
@@ -27,7 +28,14 @@ export default function App() {
   const lanes = useMemo(
     () =>
       uiState.lanes.map((lane, i) => (
-        <Lane id={lane.id} color={LANE_COLORS[i]} laneNum={i} lanePreset={lane} setLaneState={setLaneState} />
+        <Lane
+          key={lane.id}
+          id={lane.id}
+          color={LANE_COLORS[i]}
+          laneNum={i}
+          lanePreset={lane}
+          setLaneState={setLaneState}
+        />
       )),
     [setLaneState, uiState.lanes]
   )
