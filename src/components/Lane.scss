@@ -8,6 +8,10 @@
   .keys {
     border-top: 1px solid $lightMediumGray;
     border-bottom: 1px solid $lightMediumGray;
+    box-shadow: 2px 0px 3px #cccccc;
+    position: sticky;
+    left: 0;
+    z-index: 1;
 
     .key {
       width: 10px;
@@ -29,8 +33,9 @@
     height: 100%;
     width: var(--measure-width);
     border: 1px solid $lightGray;
-    border-right: 2px solid $mediumGray;
+    border-right: 2px solid $lightTextGray;
     box-sizing: border-box;
+    position: relative;
 
     .note-lane {
       background: #ffffff;
@@ -55,5 +60,25 @@
   .empty-measure {
     height: 100%;
     width: var(--measure-width);
+  }
+
+  .ticks {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+    display: flex;
+
+    .tick {
+      width: calc(var(--measure-width) / 8);
+      height: 100%;
+      box-sizing: border-box;
+      border-right: 1px solid $lightGray; 
+
+      &:nth-child(even) {
+        border-color: $mediumGray;
+      }
+    }
   }
 }

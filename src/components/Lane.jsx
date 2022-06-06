@@ -22,6 +22,11 @@ export default function Lane({ id, color, laneNum, lanePreset, setLaneState }) {
                   'e-key': !isBlackKey(i) && nextKeyIsWhite(i),
                 })}></div>
             ))}
+            <div className="ticks">
+              {[...Array(7)].map((_d, i) => (
+                <div className={classNames('tick')}></div>
+              ))}
+            </div>
           </div>
         ) : (
           <div className="empty-measure"></div>
