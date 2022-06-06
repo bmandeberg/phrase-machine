@@ -24,24 +24,30 @@ export default function Lane({ id, color, laneNum, lanePreset, setLaneState }) {
         const laneNum = maxNote - minNote - +event.target?.getAttribute('lane-num')
         const left = lane.current?.getBoundingClientRect().left
         if (left) {
-          tempNote.current = {
-            midiNote: laneNum + minNote,
-            velocity: 1,
-            x: ix - lane.current?.getBoundingClientRect().left,
-            width: mx,
-          }
+          tempNote.current = uuid()
+          setNotes((notes) => {
+            const notesCopy = notes.slice()
+            notesCopy.push({
+              id: tempNote.current,
+              midiNote: laneNum + minNote,
+              velocity: 1,
+              x: ix - lane.current?.getBoundingClientRect().left,
+              width: mx,
+            })
+            return notesCopy
+          })
         }
       } else if (tempNote.current) {
-        tempNote.current.width = Math.max(mx, 3)
+        setNotes((notes) => {
+          const notesCopy = notes.slice()
+          notesCopy.find((note) => note.id === tempNote.current).width = Math.max(mx, 3)
+          return notesCopy
+        })
       }
     },
     onDragEnd: () => {
       if (tempNote.current) {
-        setNotes((notes) => {
-          const notesCopy = notes.slice()
-          notesCopy.push(Object.assign({}, tempNote.current))
-          return notesCopy
-        })
+        // save state
       }
     },
   })

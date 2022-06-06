@@ -96,7 +96,7 @@
       height: var(--note-height);
       background: $blue;
       pointer-events: all;
-      box-shadow: 0px 0px 3px lighten($blue, 30%);
+      box-shadow: 0px 0px 2px lighten($blue, 30%);
       box-sizing: border-box;
       border: 1px solid lighten($blue, 35%);
     }
