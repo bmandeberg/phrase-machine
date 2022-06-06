@@ -2,7 +2,7 @@
   "name": "phrase-machine",
   "version": "1.0.0",
   "main": "index.js",
-  "license": "MIT",
+  "license": "GNU GPLv3",
   "devDependencies": {
     "@babel/core": "^7.18.2",
     "@babel/preset-env": "^7.18.2",
