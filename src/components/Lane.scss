@@ -1,8 +1,7 @@
 @import '../sass-globals.scss';
 
-.lane {
+.lane-container {
   display: flex;
-  border-left: 4px solid var(--lane-color);
   position: relative;
 
   .keys {
@@ -12,6 +11,7 @@
     position: sticky;
     left: 0;
     z-index: 1;
+    border-left: 4px solid var(--lane-color);
 
     .key {
       width: 10px;
@@ -29,11 +29,9 @@
     }
   }
 
-  .measure {
+  .lane {
     height: 100%;
-    width: var(--measure-width);
     border: 1px solid $lightGray;
-    border-right: 2px solid $lightTextGray;
     box-sizing: border-box;
     position: relative;
 
@@ -80,6 +78,10 @@
       &:nth-child(even) {
         border-color: $mediumGray;
       }
+
+      &:nth-child(8n + 8) {
+        border-color: $lightTextGray;
+      }
     }
   }
 
@@ -112,6 +114,10 @@
         &:hover {
           background: lighten($blue, 30%);
         }
+      }
+
+      &.no-pointer {
+        pointer-events: none;
       }
     }
   }

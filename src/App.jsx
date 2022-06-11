@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useMemo } from 'react'
+import React, { useState, useCallback, useMemo, useRef } from 'react'
 import { DEFAULT_PRESET, MEASURE_WIDTH, LANE_COLORS } from './globals'
 import Lane from './components/Lane'
 
@@ -10,6 +10,7 @@ if (!window.localStorage.getItem('phrasePresets')) {
 export default function App() {
   const [uiState, setUIState] = useState(JSON.parse(window.localStorage.getItem('phrasePresets')))
   const [snap, setSnap] = useState(null)
+  const mainContainer = useRef()
 
   const setLaneState = useCallback(
     (id, state) => {
@@ -35,13 +36,14 @@ export default function App() {
           laneNum={i}
           lanePreset={lane}
           setLaneState={setLaneState}
+          mainContainer={mainContainer}
         />
       )),
     [setLaneState, uiState.lanes]
   )
 
   return (
-    <div id="main-container" style={{ '--measure-width': MEASURE_WIDTH + 'px' }}>
+    <div id="main-container" ref={mainContainer} style={{ '--measure-width': MEASURE_WIDTH + 'px' }}>
       {lanes}
       {!uiState.lanes.length && <div className="empty-lane"></div>}
     </div>

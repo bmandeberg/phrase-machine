@@ -6,7 +6,8 @@ export const NOTE_HEIGHT = 12
 
 export const DEFAULT_LANE = {
   id: uuid(),
-  measures: [true],
+  measures: 8,
+  delimiters: [],
   notes: [],
   viewRange: { min: 60, max: 71 },
   probability: 1,

@@ -45,7 +45,7 @@ body {
   display: flex;
   flex-direction: column;
   overflow: auto;
-  padding: $padding * 2;
+  padding: $padding * 2 0 0 $padding * 2;
 }
 
 .empty-lane {
