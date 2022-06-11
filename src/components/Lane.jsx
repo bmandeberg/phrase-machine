@@ -16,7 +16,7 @@ export default function Lane({ id, color, laneNum, lanePreset, setLaneState, mai
   const lane = useRef()
   const [selectedNotes, setSelectedNotes] = useState([])
   const selectedNotesRef = useRef()
-  const [creatingNote, setCreatingNote] = useState(false)
+  const [noPointerEvents, setNoPointerEvents] = useState(false)
 
   useEffect(() => {
     selectedNotesRef.current = selectedNotes
@@ -59,7 +59,7 @@ export default function Lane({ id, color, laneNum, lanePreset, setLaneState, mai
             setSelectedNotes([newNote.id])
             return notesCopy
           })
-          setCreatingNote(true)
+          setNoPointerEvents(true)
         }
       } else if (tempNote.current) {
         setNotes((notes) => {
@@ -72,8 +72,28 @@ export default function Lane({ id, color, laneNum, lanePreset, setLaneState, mai
     onDragEnd: () => {
       if (tempNote.current) {
         // save state
-        setCreatingNote(false)
+        setNoPointerEvents(false)
       }
+    },
+  })
+
+  const dragStart = useRef()
+  const dragNote = useGesture({
+    onDragStart: ({ event }) => {
+      setNoPointerEvents(true)
+      dragStart.current = notes.find((note) => note.id === event.target?.id).x
+    },
+    onDrag: ({ movement: [mx], event }) => {
+      if (dragStart.current) {
+        setNotes((notes) => {
+          const notesCopy = notes.slice()
+          notesCopy.find((note) => note.id === event.target?.id).x = dragStart.current + mx
+          return notesCopy
+        })
+      }
+    },
+    onDragEnd: () => {
+      setNoPointerEvents(false)
     },
   })
 
@@ -94,12 +114,14 @@ export default function Lane({ id, color, laneNum, lanePreset, setLaneState, mai
     () =>
       notes.map((note) => (
         <div
-          key={note.x}
-          className={classNames('note', { selected: selectedNotes.includes(note.id), 'no-pointer': creatingNote })}
+          key={note.id}
+          id={note.id}
+          {...dragNote()}
+          className={classNames('note', { selected: selectedNotes.includes(note.id), 'no-pointer': noPointerEvents })}
           style={{ left: note.x, bottom: (note.midiNote - minNote) * NOTE_HEIGHT + 1, width: note.width }}
           onMouseDown={() => setSelectedNotes([note.id])}></div>
       )),
-    [creatingNote, minNote, notes, selectedNotes]
+    [noPointerEvents, dragNote, minNote, notes, selectedNotes]
   )
 
   return (
