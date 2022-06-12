@@ -19,6 +19,7 @@ export default function Lane({ id, color, laneNum, lanePreset, setLaneState, mai
   const [selectedNotes, setSelectedNotes] = useState([])
   const selectedNotesRef = useRef()
   const [noPointerEvents, setNoPointerEvents] = useState(false)
+  const [grabbing, setGrabbing] = useState(false)
 
   useEffect(() => {
     selectedNotesRef.current = selectedNotes
@@ -87,6 +88,7 @@ export default function Lane({ id, color, laneNum, lanePreset, setLaneState, mai
   const dragNote = useGesture({
     onDragStart: ({ event }) => {
       setNoPointerEvents(true)
+      setGrabbing(true)
       dragStart.current = notes.find((note) => note.id === event.target?.id).x
     },
     onDrag: ({ movement: [mx], event }) => {
@@ -100,6 +102,7 @@ export default function Lane({ id, color, laneNum, lanePreset, setLaneState, mai
     },
     onDragEnd: () => {
       setNoPointerEvents(false)
+      setGrabbing(false)
     },
   })
 
@@ -108,6 +111,7 @@ export default function Lane({ id, color, laneNum, lanePreset, setLaneState, mai
     onDragStart: ({ event }) => {
       event.stopPropagation()
       setNoPointerEvents(true)
+      setGrabbing(true)
       widthStart.current = notes.find((note) => note.id === event.target?.parentElement?.id).width
     },
     onDrag: ({ movement: [mx], event }) => {
@@ -121,6 +125,7 @@ export default function Lane({ id, color, laneNum, lanePreset, setLaneState, mai
     },
     onDragEnd: () => {
       setNoPointerEvents(false)
+      setGrabbing(false)
     },
   })
 
@@ -128,6 +133,7 @@ export default function Lane({ id, color, laneNum, lanePreset, setLaneState, mai
     onDragStart: ({ event }) => {
       event.stopPropagation()
       setNoPointerEvents(true)
+      setGrabbing(true)
       const note = notes.find((note) => note.id === event.target?.parentElement?.id)
       widthStart.current = note.width
       dragStart.current = note.x
@@ -145,6 +151,7 @@ export default function Lane({ id, color, laneNum, lanePreset, setLaneState, mai
     },
     onDragEnd: () => {
       setNoPointerEvents(false)
+      setGrabbing(false)
     },
   })
 
@@ -168,7 +175,11 @@ export default function Lane({ id, color, laneNum, lanePreset, setLaneState, mai
         key={note.id}
         id={note.id}
         {...dragNote()}
-        className={classNames('note', { selected: selectedNotes.includes(note.id), 'no-pointer': noPointerEvents })}
+        className={classNames('note', {
+          selected: selectedNotes.includes(note.id),
+          'no-pointer': noPointerEvents,
+          grabbing,
+        })}
         style={{ left: note.x, bottom: (note.midiNote - minNote) * NOTE_HEIGHT + 1, width: note.width }}
         onMouseDown={() => setSelectedNotes([note.id])}>
         <div className={classNames('note-drag-left', { outside: note.width < minNoteWidth })} {...dragNoteLeft()}></div>
@@ -177,7 +188,7 @@ export default function Lane({ id, color, laneNum, lanePreset, setLaneState, mai
           {...dragNoteRight()}></div>
       </div>
     ))
-  }, [notes, dragNote, selectedNotes, noPointerEvents, minNote, dragNoteLeft, dragNoteRight])
+  }, [notes, dragNote, selectedNotes, noPointerEvents, grabbing, minNote, dragNoteLeft, dragNoteRight])
 
   return (
     <div className="lane-container" style={{ '--lane-color': color, '--note-height': NOTE_HEIGHT + 'px' }}>

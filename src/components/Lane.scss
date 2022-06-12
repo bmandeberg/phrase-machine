@@ -103,6 +103,10 @@
       border: 1px solid lighten($blue, 35%);
       cursor: grab;
 
+      &.grabbing {
+        cursor: grabbing;
+      }
+
       &:hover {
         background: $blueHover;
       }
