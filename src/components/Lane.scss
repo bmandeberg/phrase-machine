@@ -34,6 +34,7 @@
       box-sizing: border-box;
       background: #ffffff;
       position: relative;
+      pointer-events: none;
 
       &.e-key {
         border-bottom: 1px solid $lightBlue;
