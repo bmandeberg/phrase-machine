@@ -107,6 +107,39 @@
         background: $blueHover;
       }
 
+      &.no-pointer {
+        pointer-events: none;
+      }
+
+      $noteDragWidth: 10px;
+      .note-drag-right {
+        width: $noteDragWidth;
+        position: absolute;
+        top: -1px;
+        right: $noteDragWidth * -0.5;
+        height: var(--note-height);
+        background: transparent;
+        cursor: ew-resize;
+
+        &.outside {
+          right: -$noteDragWidth;
+        }
+      }
+
+      .note-drag-left {
+        width: $noteDragWidth;
+        position: absolute;
+        top: -1px;
+        left: $noteDragWidth * -0.5;
+        height: var(--note-height);
+        background: transparent;
+        cursor: ew-resize;
+
+        &.outside {
+          left: -$noteDragWidth;
+        }
+      }
+
       &.selected {
         border: 2px solid $blue;
         background: lighten($blue, 35%);
@@ -114,10 +147,27 @@
         &:hover {
           background: lighten($blue, 30%);
         }
-      }
 
-      &.no-pointer {
-        pointer-events: none;
+        .note-drag-left,
+        .note-drag-right {
+          top: -2px;
+        }
+
+        .note-drag-right {
+          right: $noteDragWidth * -0.5 - 1px;
+
+          &.outside {
+            right: -$noteDragWidth - 1px;
+          }
+        }
+
+        .note-drag-left {
+          left: $noteDragWidth * -0.5 - 1px;
+
+          &.outside {
+            left: -$noteDragWidth - 1px;
+          }
+        }
       }
     }
   }

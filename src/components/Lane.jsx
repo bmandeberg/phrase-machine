@@ -6,6 +6,8 @@ import { useGesture } from 'react-use-gesture'
 import { NOTE_HEIGHT, MEASURE_WIDTH } from '../globals'
 import './Lane.scss'
 
+const MIN_NOTE_WIDTH = 5
+
 export default function Lane({ id, color, laneNum, lanePreset, setLaneState, mainContainer }) {
   const [measures, setMeasures] = useState(lanePreset.measures)
   const [delimiters, setDelimiters] = useState(lanePreset.delimiters)
@@ -24,7 +26,11 @@ export default function Lane({ id, color, laneNum, lanePreset, setLaneState, mai
 
   useEffect(() => {
     function deselect(e) {
-      if (!e.target.classList.contains('note') && selectedNotesRef.current.length) {
+      if (
+        !e.target.classList.contains('note') &&
+        !e.target.parentElement.classList.contains('note') &&
+        selectedNotesRef.current.length
+      ) {
         setSelectedNotes([])
       }
     }
@@ -38,7 +44,7 @@ export default function Lane({ id, color, laneNum, lanePreset, setLaneState, mai
     onDragStart: () => {
       tempNote.current = null
     },
-    onDrag: ({ movement: [mx, my], initial: [ix, iy], event }) => {
+    onDrag: ({ movement: [mx], initial: [ix], event }) => {
       // create note
       if (Math.abs(mx) >= 3 && !tempNote.current) {
         const laneNum = maxNote - minNote - +event.target?.getAttribute('lane-num')
@@ -97,6 +103,51 @@ export default function Lane({ id, color, laneNum, lanePreset, setLaneState, mai
     },
   })
 
+  const widthStart = useRef()
+  const dragNoteRight = useGesture({
+    onDragStart: ({ event }) => {
+      event.stopPropagation()
+      setNoPointerEvents(true)
+      widthStart.current = notes.find((note) => note.id === event.target?.parentElement?.id).width
+    },
+    onDrag: ({ movement: [mx], event }) => {
+      if (widthStart.current && widthStart.current + mx >= MIN_NOTE_WIDTH) {
+        setNotes((notes) => {
+          const notesCopy = notes.slice()
+          notesCopy.find((note) => note.id === event.target?.parentElement?.id).width = widthStart.current + mx
+          return notesCopy
+        })
+      }
+    },
+    onDragEnd: () => {
+      setNoPointerEvents(false)
+    },
+  })
+
+  const dragNoteLeft = useGesture({
+    onDragStart: ({ event }) => {
+      event.stopPropagation()
+      setNoPointerEvents(true)
+      const note = notes.find((note) => note.id === event.target?.parentElement?.id)
+      widthStart.current = note.width
+      dragStart.current = note.x
+    },
+    onDrag: ({ movement: [mx], event }) => {
+      if (widthStart.current && widthStart.current - mx >= MIN_NOTE_WIDTH) {
+        setNotes((notes) => {
+          const notesCopy = notes.slice()
+          const note = notesCopy.find((note) => note.id === event.target?.parentElement?.id)
+          note.width = widthStart.current - mx
+          note.x = dragStart.current + mx
+          return notesCopy
+        })
+      }
+    },
+    onDragEnd: () => {
+      setNoPointerEvents(false)
+    },
+  })
+
   const keyEls = useMemo(
     () =>
       [...Array(maxNote - minNote + 1)].map((_d, i) => (
@@ -110,19 +161,23 @@ export default function Lane({ id, color, laneNum, lanePreset, setLaneState, mai
     [maxNote, minNote]
   )
 
-  const noteEls = useMemo(
-    () =>
-      notes.map((note) => (
+  const noteEls = useMemo(() => {
+    const minNoteWidth = 16
+    return notes.map((note) => (
+      <div
+        key={note.id}
+        id={note.id}
+        {...dragNote()}
+        className={classNames('note', { selected: selectedNotes.includes(note.id), 'no-pointer': noPointerEvents })}
+        style={{ left: note.x, bottom: (note.midiNote - minNote) * NOTE_HEIGHT + 1, width: note.width }}
+        onMouseDown={() => setSelectedNotes([note.id])}>
+        <div className={classNames('note-drag-left', { outside: note.width < minNoteWidth })} {...dragNoteLeft()}></div>
         <div
-          key={note.id}
-          id={note.id}
-          {...dragNote()}
-          className={classNames('note', { selected: selectedNotes.includes(note.id), 'no-pointer': noPointerEvents })}
-          style={{ left: note.x, bottom: (note.midiNote - minNote) * NOTE_HEIGHT + 1, width: note.width }}
-          onMouseDown={() => setSelectedNotes([note.id])}></div>
-      )),
-    [noPointerEvents, dragNote, minNote, notes, selectedNotes]
-  )
+          className={classNames('note-drag-right', { outside: note.width < minNoteWidth })}
+          {...dragNoteRight()}></div>
+      </div>
+    ))
+  }, [notes, dragNote, selectedNotes, noPointerEvents, minNote, dragNoteLeft, dragNoteRight])
 
   return (
     <div className="lane-container" style={{ '--lane-color': color, '--note-height': NOTE_HEIGHT + 'px' }}>
