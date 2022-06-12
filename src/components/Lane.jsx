@@ -7,6 +7,7 @@ import { NOTE_HEIGHT, MEASURE_WIDTH } from '../globals'
 import './Lane.scss'
 
 const MIN_NOTE_WIDTH = 5
+const MIN_NOTE_LANES = 4
 
 export default function Lane({ id, color, laneNum, lanePreset, setLaneState, mainContainer }) {
   const [measures, setMeasures] = useState(lanePreset.measures)
@@ -155,6 +156,24 @@ export default function Lane({ id, color, laneNum, lanePreset, setLaneState, mai
     },
   })
 
+  const minNoteStart = useRef()
+  const dragLane = useGesture({
+    onDragStart: ({ event }) => {
+      event.stopPropagation()
+      setNoPointerEvents(true)
+      minNoteStart.current = minNote
+    },
+    onDrag: ({ movement: [mx, my] }) => {
+      const newMinNote = minNoteStart.current - Math.round(my / NOTE_HEIGHT)
+      if (minNoteStart.current && maxNote - newMinNote >= MIN_NOTE_LANES) {
+        setMinNote(newMinNote)
+      }
+    },
+    onDragEnd: () => {
+      setNoPointerEvents(false)
+    },
+  })
+
   const keyEls = useMemo(() => {
     const numNotes = maxNote - minNote + 1
     return [...Array(numNotes)].map((_d, i) => (
@@ -173,25 +192,29 @@ export default function Lane({ id, color, laneNum, lanePreset, setLaneState, mai
 
   const noteEls = useMemo(() => {
     const minNoteWidth = 16
-    return notes.map((note) => (
-      <div
-        key={note.id}
-        id={note.id}
-        {...dragNote()}
-        className={classNames('note', {
-          selected: selectedNotes.includes(note.id),
-          'no-pointer': noPointerEvents,
-          grabbing,
-        })}
-        style={{ left: note.x, bottom: (note.midiNote - minNote) * NOTE_HEIGHT + 1, width: note.width }}
-        onMouseDown={() => setSelectedNotes([note.id])}>
-        <div className={classNames('note-drag-left', { outside: note.width < minNoteWidth })} {...dragNoteLeft()}></div>
+    return notes
+      .filter((note) => note.midiNote >= minNote && note.midiNote <= maxNote)
+      .map((note) => (
         <div
-          className={classNames('note-drag-right', { outside: note.width < minNoteWidth })}
-          {...dragNoteRight()}></div>
-      </div>
-    ))
-  }, [notes, dragNote, selectedNotes, noPointerEvents, grabbing, minNote, dragNoteLeft, dragNoteRight])
+          key={note.id}
+          id={note.id}
+          {...dragNote()}
+          className={classNames('note', {
+            selected: selectedNotes.includes(note.id),
+            'no-pointer': noPointerEvents,
+            grabbing,
+          })}
+          style={{ left: note.x, bottom: (note.midiNote - minNote) * NOTE_HEIGHT + 1, width: note.width }}
+          onMouseDown={() => setSelectedNotes([note.id])}>
+          <div
+            className={classNames('note-drag-left', { outside: note.width < minNoteWidth })}
+            {...dragNoteLeft()}></div>
+          <div
+            className={classNames('note-drag-right', { outside: note.width < minNoteWidth })}
+            {...dragNoteRight()}></div>
+        </div>
+      ))
+  }, [notes, minNote, maxNote, dragNote, selectedNotes, noPointerEvents, grabbing, dragNoteLeft, dragNoteRight])
 
   return (
     <div className="lane-container" style={{ '--lane-color': color, '--note-height': NOTE_HEIGHT + 'px' }}>
@@ -214,6 +237,7 @@ export default function Lane({ id, color, laneNum, lanePreset, setLaneState, mai
         </div>
       </div>
       <div className="notes">{noteEls}</div>
+      <div className="lane-expander" {...dragLane()}></div>
     </div>
   )
 }
@@ -227,9 +251,9 @@ Lane.propTypes = {
 
 const blackKeys = [false, true, false, true, false, false, true, false, true, false, true, false]
 function isBlackKey(i) {
-  return blackKeys[i]
+  return blackKeys[i % 12]
 }
 
 function nextKeyIsWhite(i) {
-  return !blackKeys[i + 1]
+  return !blackKeys[(i % 12) + 1]
 }

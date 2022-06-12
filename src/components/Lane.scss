@@ -4,6 +4,16 @@
   display: flex;
   position: relative;
 
+  .lane-expander {
+    position: absolute;
+    bottom: calc(var(--note-height) * -0.5);
+    width: 100%;
+    height: var(--note-height);
+    background: transparent;
+    cursor: ns-resize;
+    z-index: 1;
+  }
+
   .keys {
     border-top: 1px solid $lightMediumGray;
     border-bottom: 1px solid $lightMediumGray;
