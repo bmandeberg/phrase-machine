@@ -157,7 +157,7 @@ export default function Lane({ id, color, laneNum, lanePreset, setLaneState, mai
   })
 
   const minNoteStart = useRef()
-  const dragLane = useGesture({
+  const dragLaneStart = useGesture({
     onDragStart: ({ event }) => {
       event.stopPropagation()
       setNoPointerEvents(true)
@@ -174,14 +174,36 @@ export default function Lane({ id, color, laneNum, lanePreset, setLaneState, mai
     },
   })
 
+  const maxNoteStart = useRef()
+  const dragLane = useGesture({
+    onDragStart: () => {
+      setNoPointerEvents(true)
+      setGrabbing(true)
+      minNoteStart.current = minNote
+      maxNoteStart.current = maxNote
+    },
+    onDrag: ({ movement: [mx, my] }) => {
+      const newMinNote = minNoteStart.current + Math.round(my / NOTE_HEIGHT)
+      const newMaxNote = maxNoteStart.current + Math.round(my / NOTE_HEIGHT)
+      if (minNoteStart.current && maxNoteStart.current && newMinNote >= 21 && maxNote <= 127) {
+        setMinNote(newMinNote)
+        setMaxNote(newMaxNote)
+      }
+    },
+    onDragEnd: () => {
+      setNoPointerEvents(false)
+      setGrabbing(false)
+    },
+  })
+
   const keyEls = useMemo(() => {
     const numNotes = maxNote - minNote + 1
     return [...Array(numNotes)].map((_d, i) => (
       <div
         key={uuid()}
         className={classNames('key', {
-          'black-key': isBlackKey(i),
-          'e-key': !isBlackKey(i) && nextKeyIsWhite(i),
+          'black-key': isBlackKey(maxNote - minNote - i + minNote),
+          'e-key': !isBlackKey(maxNote - minNote - i + minNote) && nextKeyIsWhite(maxNote - minNote - i + minNote),
         })}>
         {numNotes - 1 - i + minNote >= 24 && (numNotes - 1 - i + minNote) % 12 === 0 && (
           <p className="note-name">C{(numNotes - 1 - i + minNote - 24) / 12 + 1}</p>
@@ -218,7 +240,9 @@ export default function Lane({ id, color, laneNum, lanePreset, setLaneState, mai
 
   return (
     <div className="lane-container" style={{ '--lane-color': color, '--note-height': NOTE_HEIGHT + 'px' }}>
-      <div className="keys">{keyEls}</div>
+      <div className={classNames('keys', { grabbing })} {...dragLane()}>
+        {keyEls}
+      </div>
       <div className="lane" ref={lane} style={{ width: measures * MEASURE_WIDTH }}>
         {[...Array(maxNote - minNote + 1)].map((_d, i) => (
           <div
@@ -226,8 +250,8 @@ export default function Lane({ id, color, laneNum, lanePreset, setLaneState, mai
             {...createNote()}
             lane-num={i}
             className={classNames('note-lane', {
-              'black-key': isBlackKey(i),
-              'e-key': !isBlackKey(i) && nextKeyIsWhite(i),
+              'black-key': isBlackKey(maxNote - minNote - i + minNote),
+              'e-key': !isBlackKey(maxNote - minNote - i + minNote) && nextKeyIsWhite(maxNote - minNote - i + minNote),
             })}></div>
         ))}
         <div className="ticks">
@@ -237,7 +261,7 @@ export default function Lane({ id, color, laneNum, lanePreset, setLaneState, mai
         </div>
       </div>
       <div className="notes">{noteEls}</div>
-      <div className="lane-expander" {...dragLane()}></div>
+      <div className="lane-expander" {...dragLaneStart()}></div>
     </div>
   )
 }
