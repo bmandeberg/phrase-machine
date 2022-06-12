@@ -155,18 +155,21 @@ export default function Lane({ id, color, laneNum, lanePreset, setLaneState, mai
     },
   })
 
-  const keyEls = useMemo(
-    () =>
-      [...Array(maxNote - minNote + 1)].map((_d, i) => (
-        <div
-          key={uuid()}
-          className={classNames('key', {
-            'black-key': isBlackKey(i),
-            'e-key': !isBlackKey(i) && nextKeyIsWhite(i),
-          })}></div>
-      )),
-    [maxNote, minNote]
-  )
+  const keyEls = useMemo(() => {
+    const numNotes = maxNote - minNote + 1
+    return [...Array(numNotes)].map((_d, i) => (
+      <div
+        key={uuid()}
+        className={classNames('key', {
+          'black-key': isBlackKey(i),
+          'e-key': !isBlackKey(i) && nextKeyIsWhite(i),
+        })}>
+        {numNotes - 1 - i + minNote >= 24 && (numNotes - 1 - i + minNote) % 12 === 0 && (
+          <p className="note-name">C{(numNotes - 1 - i + minNote - 24) / 12 + 1}</p>
+        )}
+      </div>
+    ))
+  }, [maxNote, minNote])
 
   const noteEls = useMemo(() => {
     const minNoteWidth = 16

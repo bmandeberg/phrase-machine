@@ -18,6 +18,7 @@
       height: var(--note-height);
       box-sizing: border-box;
       background: #ffffff;
+      position: relative;
 
       &.e-key {
         border-bottom: 1px solid $lightBlue;
@@ -25,6 +26,14 @@
 
       &.black-key {
         background: #000000;
+      }
+
+      .note-name {
+        position: absolute;
+        font-size: 14px;
+        font-weight: bold;
+        color: $darkGray;
+        left: -24px;
       }
     }
   }
