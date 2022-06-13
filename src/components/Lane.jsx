@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useRef, useEffect } from 'react'
+import React, { useState, useMemo, useRef, useEffect, useCallback } from 'react'
 import { v4 as uuid } from 'uuid'
 import PropTypes from 'prop-types'
 import classNames from 'classnames'
@@ -22,6 +22,7 @@ export default function Lane({ id, color, laneNum, lanePreset, setLaneState, mai
   const selectedNotesRef = useRef()
   const [noPointerEvents, setNoPointerEvents] = useState(false)
   const [grabbing, setGrabbing] = useState(false)
+  const shiftPressed = useRef(false)
 
   useEffect(() => {
     selectedNotesRef.current = selectedNotes
@@ -41,15 +42,26 @@ export default function Lane({ id, color, laneNum, lanePreset, setLaneState, mai
       if (e.key === 'Backspace' && selectedNotesRef.current?.length) {
         setNotes((notes) => notes.filter((note) => !selectedNotesRef.current.includes(note.id)))
         setSelectedNotes([])
+      } else if (e.key === 'Shift') {
+        shiftPressed.current = true
+      }
+    }
+    function keyup(e) {
+      if (e.key === 'Shift') {
+        shiftPressed.current = false
       }
     }
     window.addEventListener('click', deselect)
     window.addEventListener('keydown', keydown)
+    window.addEventListener('keyup', keyup)
     return () => {
       window.removeEventListener('click', deselect)
       window.removeEventListener('keydown', keydown)
+      window.removeEventListener('keyup', keyup)
     }
   }, [])
+
+  // note creation
 
   const createNote = useGesture({
     onDragStart: () => {
@@ -94,6 +106,8 @@ export default function Lane({ id, color, laneNum, lanePreset, setLaneState, mai
       }
     },
   })
+
+  // note dragging
 
   const dragStart = useRef()
   const noteStart = useRef()
@@ -182,6 +196,8 @@ export default function Lane({ id, color, laneNum, lanePreset, setLaneState, mai
     },
   })
 
+  // lane dragging
+
   const minNoteStart = useRef()
   const dragLaneStart = useGesture({
     onDragStart: ({ event }) => {
@@ -222,6 +238,8 @@ export default function Lane({ id, color, laneNum, lanePreset, setLaneState, mai
     },
   })
 
+  // elements and handlers
+
   const keyEls = useMemo(() => {
     const numNotes = maxNote - minNote + 1
     return [...Array(numNotes)].map((_d, i) => (
@@ -238,6 +256,18 @@ export default function Lane({ id, color, laneNum, lanePreset, setLaneState, mai
     ))
   }, [maxNote, minNote])
 
+  const selectNote = useCallback((id) => {
+    if (shiftPressed.current) {
+      setSelectedNotes((selectedNotes) => {
+        const selectedNotesCopy = selectedNotes.slice()
+        selectedNotesCopy.push(id)
+        return selectedNotesCopy
+      })
+    } else {
+      setSelectedNotes([id])
+    }
+  }, [])
+
   const noteEls = useMemo(() => {
     const minNoteWidth = 16
     return notes
@@ -253,7 +283,7 @@ export default function Lane({ id, color, laneNum, lanePreset, setLaneState, mai
             grabbing,
           })}
           style={{ left: note.x, bottom: (note.midiNote - minNote) * NOTE_HEIGHT + 1, width: note.width }}
-          onMouseDown={() => setSelectedNotes([note.id])}>
+          onMouseDown={() => selectNote(note.id)}>
           <div
             className={classNames('note-drag-left', { outside: note.width < minNoteWidth })}
             {...dragNoteLeft()}></div>
@@ -262,7 +292,18 @@ export default function Lane({ id, color, laneNum, lanePreset, setLaneState, mai
             {...dragNoteRight()}></div>
         </div>
       ))
-  }, [notes, minNote, maxNote, dragNote, selectedNotes, noPointerEvents, grabbing, dragNoteLeft, dragNoteRight])
+  }, [
+    notes,
+    minNote,
+    maxNote,
+    dragNote,
+    selectedNotes,
+    noPointerEvents,
+    grabbing,
+    dragNoteLeft,
+    dragNoteRight,
+    selectNote,
+  ])
 
   return (
     <div className="lane-container" style={{ '--lane-color': color, '--note-height': NOTE_HEIGHT + 'px' }}>
