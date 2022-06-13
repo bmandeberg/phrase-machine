@@ -18,7 +18,7 @@ export default function Lane({ id, color, laneNum, lanePreset, setLaneState, mai
   const [maxNote, setMaxNote] = useState(lanePreset.viewRange.max)
   const tempNote = useRef(null)
   const lane = useRef()
-  const [selectedNotes, setSelectedNotes] = useState([])
+  const [selectedNotes, setSelectedNotes] = useState([]) // list of note IDs
   const selectedNotesRef = useRef()
   const [noPointerEvents, setNoPointerEvents] = useState(false)
   const [grabbing, setGrabbing] = useState(false)
@@ -37,9 +37,17 @@ export default function Lane({ id, color, laneNum, lanePreset, setLaneState, mai
         setSelectedNotes([])
       }
     }
+    function keydown(e) {
+      if (e.key === 'Backspace' && selectedNotesRef.current?.length) {
+        setNotes((notes) => notes.filter((note) => !selectedNotesRef.current.includes(note.id)))
+        setSelectedNotes([])
+      }
+    }
     window.addEventListener('click', deselect)
+    window.addEventListener('keydown', keydown)
     return () => {
       window.removeEventListener('click', deselect)
+      window.removeEventListener('keydown', keydown)
     }
   }, [])
 
