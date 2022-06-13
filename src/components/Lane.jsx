@@ -21,12 +21,17 @@ export default function Lane({ id, color, laneNum, lanePreset, setLaneState, mai
   const [selectedNotes, setSelectedNotes] = useState([]) // list of note IDs
   const selectedNotesRef = useRef(selectedNotes)
   const [noPointerEvents, setNoPointerEvents] = useState(false)
+  const noPointerEventsRef = useRef(noPointerEvents)
   const [grabbing, setGrabbing] = useState(false)
   const shiftPressed = useRef(false)
 
   useEffect(() => {
     selectedNotesRef.current = selectedNotes
   }, [selectedNotes])
+
+  useEffect(() => {
+    noPointerEventsRef.current = noPointerEvents
+  }, [noPointerEvents])
 
   useEffect(() => {
     function deselect(e) {
@@ -39,7 +44,7 @@ export default function Lane({ id, color, laneNum, lanePreset, setLaneState, mai
       }
     }
     function keydown(e) {
-      if (e.key === 'Backspace' && selectedNotesRef.current?.length) {
+      if (e.key === 'Backspace' && selectedNotesRef.current?.length && !noPointerEventsRef.current) {
         setNotes((notes) => notes.filter((note) => !selectedNotesRef.current.includes(note.id)))
         setSelectedNotes([])
       } else if (e.key === 'Shift') {
