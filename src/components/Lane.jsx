@@ -99,7 +99,7 @@ export default function Lane({ id, color, laneNum, lanePreset, setLaneState, mai
     },
     onDrag: ({ movement: [mx, my], event, shiftKey }) => {
       let newX, newNote
-      if (dragStart.current && Math.abs(mx) > 2 && !shiftKey) {
+      if (dragStart.current !== undefined && Math.abs(mx) > 2 && !shiftKey) {
         newX = Math.max(dragStart.current + mx, 0)
       }
       if (noteStart.current) {
