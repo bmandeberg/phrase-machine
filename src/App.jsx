@@ -1,6 +1,7 @@
 import React, { useState, useCallback, useMemo, useRef } from 'react'
 import { DEFAULT_PRESET, MEASURE_WIDTH, LANE_COLORS } from './globals'
 import Lane from './components/Lane'
+import Header from './components/Header'
 
 // load/set presets
 if (!window.localStorage.getItem('phrasePresets')) {
@@ -44,6 +45,7 @@ export default function App() {
 
   return (
     <div id="main-container" ref={mainContainer} style={{ '--measure-width': MEASURE_WIDTH + 'px' }}>
+      <Header />
       {lanes}
       {!uiState.lanes.length && <div className="empty-lane"></div>}
     </div>

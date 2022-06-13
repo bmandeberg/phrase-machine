@@ -1,0 +1,11 @@
+@import '../sass-globals.scss';
+
+#header {
+  margin-bottom: $padding;
+  height: 40px;
+  display: flex;
+
+  #logo {
+    height: 100%;
+  }
+}
