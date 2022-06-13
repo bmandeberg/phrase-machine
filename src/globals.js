@@ -4,6 +4,9 @@ export const LANE_COLORS = ['#008dff', '#ff413e', '#33ff00', '#ff00ff', '#ff9700
 export const MEASURE_WIDTH = 200
 export const NOTE_HEIGHT = 12
 
+export const MIN_MIDI_NOTE = 21
+export const MAX_MIDI_NOTE = 127
+
 export const DEFAULT_LANE = {
   id: uuid(),
   measures: 8,

@@ -3,7 +3,8 @@ import { v4 as uuid } from 'uuid'
 import PropTypes from 'prop-types'
 import classNames from 'classnames'
 import { useGesture } from 'react-use-gesture'
-import { NOTE_HEIGHT, MEASURE_WIDTH } from '../globals'
+import { NOTE_HEIGHT, MEASURE_WIDTH, MIN_MIDI_NOTE, MAX_MIDI_NOTE } from '../globals'
+import { constrain } from '../util'
 import './Lane.scss'
 
 const MIN_NOTE_WIDTH = 5
@@ -87,17 +88,33 @@ export default function Lane({ id, color, laneNum, lanePreset, setLaneState, mai
   })
 
   const dragStart = useRef()
+  const noteStart = useRef()
   const dragNote = useGesture({
     onDragStart: ({ event }) => {
       setNoPointerEvents(true)
       setGrabbing(true)
-      dragStart.current = notes.find((note) => note.id === event.target?.id).x
+      const note = notes.find((note) => note.id === event.target?.id)
+      dragStart.current = note.x
+      noteStart.current = note.midiNote
     },
-    onDrag: ({ movement: [mx], event }) => {
-      if (dragStart.current) {
+    onDrag: ({ movement: [mx, my], event, shiftKey }) => {
+      let newX, newNote
+      if (dragStart.current && Math.abs(mx) > 2 && !shiftKey) {
+        newX = Math.max(dragStart.current + mx, 0)
+      }
+      if (noteStart.current) {
+        newNote = constrain(noteStart.current - Math.round(my / NOTE_HEIGHT), MIN_MIDI_NOTE, MAX_MIDI_NOTE)
+      }
+      if (newX !== undefined || newNote) {
         setNotes((notes) => {
           const notesCopy = notes.slice()
-          notesCopy.find((note) => note.id === event.target?.id).x = dragStart.current + mx
+          const note = notesCopy.find((note) => note.id === event.target?.id)
+          if (newX !== undefined) {
+            note.x = newX
+          }
+          if (newNote) {
+            note.midiNote = newNote
+          }
           return notesCopy
         })
       }
@@ -186,7 +203,7 @@ export default function Lane({ id, color, laneNum, lanePreset, setLaneState, mai
     onDrag: ({ movement: [mx, my] }) => {
       const newMinNote = minNoteStart.current + Math.round(my / NOTE_HEIGHT)
       const newMaxNote = maxNoteStart.current + Math.round(my / NOTE_HEIGHT)
-      if (minNoteStart.current && maxNoteStart.current && newMinNote >= 21 && maxNote <= 127) {
+      if (minNoteStart.current && maxNoteStart.current && newMinNote >= MIN_MIDI_NOTE && maxNote <= MAX_MIDI_NOTE) {
         setMinNote(newMinNote)
         setMaxNote(newMaxNote)
       }
