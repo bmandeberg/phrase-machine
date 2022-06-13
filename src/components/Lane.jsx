@@ -19,7 +19,7 @@ export default function Lane({ id, color, laneNum, lanePreset, setLaneState, mai
   const tempNote = useRef(null)
   const lane = useRef()
   const [selectedNotes, setSelectedNotes] = useState([]) // list of note IDs
-  const selectedNotesRef = useRef()
+  const selectedNotesRef = useRef(selectedNotes)
   const [noPointerEvents, setNoPointerEvents] = useState(false)
   const [grabbing, setGrabbing] = useState(false)
   const shiftPressed = useRef(false)
@@ -110,13 +110,16 @@ export default function Lane({ id, color, laneNum, lanePreset, setLaneState, mai
   // note dragging
 
   const addSelectedNotes = useCallback((id) => {
-    setSelectedNotes((selectedNotes) => {
+    if (!selectedNotesRef.current.includes(id)) {
       if (shiftPressed.current) {
-        const selectedNotesCopy = selectedNotes.slice()
-        selectedNotesCopy.push(id)
-        return selectedNotesCopy
-      } else return [id]
-    })
+        selectedNotesRef.current.push(id)
+      } else {
+        selectedNotesRef.current = [id]
+      }
+    } else {
+      selectedNotesRef.current.push(selectedNotesRef.current.splice(selectedNotesRef.current.indexOf(id), 1)[0])
+    }
+    setSelectedNotes(selectedNotesRef.current.slice())
   }, [])
 
   const dragStart = useRef()
@@ -126,34 +129,35 @@ export default function Lane({ id, color, laneNum, lanePreset, setLaneState, mai
       setNoPointerEvents(true)
       setGrabbing(true)
       const id = event.target?.id
-      if (!selectedNotes.includes(id)) {
-        addSelectedNotes(id)
-      }
-      const note = notes.find((note) => note.id === id)
-      dragStart.current = note.x
-      noteStart.current = note.midiNote
+      addSelectedNotes(id)
+      dragStart.current = selectedNotesRef.current.map((id) => notes.find((note) => note.id === id).x)
+      noteStart.current = selectedNotesRef.current.map((id) => notes.find((note) => note.id === id).midiNote)
     },
-    onDrag: ({ movement: [mx, my], event, shiftKey }) => {
-      let newX, newNote
-      if (dragStart.current !== undefined && Math.abs(mx) > 2 && !shiftKey) {
-        newX = Math.max(dragStart.current + mx, 0)
-      }
-      if (noteStart.current) {
-        newNote = constrain(noteStart.current - Math.round(my / NOTE_HEIGHT), MIN_MIDI_NOTE, MAX_MIDI_NOTE)
-      }
-      if (newX !== undefined || newNote) {
+    onDrag: ({ movement: [mx, my], cancel, shiftKey }) => {
+      selectedNotesRef.current.forEach((id, i) => {
+        let newX = dragStart.current[i]
+        let newNote = noteStart.current[i]
+        let shiftDirectionX
+        if (shiftKey) {
+          shiftDirectionX = Math.abs(mx) > Math.abs(my)
+        }
+        if (dragStart.current[i] !== undefined && Math.abs(mx) > 2 && (!shiftKey || shiftDirectionX)) {
+          newX = Math.max(dragStart.current[i] + mx, 0)
+        }
+        if (noteStart.current[i] && (!shiftKey || shiftDirectionX === false)) {
+          newNote = constrain(noteStart.current[i] - Math.round(my / NOTE_HEIGHT), MIN_MIDI_NOTE, MAX_MIDI_NOTE)
+        }
         setNotes((notes) => {
           const notesCopy = notes.slice()
-          const note = notesCopy.find((note) => note.id === event.target?.id)
-          if (newX !== undefined) {
-            note.x = newX
-          }
-          if (newNote) {
-            note.midiNote = newNote
-          }
+          const note = notesCopy.find((note) => note.id === id)
+          note.x = newX
+          note.midiNote = newNote
           return notesCopy
         })
-      }
+        if (i === selectedNotesRef.current.length - 1 && (newNote < minNote || newNote > maxNote)) {
+          cancel()
+        }
+      })
     },
     onDragEnd: () => {
       setNoPointerEvents(false)
