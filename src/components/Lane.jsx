@@ -109,13 +109,27 @@ export default function Lane({ id, color, laneNum, lanePreset, setLaneState, mai
 
   // note dragging
 
+  const addSelectedNotes = useCallback((id) => {
+    setSelectedNotes((selectedNotes) => {
+      if (shiftPressed.current) {
+        const selectedNotesCopy = selectedNotes.slice()
+        selectedNotesCopy.push(id)
+        return selectedNotesCopy
+      } else return [id]
+    })
+  }, [])
+
   const dragStart = useRef()
   const noteStart = useRef()
   const dragNote = useGesture({
     onDragStart: ({ event }) => {
       setNoPointerEvents(true)
       setGrabbing(true)
-      const note = notes.find((note) => note.id === event.target?.id)
+      const id = event.target?.id
+      if (!selectedNotes.includes(id)) {
+        addSelectedNotes(id)
+      }
+      const note = notes.find((note) => note.id === id)
       dragStart.current = note.x
       noteStart.current = note.midiNote
     },
@@ -153,7 +167,11 @@ export default function Lane({ id, color, laneNum, lanePreset, setLaneState, mai
       event.stopPropagation()
       setNoPointerEvents(true)
       setGrabbing(true)
-      widthStart.current = notes.find((note) => note.id === event.target?.parentElement?.id).width
+      const id = event.target?.parentElement?.id
+      if (!selectedNotes.includes(id)) {
+        addSelectedNotes(id)
+      }
+      widthStart.current = notes.find((note) => note.id === id).width
     },
     onDrag: ({ movement: [mx], event }) => {
       if (widthStart.current && widthStart.current + mx >= MIN_NOTE_WIDTH) {
@@ -175,7 +193,11 @@ export default function Lane({ id, color, laneNum, lanePreset, setLaneState, mai
       event.stopPropagation()
       setNoPointerEvents(true)
       setGrabbing(true)
-      const note = notes.find((note) => note.id === event.target?.parentElement?.id)
+      const id = event.target?.parentElement?.id
+      if (!selectedNotes.includes(id)) {
+        addSelectedNotes(id)
+      }
+      const note = notes.find((note) => note.id === id)
       widthStart.current = note.width
       dragStart.current = note.x
     },
@@ -256,18 +278,6 @@ export default function Lane({ id, color, laneNum, lanePreset, setLaneState, mai
     ))
   }, [maxNote, minNote])
 
-  const selectNote = useCallback((id) => {
-    if (shiftPressed.current) {
-      setSelectedNotes((selectedNotes) => {
-        const selectedNotesCopy = selectedNotes.slice()
-        selectedNotesCopy.push(id)
-        return selectedNotesCopy
-      })
-    } else {
-      setSelectedNotes([id])
-    }
-  }, [])
-
   const noteEls = useMemo(() => {
     const minNoteWidth = 16
     return notes
@@ -282,8 +292,7 @@ export default function Lane({ id, color, laneNum, lanePreset, setLaneState, mai
             'no-pointer': noPointerEvents,
             grabbing,
           })}
-          style={{ left: note.x, bottom: (note.midiNote - minNote) * NOTE_HEIGHT + 1, width: note.width }}
-          onMouseDown={() => selectNote(note.id)}>
+          style={{ left: note.x, bottom: (note.midiNote - minNote) * NOTE_HEIGHT + 1, width: note.width }}>
           <div
             className={classNames('note-drag-left', { outside: note.width < minNoteWidth })}
             {...dragNoteLeft()}></div>
@@ -292,18 +301,7 @@ export default function Lane({ id, color, laneNum, lanePreset, setLaneState, mai
             {...dragNoteRight()}></div>
         </div>
       ))
-  }, [
-    notes,
-    minNote,
-    maxNote,
-    dragNote,
-    selectedNotes,
-    noPointerEvents,
-    grabbing,
-    dragNoteLeft,
-    dragNoteRight,
-    selectNote,
-  ])
+  }, [notes, minNote, maxNote, dragNote, selectedNotes, noPointerEvents, grabbing, dragNoteLeft, dragNoteRight])
 
   return (
     <div className="lane-container" style={{ '--lane-color': color, '--note-height': NOTE_HEIGHT + 'px' }}>
