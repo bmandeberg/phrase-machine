@@ -195,24 +195,22 @@ export default function Lane({ id, color, laneNum, lanePreset, setLaneState, mai
       event.stopPropagation()
       setNoPointerEvents(true)
       setGrabbing(true)
-      const id = event.target?.parentElement?.id
-      if (!selectedNotes.includes(id)) {
-        addSelectedNotes(id)
-      }
-      const note = notes.find((note) => note.id === id)
-      widthStart.current = note.width
-      dragStart.current = note.x
+      addSelectedNotes(event.target?.parentElement?.id)
+      widthStart.current = selectedNotesRef.current.map((id) => notes.find((note) => note.id === id).width)
+      dragStart.current = selectedNotesRef.current.map((id) => notes.find((note) => note.id === id).x)
     },
-    onDrag: ({ movement: [mx], event }) => {
-      if (widthStart.current && widthStart.current - mx >= MIN_NOTE_WIDTH) {
-        setNotes((notes) => {
-          const notesCopy = notes.slice()
-          const note = notesCopy.find((note) => note.id === event.target?.parentElement?.id)
-          note.width = widthStart.current - mx
-          note.x = dragStart.current + mx
-          return notesCopy
-        })
-      }
+    onDrag: ({ movement: [mx] }) => {
+      selectedNotesRef.current.forEach((id, i) => {
+        if (widthStart.current[i] && widthStart.current[i] - mx >= MIN_NOTE_WIDTH) {
+          setNotes((notes) => {
+            const notesCopy = notes.slice()
+            const note = notesCopy.find((note) => note.id === id)
+            note.width = widthStart.current[i] - mx
+            note.x = dragStart.current[i] + mx
+            return notesCopy
+          })
+        }
+      })
     },
     onDragEnd: () => {
       setNoPointerEvents(false)
