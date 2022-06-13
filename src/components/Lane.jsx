@@ -70,6 +70,7 @@ export default function Lane({ id, color, laneNum, lanePreset, setLaneState, mai
           setNoPointerEvents(true)
         }
       } else if (tempNote.current) {
+        // update note
         setNotes((notes) => {
           const notesCopy = notes.slice()
           notesCopy.find((note) => note.id === tempNote.current).width = Math.max(mx, 3)
