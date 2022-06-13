@@ -365,5 +365,5 @@ function isBlackKey(i) {
 }
 
 function nextKeyIsWhite(i) {
-  return !blackKeys[(i % 12) + 1]
+  return blackKeys[(i % 12) + 1]
 }
