@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useMemo } from 'react'
+import React, { useState, useCallback, useMemo, useEffect } from 'react'
 import PropTypes from 'prop-types'
 import logo from '../assets/logo.png'
 import './Header.scss'
@@ -13,6 +13,22 @@ export default function Header({ playing, setPlaying, tempo, setTempo }) {
   const playStop = useCallback(() => {
     setPlaying((playing) => !playing)
   }, [setPlaying])
+
+  useEffect(() => {
+    function keydown(e) {
+      if (
+        e.key === ' ' &&
+        document.activeElement?.nodeName !== 'TEXTAREA' &&
+        document.activeElement?.nodeName !== 'INPUT'
+      ) {
+        playStop()
+      }
+    }
+    window.addEventListener('keydown', keydown)
+    return () => {
+      window.removeEventListener('keydown', keydown)
+    }
+  }, [playStop])
 
   const playGraphic = useMemo(
     () => (
