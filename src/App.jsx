@@ -11,7 +11,7 @@ if (!window.localStorage.getItem('phrasePresets')) {
 
 export default function App() {
   const [uiState, setUIState] = useState(JSON.parse(window.localStorage.getItem('phrasePresets')))
-  const [snap, setSnap] = useState(null)
+  const [snap, setSnap] = useState(uiState.snap)
   const mainContainer = useRef()
 
   //transport
@@ -55,7 +55,14 @@ export default function App() {
 
   return (
     <div id="main-container" ref={mainContainer} style={{ '--measure-width': MEASURE_WIDTH + 'px' }}>
-      <Header playing={playing} setPlaying={setPlaying} tempo={tempo} setTempo={setTempo} />
+      <Header
+        playing={playing}
+        setPlaying={setPlaying}
+        tempo={tempo}
+        setTempo={setTempo}
+        snap={snap}
+        setSnap={setSnap}
+      />
       {lanes}
       {!uiState.lanes.length && <div className="empty-lane"></div>}
     </div>

@@ -19,5 +19,30 @@ export const DEFAULT_LANE = {
 export const DEFAULT_PRESET = JSON.stringify({
   id: uuid(),
   tempo: 120,
+  snap: '4n',
   lanes: [DEFAULT_LANE],
 })
+
+export const RATES = [
+  '1m',
+  '1n',
+  '1n.',
+  '2n',
+  '2n.',
+  '2t',
+  '4n',
+  '4n.',
+  '4t',
+  '8n',
+  '8n.',
+  '8t',
+  '16n',
+  '16n.',
+  '16t',
+  '32n',
+  '32n.',
+  '32t',
+  '64n',
+  '64n.',
+  '64t',
+]
