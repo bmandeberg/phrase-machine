@@ -1,13 +1,18 @@
 @import '../sass-globals.scss';
 
 #header {
-  margin-bottom: $padding;
-  height: 40px;
+  height: 72px;
   display: flex;
+  align-items: center;
 
   #logo {
     height: 50px;
-    margin-top: -5px;
-    margin-left: -5px;
+    margin-left: -9px;
+  }
+
+  #play-pause {
+    height: 40px;
+    cursor: pointer;
+    margin-left: 6px;
   }
 }

@@ -18,5 +18,6 @@ export const DEFAULT_LANE = {
 
 export const DEFAULT_PRESET = JSON.stringify({
   id: uuid(),
+  tempo: 120,
   lanes: [DEFAULT_LANE],
 })
