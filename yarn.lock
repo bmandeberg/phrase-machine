@@ -4042,6 +4042,11 @@ react-is@^16.13.1:
   resolved "https://registry.yarnpkg.com/react-is/-/react-is-16.13.1.tgz#789729a4dc36de2999dc156dd6c1d9c18cea56a4"
   integrity sha512-24e6ynE2H+OKt4kqsOvNd8kBpV65zoxbA4BVsEOB3ARVWQki/DHzaUoC5KuON/BiccDaCCTZBuOcfZs70kR8bQ==
 
+react-numeric-input@^2.2.3:
+  version "2.2.3"
+  resolved "https://registry.yarnpkg.com/react-numeric-input/-/react-numeric-input-2.2.3.tgz#4bf5918c3eafed851a80df1eb992d941002bb552"
+  integrity sha512-0hDXY8eznhTNMYfmeXRo/R1Fyx//ub0C/tpXbIeEaTnG72P95MGGMvJbiX5i+mnmiFVT6OCgIR33mke45nNZzQ==
+
 react-router-dom@^6.3.0:
   version "6.3.0"
   resolved "https://registry.yarnpkg.com/react-router-dom/-/react-router-dom-6.3.0.tgz#a0216da813454e521905b5fa55e0e5176123f43d"

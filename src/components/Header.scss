@@ -1,5 +1,6 @@
 @import '../sass-globals.scss';
 
+$headerHeight: 40px;
 #header {
   height: 72px;
   display: flex;
@@ -11,8 +12,13 @@
   }
 
   #play-pause {
-    height: 40px;
+    height: $headerHeight;
     cursor: pointer;
     margin-left: 6px;
+  }
+
+  .header-item {
+    height: $headerHeight;
+    margin-left: $padding;
   }
 }

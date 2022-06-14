@@ -1,0 +1,172 @@
+@import '../../sass-globals.scss';
+
+.react-numeric-input {
+  input {
+    box-sizing: border-box;
+    display: block;
+    font-family: 'DIN Condensed', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu',
+      'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+    color: $blue;
+    background-color: $lightestBlue;
+    height: 28px;
+    width: 55px;
+    border: 1px solid $mediumGray;
+    padding-left: 6px;
+    padding-top: 5px;
+    font-size: 19px;
+    &:focus {
+      outline: none;
+    }
+  }
+  b {
+    position: absolute;
+    right: 0;
+    width: 28px;
+    border-color: $mediumGray;
+    border-style: solid;
+    text-align: center;
+    cursor: pointer;
+    background-color: $lightGray;
+    box-sizing: border-box;
+    i {
+      position: absolute;
+      top: 4px;
+      left: 9px;
+      width: 0px;
+      height: 0px;
+      margin-left: -3px;
+      pointer-events: none;
+    }
+    &:hover {
+      background: $lightGrayHover;
+    }
+    &:active {
+      background-color: $mediumGray;
+    }
+  }
+  b:first-of-type {
+    top: 0;
+    height: 15px;
+    border-width: 1px 1px 1px;
+    i {
+      border-width: 0px 7px 5px;
+      border-color: transparent transparent $darkGray;
+      border-style: solid;
+    }
+  }
+  b:last-of-type {
+    top: 15px;
+    height: 13px;
+    border-width: 0px 1px 1px;
+    i {
+      border-width: 5px 7px 0px;
+      border-color: $darkGray transparent transparent;
+      border-style: solid;
+    }
+  }
+}
+
+.num-input {
+  display: inline-block;
+  vertical-align: top;
+  position: relative;
+  margin-top: 16px;
+  &.shift-input {
+    width: 61px;
+  }
+  .num-input-label {
+    margin-top: 17px;
+    font-size: 24px;
+    height: 24px;
+    text-transform: uppercase;
+    color: $pink;
+  }
+  .button {
+    margin-top: 8px;
+  }
+  &.short {
+    margin-top: 20px;
+    .num-input-label {
+      margin-top: 13px;
+    }
+  }
+  &.disabled {
+    .react-numeric-input,
+    .num-input-label {
+      pointer-events: none;
+    }
+    cursor: url('../../assets/not-allowed.png') 10 10, not-allowed !important;
+  }
+}
+
+.num-input.small-input {
+  margin-top: 0;
+  input {
+    height: 24px;
+    width: 52px;
+    border: 2px solid $mediumBlue;
+    padding-left: 4px;
+    padding-top: 5px;
+    font-size: 15px;
+    border-radius: 8px;
+  }
+  b {
+    width: 20px;
+    border: none;
+    background: transparent;
+    i {
+      top: 5px;
+      left: 6px;
+      padding: 3px;
+      border-width: 0px 2.5px 2.5px 0;
+      border-color: $mediumBlue;
+    }
+    &:hover {
+      i {
+        border-color: $blue;
+      }
+    }
+    &:active {
+      i {
+        border-color: $blueHover;
+      }
+    }
+  }
+  b:first-of-type {
+    height: 13px;
+    i {
+      transform: scaleY(0.7) rotate(-135deg);
+    }
+  }
+  b:last-of-type {
+    top: 12px;
+    height: 12px;
+    i {
+      transform: scaleY(0.7) rotate(45deg);
+      top: -2px;
+    }
+  }
+  .num-input-label {
+    margin-top: 0;
+    font-size: 15px;
+    height: 14px;
+    position: absolute;
+    bottom: -1px;
+  }
+}
+
+.num-input.inline-input {
+  margin-top: 14px;
+  .react-numeric-input {
+    position: relative;
+    display: inline-block;
+    vertical-align: middle;
+  }
+  .num-input-label {
+    display: inline-block;
+    vertical-align: middle;
+    margin-top: 0;
+    line-height: 32px;
+    margin-left: 8px;
+  }
+}
