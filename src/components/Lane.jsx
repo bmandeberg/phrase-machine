@@ -70,11 +70,13 @@ export default function Lane({ id, color, laneNum, lanePreset, setLaneState, mai
 
   const createNote = useGesture({
     onDragStart: () => {
-      tempNote.current = null
+      if (tempNote.current) {
+        tempNote.current = null
+      }
     },
-    onDrag: ({ movement: [mx], initial: [ix], event }) => {
+    onDrag: ({ movement: [mx], initial: [ix], event, metaKey }) => {
       // create note
-      if (Math.abs(mx) >= 3 && !tempNote.current) {
+      if (metaKey && Math.abs(mx) >= 3 && !tempNote.current) {
         const laneNum = maxNote - minNote - +event.target?.getAttribute('lane-num')
         const left = lane.current?.getBoundingClientRect().left
         if (left) {
