@@ -33,6 +33,20 @@ export default function Lane({ id, color, laneNum, lanePreset, setLaneState, mai
     noPointerEventsRef.current = noPointerEvents
   }, [noPointerEvents])
 
+  const updateLaneStateRef = useRef(() => {})
+  const updateLaneState = useCallback(() => {
+    setLaneState({
+      id,
+      measures,
+      delimiters,
+      notes,
+      viewRange: { min: minNote, max: maxNote },
+    })
+  }, [delimiters, id, maxNote, measures, minNote, notes, setLaneState])
+  useEffect(() => {
+    updateLaneStateRef.current = updateLaneState
+  }, [updateLaneState])
+
   useEffect(() => {
     function deselect(e) {
       if (
@@ -47,6 +61,7 @@ export default function Lane({ id, color, laneNum, lanePreset, setLaneState, mai
       if (e.key === 'Backspace' && selectedNotesRef.current?.length && !noPointerEventsRef.current) {
         setNotes((notes) => notes.filter((note) => !selectedNotesRef.current.includes(note.id)))
         setSelectedNotes([])
+        updateLaneStateRef.current()
       } else if (e.key === 'Shift') {
         shiftPressed.current = true
       }
@@ -108,8 +123,8 @@ export default function Lane({ id, color, laneNum, lanePreset, setLaneState, mai
     },
     onDragEnd: () => {
       if (tempNote.current) {
-        // save state
         setNoPointerEvents(false)
+        updateLaneState()
       }
     },
   })
@@ -174,6 +189,7 @@ export default function Lane({ id, color, laneNum, lanePreset, setLaneState, mai
         setSelectedNotes([event.target?.id])
       }
       dragChanged.current = false
+      updateLaneState()
     },
   })
 
@@ -205,6 +221,7 @@ export default function Lane({ id, color, laneNum, lanePreset, setLaneState, mai
         setSelectedNotes([event.target?.parentElement?.id])
       }
       dragChanged.current = false
+      updateLaneState()
     },
   })
 
@@ -238,6 +255,7 @@ export default function Lane({ id, color, laneNum, lanePreset, setLaneState, mai
         setSelectedNotes([event.target?.parentElement?.id])
       }
       dragChanged.current = false
+      updateLaneState()
     },
   })
 
@@ -258,6 +276,7 @@ export default function Lane({ id, color, laneNum, lanePreset, setLaneState, mai
     },
     onDragEnd: () => {
       setNoPointerEvents(false)
+      updateLaneState()
     },
   })
 
@@ -280,6 +299,7 @@ export default function Lane({ id, color, laneNum, lanePreset, setLaneState, mai
     onDragEnd: () => {
       setNoPointerEvents(false)
       setGrabbing(false)
+      updateLaneState()
     },
   })
 
@@ -356,6 +376,7 @@ export default function Lane({ id, color, laneNum, lanePreset, setLaneState, mai
   )
 }
 Lane.propTypes = {
+  id: PropTypes.string,
   color: PropTypes.string,
   laneNum: PropTypes.number,
   lanePreset: PropTypes.object,

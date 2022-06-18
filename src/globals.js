@@ -13,7 +13,6 @@ export const DEFAULT_LANE = {
   delimiters: [],
   notes: [],
   viewRange: { min: 60, max: 71 },
-  probability: 1,
 }
 
 export const DEFAULT_PRESET = JSON.stringify({

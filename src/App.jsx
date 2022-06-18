@@ -23,19 +23,17 @@ export default function App() {
     }
   }, [tempo])
 
-  const setLaneState = useCallback(
-    (id, state) => {
-      setUIState((uiState) => {
-        const uiStateCopy = deepStateCopy(uiState)
-        const laneIndex = uiStateCopy.lanes.findIndex((l) => l.id === id)
-        if (laneIndex !== -1) {
-          uiStateCopy.lanes[laneIndex] = state
-        }
-        return uiStateCopy
-      })
-    },
-    [setUIState]
-  )
+  const setLaneState = useCallback((state) => {
+    setUIState((uiState) => {
+      const uiStateCopy = deepStateCopy(uiState)
+      const laneIndex = uiStateCopy.lanes.findIndex((l) => l.id === state.id)
+      if (laneIndex !== -1) {
+        uiStateCopy.lanes[laneIndex] = state
+      }
+      window.localStorage.setItem('phrasePresets', JSON.stringify(uiStateCopy))
+      return uiStateCopy
+    })
+  }, [])
 
   const lanes = useMemo(
     () =>
@@ -71,7 +69,8 @@ export default function App() {
 
 function laneCopy(lane) {
   return Object.assign({}, lane, {
-    measures: lane.measures.map((m) => Object.assign({}, m)),
+    delimiters: lane.delimiters.map((d) => Object.assign({}, d)),
+    notes: lane.notes.map((n) => Object.assign({}, n)),
     viewRange: Object.assign({}, lane.viewRange),
   })
 }
