@@ -4,7 +4,7 @@ import { v4 as uuid } from 'uuid'
 import classNames from 'classnames'
 import { useGesture } from 'react-use-gesture'
 import { NOTE_HEIGHT, MEASURE_WIDTH, MIN_MIDI_NOTE, MAX_MIDI_NOTE } from '../globals'
-import { constrain } from '../util'
+import { constrain, noteString } from '../util'
 import './Lane.scss'
 
 const MIN_NOTE_WIDTH = 5
@@ -287,6 +287,7 @@ export default function Lane({ id, color, laneNum, lanePreset, setLaneState, mai
 
   const keyEls = useMemo(() => {
     const numNotes = maxNote - minNote + 1
+    const noC = maxNote - minNote < 12 && maxNote % 12 > minNote % 12 && minNote % 12 !== 0
     return [...Array(numNotes)].map((_d, i) => (
       <div
         key={uuid()}
@@ -294,9 +295,10 @@ export default function Lane({ id, color, laneNum, lanePreset, setLaneState, mai
           'black-key': isBlackKey(maxNote - minNote - i + minNote),
           'e-key': !isBlackKey(maxNote - minNote - i + minNote) && nextKeyIsWhite(maxNote - minNote - i + minNote),
         })}>
-        {numNotes - 1 - i + minNote >= 24 && (numNotes - 1 - i + minNote) % 12 === 0 && (
+        {!noC && numNotes - 1 - i + minNote >= 24 && (numNotes - 1 - i + minNote) % 12 === 0 && (
           <p className="note-name">C{(numNotes - 1 - i + minNote - 24) / 12 + 1}</p>
         )}
+        {noC && i === numNotes - 1 && <p className="note-name">{noteString(minNote)}</p>}
       </div>
     ))
   }, [maxNote, minNote])
