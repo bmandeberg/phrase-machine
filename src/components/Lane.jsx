@@ -33,6 +33,8 @@ export default function Lane({ id, color, laneNum, lanePreset, setLaneState, mai
     noPointerEventsRef.current = noPointerEvents
   }, [noPointerEvents])
 
+  // lane state management
+
   const updateLaneStateRef = useRef(() => {})
   const updateLaneState = useCallback(() => {
     setLaneState({
@@ -46,6 +48,16 @@ export default function Lane({ id, color, laneNum, lanePreset, setLaneState, mai
   useEffect(() => {
     updateLaneStateRef.current = updateLaneState
   }, [updateLaneState])
+
+  useEffect(() => {
+    setMeasures(lanePreset.measures)
+    setDelimiters(lanePreset.delimiters)
+    setNotes(lanePreset.notes)
+    setMinNote(lanePreset.viewRange.min)
+    setMaxNote(lanePreset.viewRange.max)
+  }, [lanePreset])
+
+  // init and keyboard events
 
   useEffect(() => {
     function deselect(e) {
@@ -144,6 +156,20 @@ export default function Lane({ id, color, laneNum, lanePreset, setLaneState, mai
     setSelectedNotes(selectedNotesRef.current.slice())
   }, [])
 
+  const onDragEnd = useCallback(
+    (id, shiftKey) => {
+      setNoPointerEvents(false)
+      setGrabbing(false)
+      if (!dragChanged.current && !shiftKey) {
+        setSelectedNotes([id])
+      } else if (dragChanged.current) {
+        updateLaneState()
+      }
+      dragChanged.current = false
+    },
+    [updateLaneState]
+  )
+
   const dragStart = useRef()
   const noteStart = useRef()
   const dragChanged = useRef(false)
@@ -183,13 +209,7 @@ export default function Lane({ id, color, laneNum, lanePreset, setLaneState, mai
       })
     },
     onDragEnd: ({ shiftKey, event }) => {
-      setNoPointerEvents(false)
-      setGrabbing(false)
-      if (!dragChanged.current && !shiftKey) {
-        setSelectedNotes([event.target?.id])
-      }
-      dragChanged.current = false
-      updateLaneState()
+      onDragEnd(event.target?.id, shiftKey)
     },
   })
 
@@ -215,13 +235,7 @@ export default function Lane({ id, color, laneNum, lanePreset, setLaneState, mai
       })
     },
     onDragEnd: ({ shiftKey, event }) => {
-      setNoPointerEvents(false)
-      setGrabbing(false)
-      if (!dragChanged.current && !shiftKey) {
-        setSelectedNotes([event.target?.parentElement?.id])
-      }
-      dragChanged.current = false
-      updateLaneState()
+      onDragEnd(event.target?.parentElement?.id, shiftKey)
     },
   })
 
@@ -249,13 +263,7 @@ export default function Lane({ id, color, laneNum, lanePreset, setLaneState, mai
       })
     },
     onDragEnd: ({ shiftKey, event }) => {
-      setNoPointerEvents(false)
-      setGrabbing(false)
-      if (!dragChanged.current && !shiftKey) {
-        setSelectedNotes([event.target?.parentElement?.id])
-      }
-      dragChanged.current = false
-      updateLaneState()
+      onDragEnd(event.target?.parentElement?.id, shiftKey)
     },
   })
 
@@ -267,16 +275,21 @@ export default function Lane({ id, color, laneNum, lanePreset, setLaneState, mai
       event.stopPropagation()
       setNoPointerEvents(true)
       minNoteStart.current = minNote
+      dragChanged.current = false
     },
     onDrag: ({ movement: [mx, my] }) => {
       const newMinNote = minNoteStart.current - Math.round(my / NOTE_HEIGHT)
-      if (minNoteStart.current && maxNote - newMinNote >= MIN_NOTE_LANES) {
+      if (minNoteStart.current && maxNote - newMinNote >= MIN_NOTE_LANES && newMinNote !== minNote) {
         setMinNote(newMinNote)
+        dragChanged.current = true
       }
     },
     onDragEnd: () => {
       setNoPointerEvents(false)
-      updateLaneState()
+      if (dragChanged.current === true) {
+        dragChanged.current = false
+        updateLaneState()
+      }
     },
   })
 
@@ -287,19 +300,30 @@ export default function Lane({ id, color, laneNum, lanePreset, setLaneState, mai
       setGrabbing(true)
       minNoteStart.current = minNote
       maxNoteStart.current = maxNote
+      dragChanged.current = false
     },
     onDrag: ({ movement: [mx, my] }) => {
       const newMinNote = minNoteStart.current + Math.round(my / NOTE_HEIGHT)
       const newMaxNote = maxNoteStart.current + Math.round(my / NOTE_HEIGHT)
-      if (minNoteStart.current && maxNoteStart.current && newMinNote >= MIN_MIDI_NOTE && maxNote <= MAX_MIDI_NOTE) {
+      if (
+        minNoteStart.current &&
+        maxNoteStart.current &&
+        newMinNote >= MIN_MIDI_NOTE &&
+        maxNote <= MAX_MIDI_NOTE &&
+        (newMinNote !== minNote || newMaxNote !== maxNote)
+      ) {
         setMinNote(newMinNote)
         setMaxNote(newMaxNote)
+        dragChanged.current = true
       }
     },
     onDragEnd: () => {
       setNoPointerEvents(false)
       setGrabbing(false)
-      updateLaneState()
+      if (dragChanged.current === true) {
+        dragChanged.current = false
+        updateLaneState()
+      }
     },
   })
 
