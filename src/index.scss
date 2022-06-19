@@ -39,22 +39,3 @@ body {
   height: 100%;
   display: flex;
 }
-
-#main-container {
-  flex-grow: 1;
-  display: flex;
-  flex-direction: column;
-  overflow: auto;
-  padding-left: $padding * 2;
-}
-
-.empty-lane {
-  height: 120px;
-  width: 100%;
-  background: darken($lightestBlue, 4%);
-  cursor: crosshair;
-
-  &:hover {
-    background: $mediumBlue;
-  }
-}

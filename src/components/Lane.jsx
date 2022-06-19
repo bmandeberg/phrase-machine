@@ -96,7 +96,10 @@ export default function Lane({ id, color, laneNum, lanePreset, setLaneState, mai
   // note creation
 
   const createNote = useGesture({
-    onDragStart: () => {
+    onDragStart: ({ event, metaKey }) => {
+      if (metaKey) {
+        event.stopPropagation()
+      }
       if (tempNote.current) {
         tempNote.current = null
       }
@@ -125,6 +128,7 @@ export default function Lane({ id, color, laneNum, lanePreset, setLaneState, mai
           setNoPointerEvents(true)
         }
       } else if (tempNote.current) {
+        event.stopPropagation()
         // update note
         setNotes((notes) => {
           const notesCopy = notes.slice()
@@ -133,8 +137,9 @@ export default function Lane({ id, color, laneNum, lanePreset, setLaneState, mai
         })
       }
     },
-    onDragEnd: () => {
+    onDragEnd: ({ event }) => {
       if (tempNote.current) {
+        event.stopPropagation()
         setNoPointerEvents(false)
         updateLaneState()
       }
@@ -175,13 +180,15 @@ export default function Lane({ id, color, laneNum, lanePreset, setLaneState, mai
   const dragChanged = useRef(false)
   const dragNote = useGesture({
     onDragStart: ({ event }) => {
+      event.stopPropagation()
       setNoPointerEvents(true)
       setGrabbing(true)
       addSelectedNotes(event.target?.id)
       dragStart.current = selectedNotesRef.current.map((id) => notes.find((note) => note.id === id).x)
       noteStart.current = selectedNotesRef.current.map((id) => notes.find((note) => note.id === id).midiNote)
     },
-    onDrag: ({ movement: [mx, my], cancel, shiftKey }) => {
+    onDrag: ({ movement: [mx, my], cancel, shiftKey, event }) => {
+      event.stopPropagation()
       dragChanged.current = mx || my
       selectedNotesRef.current.forEach((id, i) => {
         let newX = dragStart.current[i]
@@ -209,6 +216,7 @@ export default function Lane({ id, color, laneNum, lanePreset, setLaneState, mai
       })
     },
     onDragEnd: ({ shiftKey, event }) => {
+      event.stopPropagation()
       onDragEnd(event.target?.id, shiftKey)
     },
   })
@@ -222,7 +230,8 @@ export default function Lane({ id, color, laneNum, lanePreset, setLaneState, mai
       addSelectedNotes(event.target?.parentElement?.id)
       widthStart.current = selectedNotesRef.current.map((id) => notes.find((note) => note.id === id).width)
     },
-    onDrag: ({ movement: [mx] }) => {
+    onDrag: ({ movement: [mx], event }) => {
+      event.stopPropagation()
       dragChanged.current = mx
       selectedNotesRef.current.forEach((id, i) => {
         if (widthStart.current[i] && widthStart.current[i] + mx >= MIN_NOTE_WIDTH) {
@@ -235,6 +244,7 @@ export default function Lane({ id, color, laneNum, lanePreset, setLaneState, mai
       })
     },
     onDragEnd: ({ shiftKey, event }) => {
+      event.stopPropagation()
       onDragEnd(event.target?.parentElement?.id, shiftKey)
     },
   })
@@ -248,7 +258,8 @@ export default function Lane({ id, color, laneNum, lanePreset, setLaneState, mai
       widthStart.current = selectedNotesRef.current.map((id) => notes.find((note) => note.id === id).width)
       dragStart.current = selectedNotesRef.current.map((id) => notes.find((note) => note.id === id).x)
     },
-    onDrag: ({ movement: [mx] }) => {
+    onDrag: ({ movement: [mx], event }) => {
+      event.stopPropagation()
       dragChanged.current = mx
       selectedNotesRef.current.forEach((id, i) => {
         if (widthStart.current[i] && widthStart.current[i] - mx >= MIN_NOTE_WIDTH) {
@@ -263,6 +274,7 @@ export default function Lane({ id, color, laneNum, lanePreset, setLaneState, mai
       })
     },
     onDragEnd: ({ shiftKey, event }) => {
+      event.stopPropagation()
       onDragEnd(event.target?.parentElement?.id, shiftKey)
     },
   })
@@ -277,14 +289,16 @@ export default function Lane({ id, color, laneNum, lanePreset, setLaneState, mai
       minNoteStart.current = minNote
       dragChanged.current = false
     },
-    onDrag: ({ movement: [mx, my] }) => {
+    onDrag: ({ movement: [mx, my], event }) => {
+      event.stopPropagation()
       const newMinNote = minNoteStart.current - Math.round(my / NOTE_HEIGHT)
       if (minNoteStart.current && maxNote - newMinNote >= MIN_NOTE_LANES && newMinNote !== minNote) {
         setMinNote(newMinNote)
         dragChanged.current = true
       }
     },
-    onDragEnd: () => {
+    onDragEnd: ({ event }) => {
+      event.stopPropagation()
       setNoPointerEvents(false)
       if (dragChanged.current === true) {
         dragChanged.current = false
@@ -295,14 +309,16 @@ export default function Lane({ id, color, laneNum, lanePreset, setLaneState, mai
 
   const maxNoteStart = useRef()
   const dragLane = useGesture({
-    onDragStart: () => {
+    onDragStart: ({ event }) => {
+      event.stopPropagation()
       setNoPointerEvents(true)
       setGrabbing(true)
       minNoteStart.current = minNote
       maxNoteStart.current = maxNote
       dragChanged.current = false
     },
-    onDrag: ({ movement: [mx, my] }) => {
+    onDrag: ({ movement: [mx, my], event }) => {
+      event.stopPropagation()
       const newMinNote = minNoteStart.current + Math.round(my / NOTE_HEIGHT)
       const newMaxNote = maxNoteStart.current + Math.round(my / NOTE_HEIGHT)
       if (
@@ -317,7 +333,8 @@ export default function Lane({ id, color, laneNum, lanePreset, setLaneState, mai
         dragChanged.current = true
       }
     },
-    onDragEnd: () => {
+    onDragEnd: ({ event }) => {
+      event.stopPropagation()
       setNoPointerEvents(false)
       setGrabbing(false)
       if (dragChanged.current === true) {
@@ -327,7 +344,7 @@ export default function Lane({ id, color, laneNum, lanePreset, setLaneState, mai
     },
   })
 
-  // elements and handlers
+  // elements
 
   const keyEls = useMemo(() => {
     const numNotes = maxNote - minNote + 1

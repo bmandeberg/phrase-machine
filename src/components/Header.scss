@@ -7,17 +7,20 @@ $headerHeight: 40px;
   align-items: center;
 
   #logo {
+    @extend .no-select;
     height: 50px;
     margin-left: -9px;
   }
 
   #play-pause {
+    @extend .no-select;
     height: $headerHeight;
     cursor: pointer;
     margin-left: 6px;
   }
 
   .header-item {
+    @extend .no-select;
     height: $headerHeight;
     margin-left: $padding;
   }
