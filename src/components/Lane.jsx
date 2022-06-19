@@ -24,6 +24,7 @@ export default function Lane({ id, color, laneNum, lanePreset, setLaneState, mai
   const noPointerEventsRef = useRef(noPointerEvents)
   const [grabbing, setGrabbing] = useState(false)
   const shiftPressed = useRef(false)
+  const mouseMoved = useRef(false)
 
   useEffect(() => {
     selectedNotesRef.current = selectedNotes
@@ -57,17 +58,27 @@ export default function Lane({ id, color, laneNum, lanePreset, setLaneState, mai
     setMaxNote(lanePreset.viewRange.max)
   }, [lanePreset])
 
-  // init and keyboard events
+  // init and attach events
 
   useEffect(() => {
+    function mouseDown() {
+      mouseMoved.current = false
+    }
+    function moveMouse() {
+      if (!mouseMoved.current) {
+        mouseMoved.current = true
+      }
+    }
     function deselect(e) {
       if (
         !e.target.classList.contains('note') &&
         !e.target.parentElement.classList.contains('note') &&
-        selectedNotesRef.current.length
+        selectedNotesRef.current.length &&
+        !mouseMoved.current
       ) {
         setSelectedNotes([])
       }
+      mouseMoved.current = false
     }
     function keydown(e) {
       if (e.key === 'Backspace' && selectedNotesRef.current?.length && !noPointerEventsRef.current) {
@@ -83,15 +94,28 @@ export default function Lane({ id, color, laneNum, lanePreset, setLaneState, mai
         shiftPressed.current = false
       }
     }
+    function selectNotes(e) {
+      if (e.detail[id]) {
+        setSelectedNotes(e.detail[id])
+      } else {
+        setSelectedNotes([])
+      }
+    }
     window.addEventListener('click', deselect)
     window.addEventListener('keydown', keydown)
     window.addEventListener('keyup', keyup)
+    window.addEventListener('selectNotes', selectNotes)
+    window.addEventListener('mousemove', moveMouse)
+    window.addEventListener('mousedown', mouseDown)
     return () => {
       window.removeEventListener('click', deselect)
       window.removeEventListener('keydown', keydown)
       window.removeEventListener('keyup', keyup)
+      window.removeEventListener('selectNotes', selectNotes)
+      window.removeEventListener('mousemove', moveMouse)
+      window.removeEventListener('mousedown', mouseDown)
     }
-  }, [])
+  }, [id])
 
   // note creation
 
@@ -390,7 +414,7 @@ export default function Lane({ id, color, laneNum, lanePreset, setLaneState, mai
   }, [notes, minNote, maxNote, dragNote, selectedNotes, noPointerEvents, grabbing, dragNoteLeft, dragNoteRight])
 
   return (
-    <div className="lane-container" style={{ '--lane-color': color, '--note-height': NOTE_HEIGHT + 'px' }}>
+    <div className="lane-container" style={{ '--lane-color': color }}>
       <div className={classNames('keys', { grabbing })} {...dragLane()}>
         {keyEls}
       </div>

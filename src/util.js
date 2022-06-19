@@ -6,3 +6,7 @@ export function noteString(noteNumber) {
 export function constrain(n, min, max) {
   return Math.min(Math.max(n, min), max)
 }
+
+export function boxesIntersect(x1min, x1max, y1min, y1max, x2min, x2max, y2min, y2max) {
+  return x1min < x2max && x2min < x1max && y1min < y2max && y2min < y1max
+}

@@ -1,10 +1,11 @@
 import React, { useState, useCallback, useMemo, useEffect, useRef } from 'react'
 import * as Tone from 'tone'
 import { useGesture } from 'react-use-gesture'
-import { DEFAULT_PRESET, MEASURE_WIDTH, LANE_COLORS } from './globals'
+import { DEFAULT_PRESET, MEASURE_WIDTH, LANE_COLORS, NOTE_HEIGHT, KEYS_WIDTH } from './globals'
 import Lane from './components/Lane'
 import Header from './components/Header'
 import './App.scss'
+import { boxesIntersect } from './util'
 
 // load/set presets
 if (!window.localStorage.getItem('phrasePresets')) {
@@ -26,9 +27,11 @@ export default function App() {
   }, [tempo])
 
   const [selectingDimensions, setSelectingDimensions] = useState(null)
+  const dragSelecting = useRef(false)
   const dragSelectNotes = useGesture({
-    onDragStart: ({ initial: [x, y], metaKey }) => {
-      if (!metaKey) {
+    onDragStart: ({ initial: [x, y], metaKey, event }) => {
+      if (!metaKey && event.button === 0) {
+        dragSelecting.current = true
         setSelectingDimensions({
           x,
           y,
@@ -38,15 +41,51 @@ export default function App() {
       }
     },
     onDrag: ({ movement: [mx, my], initial: [ix, iy], metaKey }) => {
-      if (!metaKey) {
+      if (!metaKey && dragSelecting.current) {
         const newDimensions = { width: Math.abs(mx), height: Math.abs(my) }
         newDimensions.x = (mx > 0 ? ix : ix - newDimensions.width) + mainContainerRef?.current?.scrollLeft
         newDimensions.y = (my > 0 ? iy : iy - newDimensions.height) + mainContainerRef?.current?.scrollTop
         setSelectingDimensions(newDimensions)
       }
     },
-    onDragEnd: () => {
-      setSelectingDimensions(null)
+    onDragEnd: ({ event }) => {
+      if (event.button === 0) {
+        const selectedNotes = {}
+        // gather notes that intersect with selection bounds
+        mainContainerRef.current?.querySelectorAll('.lane-container').forEach((lane, i) => {
+          const laneData = uiState.lanes[i]
+          laneData.notes.forEach((note) => {
+            const noteX = lane.offsetLeft + note.x + KEYS_WIDTH
+            const noteY = lane.offsetTop + (laneData.viewRange.max - note.midiNote) * NOTE_HEIGHT
+            if (
+              boxesIntersect(
+                noteX,
+                noteX + note.width,
+                noteY,
+                noteY + NOTE_HEIGHT,
+                selectingDimensions.x,
+                selectingDimensions.x + selectingDimensions.width,
+                selectingDimensions.y,
+                selectingDimensions.y + selectingDimensions.height
+              )
+            ) {
+              if (!selectedNotes[laneData.id]) {
+                selectedNotes[laneData.id] = [note.id]
+              } else {
+                selectedNotes[laneData.id].push(note.id)
+              }
+            }
+          })
+        })
+        // broadcast selected notes
+        window.dispatchEvent(
+          new CustomEvent('selectNotes', {
+            detail: selectedNotes,
+          })
+        )
+        dragSelecting.current = false
+        setSelectingDimensions(null)
+      }
     },
   })
 
@@ -72,7 +111,7 @@ export default function App() {
           laneNum={i}
           lanePreset={lane}
           setLaneState={setLaneState}
-          mainContainerRef={mainContainerRef}
+          mainContainer={mainContainerRef}
         />
       )),
     [setLaneState, uiState.lanes]
@@ -82,7 +121,11 @@ export default function App() {
     <div
       id="main-container"
       ref={mainContainerRef}
-      style={{ '--measure-width': MEASURE_WIDTH + 'px' }}
+      style={{
+        '--measure-width': MEASURE_WIDTH + 'px',
+        '--note-height': NOTE_HEIGHT + 'px',
+        '--keys-width': KEYS_WIDTH + 'px',
+      }}
       {...dragSelectNotes()}>
       <Header
         playing={playing}

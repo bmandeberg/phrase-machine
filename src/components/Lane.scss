@@ -29,7 +29,7 @@
     }
 
     .key {
-      width: 10px;
+      width: var(--keys-width, 10px);
       height: var(--note-height);
       box-sizing: border-box;
       background: #ffffff;
@@ -115,7 +115,7 @@
   .notes {
     position: absolute;
     top: 0;
-    left: 10px;
+    left: calc(var(--keys-width) + 4px);
     height: 100%;
     width: 100%;
     pointer-events: none;
