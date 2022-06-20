@@ -42,6 +42,10 @@ export default function App() {
     }
   }, [tempo])
 
+  useEffect(() => {
+    Tone.Transport.timeSignature = [beatsPerBar, beatValue]
+  }, [beatValue, beatsPerBar])
+
   const [selectingDimensions, setSelectingDimensions] = useState(null)
   const dragSelecting = useRef(false)
   const dragSelectNotes = useGesture({
