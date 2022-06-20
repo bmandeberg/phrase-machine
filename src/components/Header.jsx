@@ -73,14 +73,6 @@ export default function Header({
       <img src={logo} alt="Phrase Machine" id="logo" />
       {playGraphic}
       <NumInput className="header-item" label="Tempo" value={tempo} setValue={setTempo} min={0} max={300} small />
-      <Dropdown
-        className="header-item no-text-transform"
-        label="Snap"
-        value={snap}
-        setValue={setSnap}
-        options={snapOptions}
-        small
-      />
       <NumInput
         className="header-item"
         label="Time Signature"
@@ -96,6 +88,14 @@ export default function Header({
         value={beatValue}
         setValue={setBeatValue}
         options={BEATS_PER_BAR_OPTIONS}
+        small
+      />
+      <Dropdown
+        className="header-item no-text-transform"
+        label="Snap"
+        value={snap}
+        setValue={setSnap}
+        options={snapOptions}
         small
       />
     </div>
