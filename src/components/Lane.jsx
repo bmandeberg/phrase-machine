@@ -4,13 +4,13 @@ import { v4 as uuid } from 'uuid'
 import classNames from 'classnames'
 import { useGesture } from 'react-use-gesture'
 import { NOTE_HEIGHT, EIGHTH_WIDTH, MIN_MIDI_NOTE, MAX_MIDI_NOTE } from '../globals'
-import { constrain, noteString } from '../util'
+import { constrain, noteString, pixelsToTime, timeToPixels } from '../util'
 import './Lane.scss'
 
 const MIN_NOTE_WIDTH = 5
 const MIN_NOTE_LANES = 4
 
-export default function Lane({ id, color, laneNum, lanePreset, setLaneState, beatsPerBar, beatValue }) {
+export default function Lane({ id, color, laneNum, lanePreset, setLaneState, beatsPerBar, beatValue, snap }) {
   const [laneLength, setLaneLength] = useState(lanePreset.laneLength)
   const [delimiters, setDelimiters] = useState(lanePreset.delimiters)
   const [notes, setNotes] = useState(lanePreset.notes)
@@ -135,13 +135,16 @@ export default function Lane({ id, color, laneNum, lanePreset, setLaneState, bea
         const left = lane.current?.getBoundingClientRect().left
         if (left) {
           tempNote.current = uuid()
+          const x = ix + 4 - lane.current?.getBoundingClientRect().left
+          const time = pixelsToTime(x, snap)
           setNotes((notes) => {
             const notesCopy = notes.slice()
             const newNote = {
               id: tempNote.current,
               midiNote: laneNum + minNote,
               velocity: 1,
-              x: ix + 4 - lane.current?.getBoundingClientRect().left,
+              x: snap ? timeToPixels(time) : x,
+              time,
               width: mx,
             }
             notesCopy.push(newNote)
@@ -453,6 +456,7 @@ Lane.propTypes = {
   setLaneState: PropTypes.func,
   beatsPerBar: PropTypes.number,
   beatValue: PropTypes.number,
+  snap: PropTypes.string,
 }
 
 const blackKeys = [false, true, false, true, false, false, true, false, true, false, true, false]

@@ -133,9 +133,10 @@ export default function App() {
           setLaneState={setLaneState}
           beatsPerBar={beatsPerBar}
           beatValue={beatValue}
+          snap={snap}
         />
       )),
-    [beatValue, beatsPerBar, setLaneState, uiState.lanes]
+    [beatValue, beatsPerBar, setLaneState, snap, uiState.lanes]
   )
 
   return (
@@ -143,7 +144,7 @@ export default function App() {
       id="main-container"
       ref={mainContainerRef}
       style={{
-        '--measure-width': EIGHTH_WIDTH + 'px',
+        '--eighth-width': EIGHTH_WIDTH + 'px',
         '--note-height': NOTE_HEIGHT + 'px',
         '--keys-width': KEYS_WIDTH + 'px',
       }}

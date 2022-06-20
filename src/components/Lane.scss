@@ -84,7 +84,7 @@
 
   .empty-measure {
     height: 100%;
-    width: var(--measure-width);
+    width: var(--eighth-width);
   }
 
   .ticks {
@@ -97,7 +97,7 @@
     pointer-events: none;
 
     .tick {
-      width: calc(var(--measure-width) / 8);
+      width: var(--eighth-width);
       height: 100%;
       box-sizing: border-box;
       border-left: 1px solid $lightGray;
