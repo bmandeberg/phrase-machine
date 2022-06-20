@@ -106,7 +106,7 @@ Header.propTypes = {
   setPlaying: PropTypes.func,
   tempo: PropTypes.number,
   setTempo: PropTypes.func,
-  snap: PropTypes.bool,
+  snap: PropTypes.string,
   setSnap: PropTypes.func,
   beatsPerBar: PropTypes.number,
   setBeatsPerBar: PropTypes.func,

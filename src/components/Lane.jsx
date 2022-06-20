@@ -72,7 +72,7 @@ export default function Lane({ id, color, laneNum, lanePreset, setLaneState, mai
     function deselect(e) {
       if (
         !e.target.classList.contains('note') &&
-        !e.target.parentElement.classList.contains('note') &&
+        !e.target.parentElement?.classList.contains('note') &&
         selectedNotesRef.current.length &&
         !mouseMoved.current
       ) {

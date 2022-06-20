@@ -19,6 +19,20 @@ export default function App() {
   const [beatValue, setBeatValue] = useState(uiState.beatValue)
   const mainContainerRef = useRef()
 
+  useEffect(() => {
+    window.localStorage.setItem('phrasePresets', JSON.stringify(uiState))
+  }, [uiState])
+
+  useEffect(() => {
+    setUIState((uiState) =>
+      Object.assign({}, uiState, {
+        snap,
+        beatsPerBar,
+        beatValue,
+      })
+    )
+  }, [beatValue, beatsPerBar, snap])
+
   // transport
   const [playing, setPlaying] = useState(false)
   const [tempo, setTempo] = useState(uiState.tempo)
