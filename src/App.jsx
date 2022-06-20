@@ -1,7 +1,7 @@
 import React, { useState, useCallback, useMemo, useEffect, useRef } from 'react'
 import * as Tone from 'tone'
 import { useGesture } from 'react-use-gesture'
-import { DEFAULT_PRESET, MEASURE_WIDTH, LANE_COLORS, NOTE_HEIGHT, KEYS_WIDTH } from './globals'
+import { DEFAULT_PRESET, EIGHTH_WIDTH, LANE_COLORS, NOTE_HEIGHT, KEYS_WIDTH } from './globals'
 import Lane from './components/Lane'
 import Header from './components/Header'
 import './App.scss'
@@ -140,7 +140,7 @@ export default function App() {
       id="main-container"
       ref={mainContainerRef}
       style={{
-        '--measure-width': MEASURE_WIDTH + 'px',
+        '--measure-width': EIGHTH_WIDTH + 'px',
         '--note-height': NOTE_HEIGHT + 'px',
         '--keys-width': KEYS_WIDTH + 'px',
       }}

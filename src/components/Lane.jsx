@@ -3,7 +3,7 @@ import PropTypes from 'prop-types'
 import { v4 as uuid } from 'uuid'
 import classNames from 'classnames'
 import { useGesture } from 'react-use-gesture'
-import { NOTE_HEIGHT, MEASURE_WIDTH, MIN_MIDI_NOTE, MAX_MIDI_NOTE } from '../globals'
+import { NOTE_HEIGHT, EIGHTH_WIDTH, MIN_MIDI_NOTE, MAX_MIDI_NOTE } from '../globals'
 import { constrain, noteString } from '../util'
 import './Lane.scss'
 
@@ -11,7 +11,7 @@ const MIN_NOTE_WIDTH = 5
 const MIN_NOTE_LANES = 4
 
 export default function Lane({ id, color, laneNum, lanePreset, setLaneState, mainContainer, beatsPerBar, beatValue }) {
-  const [measures, setMeasures] = useState(lanePreset.measures)
+  const [laneLength, setLaneLength] = useState(lanePreset.laneLength)
   const [delimiters, setDelimiters] = useState(lanePreset.delimiters)
   const [notes, setNotes] = useState(lanePreset.notes)
   const [minNote, setMinNote] = useState(lanePreset.viewRange.min)
@@ -40,18 +40,18 @@ export default function Lane({ id, color, laneNum, lanePreset, setLaneState, mai
   const updateLaneState = useCallback(() => {
     setLaneState({
       id,
-      measures,
+      laneLength,
       delimiters,
       notes,
       viewRange: { min: minNote, max: maxNote },
     })
-  }, [delimiters, id, maxNote, measures, minNote, notes, setLaneState])
+  }, [delimiters, id, maxNote, laneLength, minNote, notes, setLaneState])
   useEffect(() => {
     updateLaneStateRef.current = updateLaneState
   }, [updateLaneState])
 
   useEffect(() => {
-    setMeasures(lanePreset.measures)
+    setLaneLength(lanePreset.laneLength)
     setDelimiters(lanePreset.delimiters)
     setNotes(lanePreset.notes)
     setMinNote(lanePreset.viewRange.min)
@@ -418,7 +418,7 @@ export default function Lane({ id, color, laneNum, lanePreset, setLaneState, mai
       <div className={classNames('keys', { grabbing })} {...dragLane()}>
         {keyEls}
       </div>
-      <div className="lane" ref={lane} style={{ width: measures * MEASURE_WIDTH }}>
+      <div className="lane" ref={lane} style={{ width: laneLength * EIGHTH_WIDTH }}>
         {[...Array(maxNote - minNote + 1)].map((_d, i) => (
           <div
             key={uuid()}
@@ -430,7 +430,7 @@ export default function Lane({ id, color, laneNum, lanePreset, setLaneState, mai
             })}></div>
         ))}
         <div className="ticks">
-          {[...Array(7 * measures)].map((_d, i) => (
+          {[...Array(laneLength)].map((_d, i) => (
             <div
               key={uuid()}
               className={classNames('tick', {
