@@ -15,6 +15,8 @@ if (!window.localStorage.getItem('phrasePresets')) {
 export default function App() {
   const [uiState, setUIState] = useState(JSON.parse(window.localStorage.getItem('phrasePresets')))
   const [snap, setSnap] = useState(uiState.snap)
+  const [beatsPerBar, setBeatsPerBar] = useState(uiState.beatsPerBar)
+  const [beatValue, setBeatValue] = useState(uiState.beatValue)
   const mainContainerRef = useRef()
 
   // transport
@@ -112,9 +114,11 @@ export default function App() {
           lanePreset={lane}
           setLaneState={setLaneState}
           mainContainer={mainContainerRef}
+          beatsPerBar={beatsPerBar}
+          beatValue={beatValue}
         />
       )),
-    [setLaneState, uiState.lanes]
+    [beatValue, beatsPerBar, setLaneState, uiState.lanes]
   )
 
   return (
@@ -134,10 +138,14 @@ export default function App() {
         setTempo={setTempo}
         snap={snap}
         setSnap={setSnap}
+        beatsPerBar={beatsPerBar}
+        setBeatsPerBar={setBeatsPerBar}
+        beatValue={beatValue}
+        setBeatValue={setBeatValue}
       />
       {lanes}
       {!uiState.lanes.length && <div className="empty-lane"></div>}
-      {selectingDimensions && (
+      {selectingDimensions && (!!selectingDimensions.width || !!selectingDimensions.height) && (
         <div
           id="drag-select"
           style={{

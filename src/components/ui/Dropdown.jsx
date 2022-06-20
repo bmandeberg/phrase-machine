@@ -148,7 +148,7 @@ export default function Dropdown({
   }, [container, menuAbove, menuHeight, scrollTop])
   const menuStyle = useMemo(() => (container ? { width: dropdownWidth } : null), [container, dropdownWidth])
 
-  const dropdownLabel = useMemo(() => <p className="dropdown-label no-select">{label}</p>, [label])
+  const dropdownLabel = useMemo(() => (label ? <p className="dropdown-label no-select">{label}</p> : null), [label])
   const numInputs = useMemo(
     () => (
       <div className="dropdown-num-inputs-wrapper">

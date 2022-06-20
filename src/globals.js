@@ -20,6 +20,8 @@ export const DEFAULT_PRESET = JSON.stringify({
   id: uuid(),
   tempo: 120,
   snap: '4n',
+  beatsPerBar: 4,
+  beatValue: 4,
   lanes: [DEFAULT_LANE],
 })
 

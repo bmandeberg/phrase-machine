@@ -100,14 +100,18 @@
       width: calc(var(--measure-width) / 8);
       height: 100%;
       box-sizing: border-box;
-      border-right: 1px solid $lightGray;
+      border-left: 1px solid $lightGray;
 
-      &:nth-child(even) {
+      &.minor {
         border-color: $mediumGray;
       }
 
-      &:nth-child(8n + 8) {
+      &.major {
         border-color: $lightTextGray;
+      }
+
+      &:first-of-type {
+        border-left: none;
       }
     }
   }

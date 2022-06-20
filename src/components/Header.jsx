@@ -10,7 +10,23 @@ import stop from '../assets/stop.svg'
 import stopHover from '../assets/stop-hover.svg'
 import './Header.scss'
 
-export default function Header({ playing, setPlaying, tempo, setTempo, snap, setSnap }) {
+const BEATS_PER_BAR_OPTIONS = [
+  { value: 4, label: '4' },
+  { value: 8, label: '8' },
+]
+
+export default function Header({
+  playing,
+  setPlaying,
+  tempo,
+  setTempo,
+  snap,
+  setSnap,
+  beatsPerBar,
+  setBeatsPerBar,
+  beatValue,
+  setBeatValue,
+}) {
   const [hoverPlayStop, setHoverPlayStop] = useState(false)
 
   const playStop = useCallback(() => {
@@ -57,7 +73,31 @@ export default function Header({ playing, setPlaying, tempo, setTempo, snap, set
       <img src={logo} alt="Phrase Machine" id="logo" />
       {playGraphic}
       <NumInput className="header-item" label="Tempo" value={tempo} setValue={setTempo} min={0} max={300} small />
-      <Dropdown className="header-item no-text-transform" label="Snap" value={snap} setValue={setSnap} options={snapOptions} small />
+      <Dropdown
+        className="header-item no-text-transform"
+        label="Snap"
+        value={snap}
+        setValue={setSnap}
+        options={snapOptions}
+        small
+      />
+      <NumInput
+        className="header-item"
+        label="Time Signature"
+        value={beatsPerBar}
+        setValue={setBeatsPerBar}
+        min={1}
+        max={15}
+        small
+      />
+      <div className="divided-by"></div>
+      <Dropdown
+        className="header-item"
+        value={beatValue}
+        setValue={setBeatValue}
+        options={BEATS_PER_BAR_OPTIONS}
+        small
+      />
     </div>
   )
 }
@@ -68,4 +108,8 @@ Header.propTypes = {
   setTempo: PropTypes.func,
   snap: PropTypes.bool,
   setSnap: PropTypes.func,
+  beatsPerBar: PropTypes.number,
+  setBeatsPerBar: PropTypes.func,
+  beatValue: PropTypes.number,
+  setBeatValue: PropTypes.func,
 }

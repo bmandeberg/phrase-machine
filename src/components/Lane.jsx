@@ -10,7 +10,7 @@ import './Lane.scss'
 const MIN_NOTE_WIDTH = 5
 const MIN_NOTE_LANES = 4
 
-export default function Lane({ id, color, laneNum, lanePreset, setLaneState, mainContainer }) {
+export default function Lane({ id, color, laneNum, lanePreset, setLaneState, mainContainer, beatsPerBar, beatValue }) {
   const [measures, setMeasures] = useState(lanePreset.measures)
   const [delimiters, setDelimiters] = useState(lanePreset.delimiters)
   const [notes, setNotes] = useState(lanePreset.notes)
@@ -431,7 +431,12 @@ export default function Lane({ id, color, laneNum, lanePreset, setLaneState, mai
         ))}
         <div className="ticks">
           {[...Array(7 * measures)].map((_d, i) => (
-            <div key={uuid()} className={classNames('tick')}></div>
+            <div
+              key={uuid()}
+              className={classNames('tick', {
+                minor: beatValue === 4 && i % 2 === 0,
+                major: i % (beatsPerBar * (beatValue === 4 ? 2 : 1)) === 0,
+              })}></div>
           ))}
         </div>
       </div>
@@ -447,6 +452,8 @@ Lane.propTypes = {
   lanePreset: PropTypes.object,
   setLaneState: PropTypes.func,
   mainContainer: PropTypes.object,
+  beatsPerBar: PropTypes.number,
+  beatValue: PropTypes.number,
 }
 
 const blackKeys = [false, true, false, true, false, false, true, false, true, false, true, false]

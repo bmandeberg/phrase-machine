@@ -24,4 +24,23 @@ $headerHeight: 40px;
     height: $headerHeight;
     margin-left: $padding;
   }
+
+  .divided-by {
+    @extend .no-select;
+    height: 40px;
+    width: 20px;
+    margin-right: -14px;
+    position: relative;
+
+    &::before {
+      content: '';
+      position: absolute;
+      top: 2px;
+      left: 50%;
+      width: 1px;
+      height: 21px;
+      background-color: $lightTextGray;
+      transform: rotate(25deg);
+    }
+  }
 }
