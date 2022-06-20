@@ -127,7 +127,6 @@ export default function App() {
           laneNum={i}
           lanePreset={lane}
           setLaneState={setLaneState}
-          mainContainer={mainContainerRef}
           beatsPerBar={beatsPerBar}
           beatValue={beatValue}
         />

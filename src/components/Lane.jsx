@@ -10,7 +10,7 @@ import './Lane.scss'
 const MIN_NOTE_WIDTH = 5
 const MIN_NOTE_LANES = 4
 
-export default function Lane({ id, color, laneNum, lanePreset, setLaneState, mainContainer, beatsPerBar, beatValue }) {
+export default function Lane({ id, color, laneNum, lanePreset, setLaneState, beatsPerBar, beatValue }) {
   const [laneLength, setLaneLength] = useState(lanePreset.laneLength)
   const [delimiters, setDelimiters] = useState(lanePreset.delimiters)
   const [notes, setNotes] = useState(lanePreset.notes)
@@ -141,7 +141,7 @@ export default function Lane({ id, color, laneNum, lanePreset, setLaneState, mai
               id: tempNote.current,
               midiNote: laneNum + minNote,
               velocity: 1,
-              x: ix + 4 - lane.current?.getBoundingClientRect().left + mainContainer.current?.scrollLeft,
+              x: ix + 4 - lane.current?.getBoundingClientRect().left,
               width: mx,
             }
             notesCopy.push(newNote)
@@ -451,7 +451,6 @@ Lane.propTypes = {
   laneNum: PropTypes.number,
   lanePreset: PropTypes.object,
   setLaneState: PropTypes.func,
-  mainContainer: PropTypes.object,
   beatsPerBar: PropTypes.number,
   beatValue: PropTypes.number,
 }
