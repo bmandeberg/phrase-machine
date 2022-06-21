@@ -1,7 +1,7 @@
 import { v4 as uuid } from 'uuid'
 
 export const LANE_COLORS = ['#008dff', '#ff413e', '#33ff00', '#ff00ff', '#ff9700', '#a825f4', '#00C591', '#EDDB00']
-export const EIGHTH_WIDTH = 25
+export const EIGHTH_WIDTH = 24
 export const NOTE_HEIGHT = 12
 export const KEYS_WIDTH = 10
 

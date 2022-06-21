@@ -4,7 +4,7 @@ import { v4 as uuid } from 'uuid'
 import classNames from 'classnames'
 import { useGesture } from 'react-use-gesture'
 import { NOTE_HEIGHT, EIGHTH_WIDTH, MIN_MIDI_NOTE, MAX_MIDI_NOTE, RATE_MULTS } from '../globals'
-import { constrain, noteString, pixelsToTime, snapPixels } from '../util'
+import { constrain, noteString, snapPixels } from '../util'
 import './Lane.scss'
 
 const MIN_NOTE_WIDTH = 5
@@ -137,7 +137,6 @@ export default function Lane({ id, color, laneNum, lanePreset, setLaneState, bea
         if (left) {
           tempNote.current = uuid()
           const realX = ix + leftOffset
-          const time = pixelsToTime(realX, snap)
           setNotes((notes) => {
             const notesCopy = notes.slice()
             const newNote = {
@@ -145,8 +144,9 @@ export default function Lane({ id, color, laneNum, lanePreset, setLaneState, bea
               midiNote: laneNum + minNote,
               velocity: 1,
               x: snapPixels(realX, snap),
-              time,
+              xSnap: snap,
               width: mx,
+              widthSnap: null,
             }
             notesCopy.push(newNote)
             // set as selected note
@@ -164,6 +164,7 @@ export default function Lane({ id, color, laneNum, lanePreset, setLaneState, bea
           note.width = snap
             ? Math.max(snapPixels(x + leftOffset, snap) - note.x, RATE_MULTS[snap] * EIGHTH_WIDTH)
             : Math.max(mx, 3)
+          note.widthSnap = snap
           return notesCopy
         })
       }
@@ -229,7 +230,10 @@ export default function Lane({ id, color, laneNum, lanePreset, setLaneState, bea
           shiftDirectionX = Math.abs(mx) > Math.abs(my)
         }
         if (dragStart.current[i] !== undefined && Math.abs(mx) > 2 && (!shiftKey || shiftDirectionX)) {
-          newX = Math.max(dragStart.current[i] + mx, 0)
+          newX = Math.max(snapPixels(dragStart.current[i] + mx, snap), 0)
+          if (snap) {
+            dragStart.current[i] = snapPixels(dragStart.current[i], snap)
+          }
         }
         if (noteStart.current[i] && (!shiftKey || shiftDirectionX === false)) {
           newNote = constrain(noteStart.current[i] - Math.round(my / NOTE_HEIGHT), MIN_MIDI_NOTE, MAX_MIDI_NOTE)
@@ -237,7 +241,9 @@ export default function Lane({ id, color, laneNum, lanePreset, setLaneState, bea
         setNotes((notes) => {
           const notesCopy = notes.slice()
           const note = notesCopy.find((note) => note.id === id)
+          console.log(newX)
           note.x = newX
+          note.xSnap = snap
           note.midiNote = newNote
           return notesCopy
         })
