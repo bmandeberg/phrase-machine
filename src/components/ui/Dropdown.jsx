@@ -6,7 +6,6 @@ import { v4 as uuid } from 'uuid'
 import './Dropdown.scss'
 
 const DROPDOWN_HEIGHT = 28
-const OPTION_HEIGHT = 27
 
 function longestText(options, graphicOptions) {
   if (graphicOptions) {

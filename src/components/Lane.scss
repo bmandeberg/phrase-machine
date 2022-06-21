@@ -58,6 +58,8 @@
 
   .lane {
     height: 100%;
+    width: var(--lane-width);
+    flex: 0 0 var(--lane-width);
     border: 1px solid $lightGray;
     box-sizing: border-box;
     position: relative;
@@ -90,7 +92,7 @@
   .ticks {
     position: absolute;
     top: 0;
-    left: 0;
+    left: -1px;
     height: 100%;
     width: 100%;
     display: flex;
@@ -98,6 +100,7 @@
 
     .tick {
       width: var(--eighth-width);
+      flex: 0 0 var(--eighth-width);
       height: 100%;
       box-sizing: border-box;
       border-left: 1px solid $lightGray;

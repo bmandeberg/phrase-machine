@@ -3,8 +3,8 @@ import PropTypes from 'prop-types'
 import { v4 as uuid } from 'uuid'
 import classNames from 'classnames'
 import { useGesture } from 'react-use-gesture'
-import { NOTE_HEIGHT, EIGHTH_WIDTH, MIN_MIDI_NOTE, MAX_MIDI_NOTE } from '../globals'
-import { constrain, noteString, pixelsToTime, timeToPixels } from '../util'
+import { NOTE_HEIGHT, EIGHTH_WIDTH, MIN_MIDI_NOTE, MAX_MIDI_NOTE, RATE_MULTS } from '../globals'
+import { constrain, noteString, pixelsToTime, snapPixels } from '../util'
 import './Lane.scss'
 
 const MIN_NOTE_WIDTH = 5
@@ -128,22 +128,23 @@ export default function Lane({ id, color, laneNum, lanePreset, setLaneState, bea
         tempNote.current = null
       }
     },
-    onDrag: ({ movement: [mx], initial: [ix], event, metaKey }) => {
+    onDrag: ({ movement: [mx], initial: [ix], xy: [x], event, metaKey }) => {
       // create note
+      const leftOffset = 4 - lane.current?.getBoundingClientRect().left
       if (metaKey && Math.abs(mx) >= 3 && !tempNote.current) {
         const laneNum = maxNote - minNote - +event.target?.getAttribute('lane-num')
         const left = lane.current?.getBoundingClientRect().left
         if (left) {
           tempNote.current = uuid()
-          const x = ix + 4 - lane.current?.getBoundingClientRect().left
-          const time = pixelsToTime(x, snap)
+          const realX = ix + leftOffset
+          const time = pixelsToTime(realX, snap)
           setNotes((notes) => {
             const notesCopy = notes.slice()
             const newNote = {
               id: tempNote.current,
               midiNote: laneNum + minNote,
               velocity: 1,
-              x: snap ? timeToPixels(time) : x,
+              x: snapPixels(realX, snap),
               time,
               width: mx,
             }
@@ -159,7 +160,10 @@ export default function Lane({ id, color, laneNum, lanePreset, setLaneState, bea
         // update note
         setNotes((notes) => {
           const notesCopy = notes.slice()
-          notesCopy.find((note) => note.id === tempNote.current).width = Math.max(mx, 3)
+          const note = notesCopy.find((note) => note.id === tempNote.current)
+          note.width = snap
+            ? Math.max(snapPixels(x + leftOffset, snap) - note.x, RATE_MULTS[snap] * EIGHTH_WIDTH)
+            : Math.max(mx, 3)
           return notesCopy
         })
       }
@@ -391,6 +395,34 @@ export default function Lane({ id, color, laneNum, lanePreset, setLaneState, bea
     ))
   }, [maxNote, minNote])
 
+  const laneEl = useMemo(
+    () => (
+      <div className="lane" ref={lane} style={{ '--lane-width': laneLength * EIGHTH_WIDTH + 'px' }}>
+        {[...Array(maxNote - minNote + 1)].map((_d, i) => (
+          <div
+            key={uuid()}
+            {...createNote()}
+            lane-num={i}
+            className={classNames('note-lane', {
+              'black-key': isBlackKey(maxNote - minNote - i + minNote),
+              'e-key': !isBlackKey(maxNote - minNote - i + minNote) && nextKeyIsWhite(maxNote - minNote - i + minNote),
+            })}></div>
+        ))}
+        <div className="ticks">
+          {[...Array(laneLength)].map((_d, i) => (
+            <div
+              key={uuid()}
+              className={classNames('tick', {
+                minor: beatValue === 4 && i % 2 === 0,
+                major: i % (beatsPerBar * (beatValue === 4 ? 2 : 1)) === 0,
+              })}></div>
+          ))}
+        </div>
+      </div>
+    ),
+    [beatValue, beatsPerBar, createNote, laneLength, maxNote, minNote]
+  )
+
   const noteEls = useMemo(() => {
     const minNoteWidth = 16
     return notes
@@ -421,28 +453,7 @@ export default function Lane({ id, color, laneNum, lanePreset, setLaneState, bea
       <div className={classNames('keys', { grabbing })} {...dragLane()}>
         {keyEls}
       </div>
-      <div className="lane" ref={lane} style={{ width: laneLength * EIGHTH_WIDTH }}>
-        {[...Array(maxNote - minNote + 1)].map((_d, i) => (
-          <div
-            key={uuid()}
-            {...createNote()}
-            lane-num={i}
-            className={classNames('note-lane', {
-              'black-key': isBlackKey(maxNote - minNote - i + minNote),
-              'e-key': !isBlackKey(maxNote - minNote - i + minNote) && nextKeyIsWhite(maxNote - minNote - i + minNote),
-            })}></div>
-        ))}
-        <div className="ticks">
-          {[...Array(laneLength)].map((_d, i) => (
-            <div
-              key={uuid()}
-              className={classNames('tick', {
-                minor: beatValue === 4 && i % 2 === 0,
-                major: i % (beatsPerBar * (beatValue === 4 ? 2 : 1)) === 0,
-              })}></div>
-          ))}
-        </div>
-      </div>
+      {laneEl}
       <div className="notes">{noteEls}</div>
       <div className="lane-expander" {...dragLaneStart()}></div>
     </div>

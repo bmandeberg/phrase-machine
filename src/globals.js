@@ -25,6 +25,7 @@ export const DEFAULT_PRESET = JSON.stringify({
   lanes: [DEFAULT_LANE],
 })
 
+// rates, relative to an eighth note
 export const RATE_MULTS = {
   '1n': 8,
   '1n.': 12,
