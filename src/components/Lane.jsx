@@ -207,6 +207,14 @@ export default function Lane({ id, color, laneNum, lanePreset, setLaneState, bea
     [updateLaneState]
   )
 
+  const batchUpdateNotes = useCallback((notes, updateNotes) => {
+    const notesCopy = []
+    notes.forEach((note) => {
+      notesCopy.push(updateNotes[note.id] ? updateNotes[note.id] : note)
+    })
+    return notesCopy
+  }, [])
+
   const dragStart = useRef()
   const noteStart = useRef()
   const dragChanged = useRef(false)
@@ -248,13 +256,7 @@ export default function Lane({ id, color, laneNum, lanePreset, setLaneState, bea
           cancel()
         }
       })
-      setNotes((notes) => {
-        const notesCopy = []
-        notes.forEach((note) => {
-          notesCopy.push(updateNotes[note.id] ? updateNotes[note.id] : note)
-        })
-        return notesCopy
-      })
+      setNotes((notes) => batchUpdateNotes(notes, updateNotes))
     },
     onDragEnd: ({ shiftKey, event }) => {
       event.stopPropagation()
@@ -274,6 +276,7 @@ export default function Lane({ id, color, laneNum, lanePreset, setLaneState, bea
     onDrag: ({ movement: [mx], event }) => {
       event.stopPropagation()
       dragChanged.current = mx
+      const updateNotes = {}
       selectedNotesRef.current.forEach((id, i) => {
         const note = notes.find((note) => note.id === id)
         if (
@@ -281,15 +284,12 @@ export default function Lane({ id, color, laneNum, lanePreset, setLaneState, bea
           Math.abs(mx) > 2 &&
           (widthStart.current[i] + mx >= MIN_NOTE_WIDTH || note.width !== MIN_NOTE_WIDTH)
         ) {
-          setNotes((notes) => {
-            const notesCopy = notes.slice()
-            const width = widthStart.current[i] + mx
-            const note = notesCopy.find((note) => note.id === id)
-            note.width = Math.max(snap ? snapPixels(note.x + width, snap) - note.x : width, MIN_NOTE_WIDTH)
-            return notesCopy
-          })
+          const width = widthStart.current[i] + mx
+          const newWidth = Math.max(snap ? snapPixels(note.x + width, snap) - note.x : width, MIN_NOTE_WIDTH)
+          updateNotes[id] = Object.assign({}, note, { width: newWidth })
         }
       })
+      setNotes((notes) => batchUpdateNotes(notes, updateNotes))
     },
     onDragEnd: ({ shiftKey, event }) => {
       event.stopPropagation()
