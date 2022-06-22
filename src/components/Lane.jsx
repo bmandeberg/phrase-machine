@@ -276,10 +276,16 @@ export default function Lane({ id, color, laneNum, lanePreset, setLaneState, bea
       dragChanged.current = mx
       selectedNotesRef.current.forEach((id, i) => {
         const note = notes.find((note) => note.id === id)
-        if (widthStart.current[i] && (widthStart.current[i] + mx >= MIN_NOTE_WIDTH || note.width !== MIN_NOTE_WIDTH)) {
+        if (
+          widthStart.current[i] &&
+          Math.abs(mx) > 2 &&
+          (widthStart.current[i] + mx >= MIN_NOTE_WIDTH || note.width !== MIN_NOTE_WIDTH)
+        ) {
           setNotes((notes) => {
             const notesCopy = notes.slice()
-            notesCopy.find((note) => note.id === id).width = widthStart.current[i] + mx
+            const width = widthStart.current[i] + mx
+            const note = notesCopy.find((note) => note.id === id)
+            note.width = Math.max(snap ? snapPixels(note.x + width, snap) - note.x : width, MIN_NOTE_WIDTH)
             return notesCopy
           })
         }
