@@ -286,7 +286,7 @@ export default function Lane({ id, color, laneNum, lanePreset, setLaneState, bea
         ) {
           const width = widthStart.current[i] + mx
           const newWidth = Math.max(snap ? snapPixels(note.x + width, snap) - note.x : width, MIN_NOTE_WIDTH)
-          updateNotes[id] = Object.assign({}, note, { width: newWidth })
+          updateNotes[id] = Object.assign({}, note, { width: newWidth, widthSnap: snap === note.xSnap ? snap : null })
         }
       })
       setNotes((notes) => batchUpdateNotes(notes, updateNotes))
@@ -310,12 +310,21 @@ export default function Lane({ id, color, laneNum, lanePreset, setLaneState, bea
       event.stopPropagation()
       dragChanged.current = mx
       selectedNotesRef.current.forEach((id, i) => {
-        if (widthStart.current[i] && widthStart.current[i] - mx >= MIN_NOTE_WIDTH) {
+        const note = notes.find((note) => note.id === id)
+        const newX = Math.min(
+          snapPixels(dragStart.current[i] + mx, snap),
+          dragStart.current[i] + widthStart.current[i] - MIN_NOTE_WIDTH
+        )
+        if (
+          widthStart.current[i] &&
+          Math.abs(mx) > 2 &&
+          (widthStart.current[i] - mx >= MIN_NOTE_WIDTH || note.width !== MIN_NOTE_WIDTH)
+        ) {
           setNotes((notes) => {
             const notesCopy = notes.slice()
             const note = notesCopy.find((note) => note.id === id)
-            note.width = widthStart.current[i] - mx
-            note.x = dragStart.current[i] + mx
+            note.width = dragStart.current[i] + widthStart.current[i] - newX
+            note.x = newX
             return notesCopy
           })
         }
