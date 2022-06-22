@@ -218,6 +218,7 @@ export default function Lane({ id, color, laneNum, lanePreset, setLaneState, bea
   const dragStart = useRef()
   const noteStart = useRef()
   const dragChanged = useRef(false)
+  const dragDirection = useRef(0)
   const dragNote = useGesture({
     onDragStart: ({ event }) => {
       event.stopPropagation()
@@ -227,31 +228,28 @@ export default function Lane({ id, color, laneNum, lanePreset, setLaneState, bea
       dragStart.current = selectedNotesRef.current.map((id) => notes.find((note) => note.id === id).x)
       noteStart.current = selectedNotesRef.current.map((id) => notes.find((note) => note.id === id).midiNote)
     },
-    onDrag: ({ movement: [mx, my], cancel, shiftKey, event }) => {
+    onDrag: ({ movement: [mx, my], direction: [dx], cancel, shiftKey, event }) => {
       event.stopPropagation()
       dragChanged.current = mx || my
       const updateNotes = {}
       selectedNotesRef.current.forEach((id, i) => {
+        const note = notes.find((n) => n.id === id)
         let newX = dragStart.current[i]
         let newNote = noteStart.current[i]
-        let shiftDirectionX
-        if (shiftKey) {
-          shiftDirectionX = Math.abs(mx) > Math.abs(my)
-        }
+        const shiftDirectionX = shiftKey && Math.abs(mx) > Math.abs(my)
         if (dragStart.current[i] !== undefined && Math.abs(mx) > 2 && (!shiftKey || shiftDirectionX)) {
-          newX = Math.max(snapPixels(dragStart.current[i] + mx, snap), 0)
-          if (snap) {
-            dragStart.current[i] = snapPixels(dragStart.current[i], snap)
+          if (dx) {
+            dragDirection.current = dx
+          }
+          newX = Math.max(snapPixels(dragStart.current[i] + mx, snap, dragDirection.current), 0)
+          if (snap && note.xSnap !== snap) {
+            dragStart.current[i] = snapPixels(dragStart.current[i], snap, dragDirection.current)
           }
         }
         if (noteStart.current[i] && (!shiftKey || shiftDirectionX === false)) {
           newNote = constrain(noteStart.current[i] - Math.round(my / NOTE_HEIGHT), MIN_MIDI_NOTE, MAX_MIDI_NOTE)
         }
-        updateNotes[id] = Object.assign(
-          {},
-          notes.find((n) => n.id === id),
-          { x: newX, xSnap: snap, midiNote: newNote }
-        )
+        updateNotes[id] = Object.assign({}, note, { x: newX, xSnap: snap, midiNote: newNote })
         if (i === selectedNotesRef.current.length - 1 && (newNote < minNote || newNote > maxNote)) {
           cancel()
         }

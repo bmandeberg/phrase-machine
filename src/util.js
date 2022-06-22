@@ -13,13 +13,17 @@ export function boxesIntersect(x1min, x1max, y1min, y1max, x2min, x2max, y2min, 
   return x1min < x2max && x2min < x1max && y1min < y2max && y2min < y1max
 }
 
-function snapNum(px, snap) {
-  return Math.round(px / (EIGHTH_WIDTH * RATE_MULTS[snap]))
+function snapNum(px, snap, direction) {
+  const snapDimension = EIGHTH_WIDTH * RATE_MULTS[snap]
+  if (direction) {
+    return Math.floor(px / snapDimension) + (direction > 0 ? 1 : 0)
+  }
+  return Math.round(px / snapDimension)
 }
 
-export function snapPixels(px, snap) {
+export function snapPixels(px, snap, direction) {
   if (snap) {
-    return snapNum(px, snap) * (EIGHTH_WIDTH * RATE_MULTS[snap])
+    return snapNum(px, snap, direction) * (EIGHTH_WIDTH * RATE_MULTS[snap])
   } else return px
 }
 
