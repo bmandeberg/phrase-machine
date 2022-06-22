@@ -222,6 +222,7 @@ export default function Lane({ id, color, laneNum, lanePreset, setLaneState, bea
     onDrag: ({ movement: [mx, my], cancel, shiftKey, event }) => {
       event.stopPropagation()
       dragChanged.current = mx || my
+      const updateNotes = {}
       selectedNotesRef.current.forEach((id, i) => {
         let newX = dragStart.current[i]
         let newNote = noteStart.current[i]
@@ -238,18 +239,21 @@ export default function Lane({ id, color, laneNum, lanePreset, setLaneState, bea
         if (noteStart.current[i] && (!shiftKey || shiftDirectionX === false)) {
           newNote = constrain(noteStart.current[i] - Math.round(my / NOTE_HEIGHT), MIN_MIDI_NOTE, MAX_MIDI_NOTE)
         }
-        setNotes((notes) => {
-          const notesCopy = notes.slice()
-          const note = notesCopy.find((note) => note.id === id)
-          console.log(newX)
-          note.x = newX
-          note.xSnap = snap
-          note.midiNote = newNote
-          return notesCopy
-        })
+        updateNotes[id] = Object.assign(
+          {},
+          notes.find((n) => n.id === id),
+          { x: newX, xSnap: snap, midiNote: newNote }
+        )
         if (i === selectedNotesRef.current.length - 1 && (newNote < minNote || newNote > maxNote)) {
           cancel()
         }
+      })
+      setNotes((notes) => {
+        const notesCopy = []
+        notes.forEach((note) => {
+          notesCopy.push(updateNotes[note.id] ? updateNotes[note.id] : note)
+        })
+        return notesCopy
       })
     },
     onDragEnd: ({ shiftKey, event }) => {
@@ -271,7 +275,8 @@ export default function Lane({ id, color, laneNum, lanePreset, setLaneState, bea
       event.stopPropagation()
       dragChanged.current = mx
       selectedNotesRef.current.forEach((id, i) => {
-        if (widthStart.current[i] && widthStart.current[i] + mx >= MIN_NOTE_WIDTH) {
+        const note = notes.find((note) => note.id === id)
+        if (widthStart.current[i] && (widthStart.current[i] + mx >= MIN_NOTE_WIDTH || note.width !== MIN_NOTE_WIDTH)) {
           setNotes((notes) => {
             const notesCopy = notes.slice()
             notesCopy.find((note) => note.id === id).width = widthStart.current[i] + mx
