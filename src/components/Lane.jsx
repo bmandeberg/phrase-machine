@@ -309,26 +309,28 @@ export default function Lane({ id, color, laneNum, lanePreset, setLaneState, bea
     onDrag: ({ movement: [mx], event }) => {
       event.stopPropagation()
       dragChanged.current = mx
+      const updateNotes = {}
       selectedNotesRef.current.forEach((id, i) => {
         const note = notes.find((note) => note.id === id)
-        const newX = Math.min(
-          snapPixels(dragStart.current[i] + mx, snap),
-          dragStart.current[i] + widthStart.current[i] - MIN_NOTE_WIDTH
-        )
         if (
           widthStart.current[i] &&
           Math.abs(mx) > 2 &&
           (widthStart.current[i] - mx >= MIN_NOTE_WIDTH || note.width !== MIN_NOTE_WIDTH)
         ) {
-          setNotes((notes) => {
-            const notesCopy = notes.slice()
-            const note = notesCopy.find((note) => note.id === id)
-            note.width = dragStart.current[i] + widthStart.current[i] - newX
-            note.x = newX
-            return notesCopy
+          const newX = Math.min(
+            snapPixels(dragStart.current[i] + mx, snap),
+            dragStart.current[i] + widthStart.current[i] - MIN_NOTE_WIDTH
+          )
+          const newWidth = dragStart.current[i] + widthStart.current[i] - newX
+          updateNotes[id] = Object.assign({}, note, {
+            x: newX,
+            width: newWidth,
+            xSnap: snap,
+            widthSnap: snap === note.widthSnap ? snap : null,
           })
         }
       })
+      setNotes((notes) => batchUpdateNotes(notes, updateNotes))
     },
     onDragEnd: ({ shiftKey, event }) => {
       event.stopPropagation()

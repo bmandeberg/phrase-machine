@@ -64,7 +64,7 @@ export default function Header({
   )
 
   const snapOptions = useMemo(
-    () => [{ value: null, label: 'NONE' }].concat(RATES.map((rate) => ({ value: rate, label: rate }))),
+    () => [{ value: null, label: 'none' }].concat(RATES.map((rate) => ({ value: rate, label: rate }))),
     []
   )
 
