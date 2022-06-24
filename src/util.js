@@ -23,8 +23,9 @@ function snapNum(px, snap, direction) {
 
 export function snapPixels(px, snap, direction) {
   if (snap) {
-    return snapNum(px, snap, direction) * (EIGHTH_WIDTH * RATE_MULTS[snap])
-  } else return px
+    const snapNumber = snapNum(px, snap, direction)
+    return { px: snapNumber * (EIGHTH_WIDTH * RATE_MULTS[snap]), snapNumber }
+  } else return { px, snapNumber: null }
 }
 
 export function pixelsToTime(px, snap) {

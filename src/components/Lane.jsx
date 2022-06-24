@@ -139,15 +139,15 @@ export default function Lane({ id, color, laneNum, lanePreset, setLaneState, bea
           const realX = ix + leftOffset
           setNotes((notes) => {
             const notesCopy = notes.slice()
+            const { px, snapNumber } = snapPixels(realX, snap)
             const newNote = {
               id: tempNote.current,
               midiNote: laneNum + minNote,
               velocity: 1,
-              x: snapPixels(realX, snap),
+              x: px,
               xSnap: snap,
+              xSnapNumber: snapNumber,
               width: mx,
-              widthSnap: null,
-              endSnap: null,
             }
             notesCopy.push(newNote)
             // set as selected note
@@ -162,10 +162,10 @@ export default function Lane({ id, color, laneNum, lanePreset, setLaneState, bea
         setNotes((notes) => {
           const notesCopy = notes.slice()
           const note = notesCopy.find((note) => note.id === tempNote.current)
-          note.width = snap
-            ? Math.max(snapPixels(x + leftOffset, snap) - note.x, RATE_MULTS[snap] * EIGHTH_WIDTH)
-            : Math.max(mx, 3)
+          const { px, snapNumber } = snapPixels(x + leftOffset, snap)
+          note.width = snap ? Math.max(px - note.x, RATE_MULTS[snap] * EIGHTH_WIDTH) : Math.max(mx, 3)
           note.widthSnap = snap
+          note.widthSnapNumber = snap && snapNumber - note.xSnapNumber
           note.endSnap = snap
           return notesCopy
         })
@@ -243,6 +243,7 @@ export default function Lane({ id, color, laneNum, lanePreset, setLaneState, bea
         const note = notes.find((n) => n.id === id)
         let newX = dragStart.current[i]
         let newNote = noteStart.current[i]
+        let xSnapNumber = note.xSnapNumber
         const shiftDirectionX = shiftKey && Math.abs(mx) > Math.abs(my)
         // note position
         if (
@@ -253,14 +254,16 @@ export default function Lane({ id, color, laneNum, lanePreset, setLaneState, bea
           if (dx) {
             dragDirection.current = dx
           }
-          const lowerSnapBound = snap && snapPixels(dragStart.current[i], snap, -1)
+          const lowerSnapBound = snap && snapPixels(dragStart.current[i], snap, -1).px
           const upperSnapBound = snap && lowerSnapBound + EIGHTH_WIDTH * RATE_MULTS[snap]
           const realX = dragStart.current[i] + mx
           if (snap && !snapStart.current[i] && (realX < lowerSnapBound || realX > upperSnapBound)) {
             snapStart.current[i] = snap
           }
           const direction = !snapStart.current[i] ? dragDirection.current : 0
-          newX = Math.max(snapPixels(realX, snap, direction), 0)
+          const { px, snapNumber } = snapPixels(realX, snap, direction)
+          xSnapNumber = snapNumber
+          newX = Math.max(px, 0)
           if (snap && newX !== dragStart.current[i]) {
             overrideDefault.current = true
           }
@@ -272,6 +275,7 @@ export default function Lane({ id, color, laneNum, lanePreset, setLaneState, bea
         updateNotes[id] = Object.assign({}, note, {
           x: newX,
           xSnap: snap,
+          xSnapNumber,
           endSnap: snap && note.widthSnap === snap ? snap : null,
           midiNote: newNote,
         })
@@ -311,14 +315,15 @@ export default function Lane({ id, color, laneNum, lanePreset, setLaneState, bea
           if (dx) {
             dragDirection.current = dx
           }
-          const lowerSnapBound = snap && snapPixels(widthStart.current[i], snap, -1)
+          const lowerSnapBound = snap && snapPixels(widthStart.current[i], snap, -1).px
           const upperSnapBound = snap && lowerSnapBound + EIGHTH_WIDTH * RATE_MULTS[snap]
           const width = widthStart.current[i] + mx
           if (snap && !snapStart.current[i] && (width < lowerSnapBound || width > upperSnapBound)) {
             snapStart.current[i] = snap
           }
           const direction = !snapStart.current[i] ? dragDirection.current : 0
-          const newWidth = Math.max(snapPixels(width, snap, direction), MIN_NOTE_WIDTH)
+          const { px, snapNumber } = snapPixels(width, snap, direction)
+          const newWidth = Math.max(px, MIN_NOTE_WIDTH)
           if (!snap || newWidth !== widthStart.current[i]) {
             overrideDefault.current = true
           }
@@ -326,6 +331,7 @@ export default function Lane({ id, color, laneNum, lanePreset, setLaneState, bea
             width: newWidth,
             endSnap: snap,
             widthSnap: snap && snap === note.xSnap ? snap : null,
+            widthSnapNumber: snapNumber,
           })
         }
       })
@@ -361,23 +367,27 @@ export default function Lane({ id, color, laneNum, lanePreset, setLaneState, bea
           if (dx) {
             dragDirection.current = dx
           }
-          const lowerSnapBound = snap && snapPixels(dragStart.current[i], snap, -1)
+          const lowerSnapBound = snap && snapPixels(dragStart.current[i], snap, -1).px
           const upperSnapBound = snap && lowerSnapBound + EIGHTH_WIDTH * RATE_MULTS[snap]
           const realX = dragStart.current[i] + mx
           if (snap && !snapStart.current[i] && (realX < lowerSnapBound || realX > upperSnapBound)) {
             snapStart.current[i] = snap
           }
           const direction = !snapStart.current[i] ? dragDirection.current : 0
-          const newX = Math.max(snapPixels(realX, snap, direction), 0)
+          const { px, snapNumber } = snapPixels(realX, snap, direction)
+          const newX = Math.max(px, 0)
           if (!snap || newX !== dragStart.current[i]) {
             overrideDefault.current = true
           }
           const newWidth = dragStart.current[i] + widthStart.current[i] - newX
+          const widthSnapping = snap && snap === note.widthSnap
           updateNotes[id] = Object.assign({}, note, {
             x: newX,
             width: newWidth,
             xSnap: snap,
-            widthSnap: snap === note.widthSnap ? snap : null,
+            xSnapNumber: snapNumber,
+            widthSnap: widthSnapping ? snap : null,
+            widthSnapNumber: widthSnapping ? Math.floor(newWidth / (EIGHTH_WIDTH * RATE_MULTS[snap])) : null,
           })
         }
       })
