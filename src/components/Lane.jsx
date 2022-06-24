@@ -147,6 +147,7 @@ export default function Lane({ id, color, laneNum, lanePreset, setLaneState, bea
               xSnap: snap,
               width: mx,
               widthSnap: null,
+              endSnap: null,
             }
             notesCopy.push(newNote)
             // set as selected note
@@ -165,6 +166,7 @@ export default function Lane({ id, color, laneNum, lanePreset, setLaneState, bea
             ? Math.max(snapPixels(x + leftOffset, snap) - note.x, RATE_MULTS[snap] * EIGHTH_WIDTH)
             : Math.max(mx, 3)
           note.widthSnap = snap
+          note.endSnap = snap
           return notesCopy
         })
       }
@@ -203,6 +205,8 @@ export default function Lane({ id, color, laneNum, lanePreset, setLaneState, bea
         updateLaneState()
       }
       dragChanged.current = false
+      dragDirection.current = 0
+      overrideDefault.current = false
     },
     [updateLaneState]
   )
@@ -219,6 +223,8 @@ export default function Lane({ id, color, laneNum, lanePreset, setLaneState, bea
   const noteStart = useRef()
   const dragChanged = useRef(false)
   const dragDirection = useRef(0)
+  const snapStart = useRef()
+  const overrideDefault = useRef()
   const dragNote = useGesture({
     onDragStart: ({ event }) => {
       event.stopPropagation()
@@ -227,6 +233,7 @@ export default function Lane({ id, color, laneNum, lanePreset, setLaneState, bea
       addSelectedNotes(event.target?.id)
       dragStart.current = selectedNotesRef.current.map((id) => notes.find((note) => note.id === id).x)
       noteStart.current = selectedNotesRef.current.map((id) => notes.find((note) => note.id === id).midiNote)
+      snapStart.current = selectedNotesRef.current.map((id) => notes.find((note) => note.id === id).xSnap)
     },
     onDrag: ({ movement: [mx, my], direction: [dx], cancel, shiftKey, event }) => {
       event.stopPropagation()
@@ -237,19 +244,37 @@ export default function Lane({ id, color, laneNum, lanePreset, setLaneState, bea
         let newX = dragStart.current[i]
         let newNote = noteStart.current[i]
         const shiftDirectionX = shiftKey && Math.abs(mx) > Math.abs(my)
-        if (dragStart.current[i] !== undefined && Math.abs(mx) > 2 && (!shiftKey || shiftDirectionX)) {
+        // note position
+        if (
+          dragStart.current[i] !== undefined &&
+          (Math.abs(mx) > 2 || overrideDefault.current) &&
+          (!shiftKey || shiftDirectionX)
+        ) {
           if (dx) {
             dragDirection.current = dx
           }
-          newX = Math.max(snapPixels(dragStart.current[i] + mx, snap, dragDirection.current), 0)
-          if (snap && note.xSnap !== snap) {
-            dragStart.current[i] = snapPixels(dragStart.current[i], snap, dragDirection.current)
+          const lowerSnapBound = snap && snapPixels(dragStart.current[i], snap, -1)
+          const upperSnapBound = snap && lowerSnapBound + EIGHTH_WIDTH * RATE_MULTS[snap]
+          const realX = dragStart.current[i] + mx
+          if (snap && !snapStart.current[i] && (realX < lowerSnapBound || realX > upperSnapBound)) {
+            snapStart.current[i] = snap
+          }
+          const direction = !snapStart.current[i] ? dragDirection.current : 0
+          newX = Math.max(snapPixels(realX, snap, direction), 0)
+          if (snap && newX !== dragStart.current[i]) {
+            overrideDefault.current = true
           }
         }
+        // midi note, y-axis
         if (noteStart.current[i] && (!shiftKey || shiftDirectionX === false)) {
           newNote = constrain(noteStart.current[i] - Math.round(my / NOTE_HEIGHT), MIN_MIDI_NOTE, MAX_MIDI_NOTE)
         }
-        updateNotes[id] = Object.assign({}, note, { x: newX, xSnap: snap, midiNote: newNote })
+        updateNotes[id] = Object.assign({}, note, {
+          x: newX,
+          xSnap: snap,
+          endSnap: snap && note.widthSnap === snap ? snap : null,
+          midiNote: newNote,
+        })
         if (i === selectedNotesRef.current.length - 1 && (newNote < minNote || newNote > maxNote)) {
           cancel()
         }
@@ -270,8 +295,9 @@ export default function Lane({ id, color, laneNum, lanePreset, setLaneState, bea
       setGrabbing(true)
       addSelectedNotes(event.target?.parentElement?.id)
       widthStart.current = selectedNotesRef.current.map((id) => notes.find((note) => note.id === id).width)
+      snapStart.current = selectedNotesRef.current.map((id) => notes.find((note) => note.id === id).endSnap)
     },
-    onDrag: ({ movement: [mx], event }) => {
+    onDrag: ({ movement: [mx], direction: [dx], event }) => {
       event.stopPropagation()
       dragChanged.current = mx
       const updateNotes = {}
@@ -279,12 +305,28 @@ export default function Lane({ id, color, laneNum, lanePreset, setLaneState, bea
         const note = notes.find((note) => note.id === id)
         if (
           widthStart.current[i] &&
-          Math.abs(mx) > 2 &&
+          (Math.abs(mx) > 2 || overrideDefault.current) &&
           (widthStart.current[i] + mx >= MIN_NOTE_WIDTH || note.width !== MIN_NOTE_WIDTH)
         ) {
+          if (dx) {
+            dragDirection.current = dx
+          }
+          const lowerSnapBound = snap && snapPixels(widthStart.current[i], snap, -1)
+          const upperSnapBound = snap && lowerSnapBound + EIGHTH_WIDTH * RATE_MULTS[snap]
           const width = widthStart.current[i] + mx
-          const newWidth = Math.max(snap ? snapPixels(note.x + width, snap) - note.x : width, MIN_NOTE_WIDTH)
-          updateNotes[id] = Object.assign({}, note, { width: newWidth, widthSnap: snap === note.xSnap ? snap : null })
+          if (snap && !snapStart.current[i] && (width < lowerSnapBound || width > upperSnapBound)) {
+            snapStart.current[i] = snap
+          }
+          const direction = !snapStart.current[i] ? dragDirection.current : 0
+          const newWidth = Math.max(snapPixels(width, snap, direction), MIN_NOTE_WIDTH)
+          if (snap && newWidth !== widthStart.current[i]) {
+            overrideDefault.current = true
+          }
+          updateNotes[id] = Object.assign({}, note, {
+            width: newWidth,
+            endSnap: snap,
+            widthSnap: snap && snap === note.xSnap ? snap : null,
+          })
         }
       })
       setNotes((notes) => batchUpdateNotes(notes, updateNotes))
@@ -304,7 +346,7 @@ export default function Lane({ id, color, laneNum, lanePreset, setLaneState, bea
       widthStart.current = selectedNotesRef.current.map((id) => notes.find((note) => note.id === id).width)
       dragStart.current = selectedNotesRef.current.map((id) => notes.find((note) => note.id === id).x)
     },
-    onDrag: ({ movement: [mx], event }) => {
+    onDrag: ({ movement: [mx], direction: [dx], event }) => {
       event.stopPropagation()
       dragChanged.current = mx
       const updateNotes = {}
@@ -315,8 +357,15 @@ export default function Lane({ id, color, laneNum, lanePreset, setLaneState, bea
           Math.abs(mx) > 2 &&
           (widthStart.current[i] - mx >= MIN_NOTE_WIDTH || note.width !== MIN_NOTE_WIDTH)
         ) {
+          if (dx) {
+            dragDirection.current = dx
+          }
           const newX = Math.min(
-            snapPixels(dragStart.current[i] + mx, snap),
+            snapPixels(
+              dragStart.current[i] + mx,
+              snap,
+              snap && Math.abs(mx) < EIGHTH_WIDTH * RATE_MULTS[snap] ? dragDirection.current : 0
+            ),
             dragStart.current[i] + widthStart.current[i] - MIN_NOTE_WIDTH
           )
           const newWidth = dragStart.current[i] + widthStart.current[i] - newX
