@@ -319,7 +319,7 @@ export default function Lane({ id, color, laneNum, lanePreset, setLaneState, bea
           }
           const direction = !snapStart.current[i] ? dragDirection.current : 0
           const newWidth = Math.max(snapPixels(width, snap, direction), MIN_NOTE_WIDTH)
-          if (snap && newWidth !== widthStart.current[i]) {
+          if (!snap || newWidth !== widthStart.current[i]) {
             overrideDefault.current = true
           }
           updateNotes[id] = Object.assign({}, note, {
@@ -369,7 +369,7 @@ export default function Lane({ id, color, laneNum, lanePreset, setLaneState, bea
           }
           const direction = !snapStart.current[i] ? dragDirection.current : 0
           const newX = Math.max(snapPixels(realX, snap, direction), 0)
-          if (snap && newX !== dragStart.current[i]) {
+          if (!snap || newX !== dragStart.current[i]) {
             overrideDefault.current = true
           }
           const newWidth = dragStart.current[i] + widthStart.current[i] - newX
