@@ -74,10 +74,12 @@ export default function Lane({ id, color, laneNum, lanePreset, setLaneState, bea
         !e.target.classList.contains('note') &&
         !e.target.parentElement?.classList.contains('note') &&
         selectedNotesRef.current.length &&
-        !mouseMoved.current
+        !mouseMoved.current &&
+        !createdNote.current
       ) {
         setSelectedNotes([])
       }
+      createdNote.current = false
       mouseMoved.current = false
     }
     function keydown(e) {
@@ -119,6 +121,7 @@ export default function Lane({ id, color, laneNum, lanePreset, setLaneState, bea
 
   // note creation
 
+  const createdNote = useRef(false)
   const createNote = useGesture({
     onDragStart: ({ event, metaKey }) => {
       if (metaKey) {
@@ -130,8 +133,8 @@ export default function Lane({ id, color, laneNum, lanePreset, setLaneState, bea
     },
     onDrag: ({ movement: [mx], initial: [ix], xy: [x], event, metaKey }) => {
       // create note
-      const leftOffset = 4 - lane.current?.getBoundingClientRect().left
-      if (metaKey && Math.abs(mx) >= 3 && !tempNote.current) {
+      const leftOffset = -lane.current?.getBoundingClientRect().left
+      if (metaKey && !tempNote.current) {
         const laneNum = maxNote - minNote - +event.target?.getAttribute('lane-num')
         const left = lane.current?.getBoundingClientRect().left
         if (left) {
@@ -139,7 +142,7 @@ export default function Lane({ id, color, laneNum, lanePreset, setLaneState, bea
           const realX = ix + leftOffset
           setNotes((notes) => {
             const notesCopy = notes.slice()
-            const { px, snapNumber } = snapPixels(realX, snap)
+            const { px, snapNumber } = snapPixels(realX, snap, -1)
             const newNote = {
               id: tempNote.current,
               midiNote: laneNum + minNote,
@@ -147,7 +150,9 @@ export default function Lane({ id, color, laneNum, lanePreset, setLaneState, bea
               x: px,
               xSnap: snap,
               xSnapNumber: snapNumber,
-              width: mx,
+              width: snap ? EIGHTH_WIDTH * RATE_MULTS[snap] : 3,
+              widthSnap: snap,
+              endSnap: snap,
             }
             notesCopy.push(newNote)
             // set as selected note
@@ -155,6 +160,7 @@ export default function Lane({ id, color, laneNum, lanePreset, setLaneState, bea
             return notesCopy
           })
           setNoPointerEvents(true)
+          createdNote.current = true
         }
       } else if (tempNote.current) {
         event.stopPropagation()
