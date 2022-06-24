@@ -345,6 +345,7 @@ export default function Lane({ id, color, laneNum, lanePreset, setLaneState, bea
       addSelectedNotes(event.target?.parentElement?.id)
       widthStart.current = selectedNotesRef.current.map((id) => notes.find((note) => note.id === id).width)
       dragStart.current = selectedNotesRef.current.map((id) => notes.find((note) => note.id === id).x)
+      snapStart.current = selectedNotesRef.current.map((id) => notes.find((note) => note.id === id).xSnap)
     },
     onDrag: ({ movement: [mx], direction: [dx], event }) => {
       event.stopPropagation()
@@ -354,20 +355,23 @@ export default function Lane({ id, color, laneNum, lanePreset, setLaneState, bea
         const note = notes.find((note) => note.id === id)
         if (
           widthStart.current[i] &&
-          Math.abs(mx) > 2 &&
+          (Math.abs(mx) > 2 || overrideDefault.current) &&
           (widthStart.current[i] - mx >= MIN_NOTE_WIDTH || note.width !== MIN_NOTE_WIDTH)
         ) {
           if (dx) {
             dragDirection.current = dx
           }
-          const newX = Math.min(
-            snapPixels(
-              dragStart.current[i] + mx,
-              snap,
-              snap && Math.abs(mx) < EIGHTH_WIDTH * RATE_MULTS[snap] ? dragDirection.current : 0
-            ),
-            dragStart.current[i] + widthStart.current[i] - MIN_NOTE_WIDTH
-          )
+          const lowerSnapBound = snap && snapPixels(dragStart.current[i], snap, -1)
+          const upperSnapBound = snap && lowerSnapBound + EIGHTH_WIDTH * RATE_MULTS[snap]
+          const realX = dragStart.current[i] + mx
+          if (snap && !snapStart.current[i] && (realX < lowerSnapBound || realX > upperSnapBound)) {
+            snapStart.current[i] = snap
+          }
+          const direction = !snapStart.current[i] ? dragDirection.current : 0
+          const newX = Math.max(snapPixels(realX, snap, direction), 0)
+          if (snap && newX !== dragStart.current[i]) {
+            overrideDefault.current = true
+          }
           const newWidth = dragStart.current[i] + widthStart.current[i] - newX
           updateNotes[id] = Object.assign({}, note, {
             x: newX,
