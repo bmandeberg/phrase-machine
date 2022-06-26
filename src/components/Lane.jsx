@@ -101,7 +101,7 @@ export default function Lane({
     }
     function selectNotes(e) {
       if (e.detail[id]) {
-        setSelectedNotes(e.detail[id])
+        setSelectedNotes((selectedNotes) => (shiftPressed.current ? selectedNotes.concat(e.detail[id]) : e.detail[id]))
       } else {
         setSelectedNotes([])
       }
@@ -118,11 +118,11 @@ export default function Lane({
       window.removeEventListener('mousemove', moveMouse)
       window.removeEventListener('mousedown', mouseDown)
     }
-  }, [id])
+  }, [id, shiftPressed])
 
   // note creation + dragging
 
-  const { createNote, dragNote, dragNoteLeft, dragNoteRight } = useNoteDrag(
+  const { createNote, dragNoteLeft, dragNoteRight } = useNoteDrag(
     lane,
     maxNote,
     minNote,
@@ -225,7 +225,7 @@ export default function Lane({
   }, [notes, minNote, maxNote, selectedNotes, noPointerEvents, grabbing, dragNoteLeft, dragNoteRight])
 
   return (
-    <div className="lane-container" style={{ '--lane-color': color }}>
+    <div id={id} className="lane-container" style={{ '--lane-color': color }}>
       <div className={classNames('keys', { grabbing })} {...dragLane()}>
         {keyEls}
       </div>

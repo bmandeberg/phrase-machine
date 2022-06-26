@@ -147,7 +147,7 @@ export default function useNoteDrag(
       noteStart.current = selectedNotesRef.current.map((id) => notes.find((note) => note.id === id).midiNote)
       snapStart.current = selectedNotesRef.current.map((id) => notes.find((note) => note.id === id).xSnap)
     },
-    onDrag: ({ movement: [mx, my], direction: [dx], cancel, shiftKey, event }) => {
+    onDrag: ({ movement: [mx, my], direction: [dx], shiftKey, event }) => {
       event.stopPropagation()
       dragChanged.current = mx || my
       const updateNotes = {}

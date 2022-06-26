@@ -70,16 +70,28 @@ export default function App() {
 
   const [selectingDimensions, setSelectingDimensions] = useState(null)
   const dragSelecting = useRef(false)
-  const dragSelectNotes = useGesture({
+  const draggingNote = useRef(false)
+  const dragNotes = useGesture({
     onDragStart: ({ initial: [x, y], metaKey, event }) => {
       if (!metaKey && event.button === 0) {
-        dragSelecting.current = true
-        setSelectingDimensions({
-          x,
-          y,
-          width: 0,
-          height: 0,
-        })
+        if (event.target.classList.contains('note')) {
+          draggingNote.current = true
+          window.dispatchEvent(
+            new CustomEvent('selectNotes', {
+              detail: {
+                [event.target.closest('.lane-container').id]: [event.target.id],
+              },
+            })
+          )
+        } else {
+          dragSelecting.current = true
+          setSelectingDimensions({
+            x,
+            y,
+            width: 0,
+            height: 0,
+          })
+        }
       }
     },
     onDrag: ({ movement: [mx, my], initial: [ix, iy], metaKey }) => {
@@ -92,41 +104,43 @@ export default function App() {
     },
     onDragEnd: ({ event }) => {
       if (event.button === 0) {
-        const selectedNotes = {}
-        // gather notes that intersect with selection bounds
-        mainContainerRef.current?.querySelectorAll('.lane-container').forEach((lane, i) => {
-          const laneData = uiState.lanes[i]
-          laneData.notes.forEach((note) => {
-            const noteX = lane.offsetLeft + note.x + KEYS_WIDTH
-            const noteY = lane.offsetTop + (laneData.viewRange.max - note.midiNote) * NOTE_HEIGHT
-            if (
-              boxesIntersect(
-                noteX,
-                noteX + note.width,
-                noteY,
-                noteY + NOTE_HEIGHT,
-                selectingDimensions.x,
-                selectingDimensions.x + selectingDimensions.width,
-                selectingDimensions.y,
-                selectingDimensions.y + selectingDimensions.height
-              )
-            ) {
-              if (!selectedNotes[laneData.id]) {
-                selectedNotes[laneData.id] = [note.id]
-              } else {
-                selectedNotes[laneData.id].push(note.id)
+        if (dragSelecting.current) {
+          const selectedNotes = {}
+          // gather notes that intersect with selection bounds
+          mainContainerRef.current?.querySelectorAll('.lane-container').forEach((lane, i) => {
+            const laneData = uiState.lanes[i]
+            laneData.notes.forEach((note) => {
+              const noteX = lane.offsetLeft + note.x + KEYS_WIDTH
+              const noteY = lane.offsetTop + (laneData.viewRange.max - note.midiNote) * NOTE_HEIGHT
+              if (
+                boxesIntersect(
+                  noteX,
+                  noteX + note.width,
+                  noteY,
+                  noteY + NOTE_HEIGHT,
+                  selectingDimensions.x,
+                  selectingDimensions.x + selectingDimensions.width,
+                  selectingDimensions.y,
+                  selectingDimensions.y + selectingDimensions.height
+                )
+              ) {
+                if (!selectedNotes[laneData.id]) {
+                  selectedNotes[laneData.id] = [note.id]
+                } else {
+                  selectedNotes[laneData.id].push(note.id)
+                }
               }
-            }
+            })
           })
-        })
-        // broadcast selected notes
-        window.dispatchEvent(
-          new CustomEvent('selectNotes', {
-            detail: selectedNotes,
-          })
-        )
-        dragSelecting.current = false
-        setSelectingDimensions(null)
+          // broadcast selected notes
+          window.dispatchEvent(
+            new CustomEvent('selectNotes', {
+              detail: selectedNotes,
+            })
+          )
+          dragSelecting.current = false
+          setSelectingDimensions(null)
+        }
       }
     },
   })
@@ -175,7 +189,7 @@ export default function App() {
         '--note-height': NOTE_HEIGHT + 'px',
         '--keys-width': KEYS_WIDTH + 'px',
       }}
-      {...dragSelectNotes()}>
+      {...dragNotes()}>
       <Header
         playing={playing}
         setPlaying={setPlaying}
