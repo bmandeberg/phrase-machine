@@ -17,7 +17,29 @@ export default function App() {
   const [snap, setSnap] = useState(uiState.snap)
   const [beatsPerBar, setBeatsPerBar] = useState(uiState.beatsPerBar)
   const [beatValue, setBeatValue] = useState(uiState.beatValue)
+  const [noPointerEvents, setNoPointerEvents] = useState(false)
+  const [grabbing, setGrabbing] = useState(false)
+  const shiftPressed = useRef(false)
   const mainContainerRef = useRef()
+
+  useEffect(() => {
+    function keydown(e) {
+      if (e.key === 'Shift') {
+        shiftPressed.current = true
+      }
+    }
+    function keyup(e) {
+      if (e.key === 'Shift') {
+        shiftPressed.current = false
+      }
+    }
+    window.addEventListener('keyup', keyup)
+    window.addEventListener('keydown', keydown)
+    return () => {
+      window.removeEventListener('keyup', keyup)
+      window.removeEventListener('keydown', keydown)
+    }
+  }, [])
 
   useEffect(() => {
     window.localStorage.setItem('phrasePresets', JSON.stringify(uiState))
@@ -134,9 +156,14 @@ export default function App() {
           beatsPerBar={beatsPerBar}
           beatValue={beatValue}
           snap={snap}
+          noPointerEvents={noPointerEvents}
+          setNoPointerEvents={setNoPointerEvents}
+          grabbing={grabbing}
+          setGrabbing={setGrabbing}
+          shiftPressed={shiftPressed}
         />
       )),
-    [beatValue, beatsPerBar, setLaneState, snap, uiState.lanes]
+    [beatValue, beatsPerBar, grabbing, noPointerEvents, setLaneState, snap, uiState.lanes]
   )
 
   return (

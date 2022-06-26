@@ -191,9 +191,6 @@ export default function useNoteDrag(
           endSnap: snap && note.widthSnap === snap ? snap : null,
           midiNote: newNote,
         })
-        if (i === selectedNotesRef.current.length - 1 && (newNote < minNote || newNote > maxNote)) {
-          cancel()
-        }
       })
       setNotes((notes) => batchUpdateNotes(notes, updateNotes))
     },

@@ -8,7 +8,21 @@ import useLaneDrag from '../hooks/useLaneDrag'
 import { noteString } from '../util'
 import './Lane.scss'
 
-export default function Lane({ id, color, laneNum, lanePreset, setLaneState, beatsPerBar, beatValue, snap }) {
+export default function Lane({
+  id,
+  color,
+  laneNum,
+  lanePreset,
+  setLaneState,
+  beatsPerBar,
+  beatValue,
+  snap,
+  noPointerEvents,
+  setNoPointerEvents,
+  grabbing,
+  setGrabbing,
+  shiftPressed,
+}) {
   const [laneLength, setLaneLength] = useState(lanePreset.laneLength)
   const [delimiters, setDelimiters] = useState(lanePreset.delimiters)
   const [notes, setNotes] = useState(lanePreset.notes)
@@ -17,10 +31,7 @@ export default function Lane({ id, color, laneNum, lanePreset, setLaneState, bea
   const lane = useRef()
   const [selectedNotes, setSelectedNotes] = useState([]) // list of note IDs
   const selectedNotesRef = useRef(selectedNotes)
-  const [noPointerEvents, setNoPointerEvents] = useState(false)
   const noPointerEventsRef = useRef(noPointerEvents)
-  const [grabbing, setGrabbing] = useState(false)
-  const shiftPressed = useRef(false)
   const mouseMoved = useRef(false)
   const createdNote = useRef(false)
   const dragChanged = useRef(false)
@@ -86,13 +97,6 @@ export default function Lane({ id, color, laneNum, lanePreset, setLaneState, bea
         setNotes((notes) => notes.filter((note) => !selectedNotesRef.current.includes(note.id)))
         setSelectedNotes([])
         updateLaneStateRef.current()
-      } else if (e.key === 'Shift') {
-        shiftPressed.current = true
-      }
-    }
-    function keyup(e) {
-      if (e.key === 'Shift') {
-        shiftPressed.current = false
       }
     }
     function selectNotes(e) {
@@ -104,14 +108,12 @@ export default function Lane({ id, color, laneNum, lanePreset, setLaneState, bea
     }
     window.addEventListener('click', deselect)
     window.addEventListener('keydown', keydown)
-    window.addEventListener('keyup', keyup)
     window.addEventListener('selectNotes', selectNotes)
     window.addEventListener('mousemove', moveMouse)
     window.addEventListener('mousedown', mouseDown)
     return () => {
       window.removeEventListener('click', deselect)
       window.removeEventListener('keydown', keydown)
-      window.removeEventListener('keyup', keyup)
       window.removeEventListener('selectNotes', selectNotes)
       window.removeEventListener('mousemove', moveMouse)
       window.removeEventListener('mousedown', mouseDown)
@@ -206,7 +208,6 @@ export default function Lane({ id, color, laneNum, lanePreset, setLaneState, bea
         <div
           key={note.id}
           id={note.id}
-          {...dragNote()}
           className={classNames('note', {
             selected: selectedNotes.includes(note.id),
             'no-pointer': noPointerEvents,
@@ -221,7 +222,7 @@ export default function Lane({ id, color, laneNum, lanePreset, setLaneState, bea
             {...dragNoteRight()}></div>
         </div>
       ))
-  }, [notes, minNote, maxNote, dragNote, selectedNotes, noPointerEvents, grabbing, dragNoteLeft, dragNoteRight])
+  }, [notes, minNote, maxNote, selectedNotes, noPointerEvents, grabbing, dragNoteLeft, dragNoteRight])
 
   return (
     <div className="lane-container" style={{ '--lane-color': color }}>
@@ -243,6 +244,11 @@ Lane.propTypes = {
   beatsPerBar: PropTypes.number,
   beatValue: PropTypes.number,
   snap: PropTypes.string,
+  noPointerEvents: PropTypes.bool,
+  setNoPointerEvents: PropTypes.func,
+  grabbing: PropTypes.bool,
+  setGrabbing: PropTypes.func,
+  shiftPressed: PropTypes.object,
 }
 
 const blackKeys = [false, true, false, true, false, false, true, false, true, false, true, false]
