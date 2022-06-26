@@ -22,6 +22,7 @@ export default function Lane({
   grabbing,
   setGrabbing,
   shiftPressed,
+  selectNotes,
 }) {
   const [laneLength, setLaneLength] = useState(lanePreset.laneLength)
   const [delimiters, setDelimiters] = useState(lanePreset.delimiters)
@@ -68,6 +69,18 @@ export default function Lane({
     setMaxNote(lanePreset.viewRange.max)
   }, [lanePreset])
 
+  useEffect(() => {
+    if (selectNotes) {
+      if (selectNotes[id]) {
+        setSelectedNotes((selectedNotes) =>
+          shiftPressed.current ? selectedNotes.concat(selectNotes[id]) : selectNotes[id]
+        )
+      } else {
+        setSelectedNotes([])
+      }
+    }
+  }, [id, selectNotes, shiftPressed])
+
   // init and attach events
 
   useEffect(() => {
@@ -99,22 +112,13 @@ export default function Lane({
         updateLaneStateRef.current()
       }
     }
-    function selectNotes(e) {
-      if (e.detail[id]) {
-        setSelectedNotes((selectedNotes) => (shiftPressed.current ? selectedNotes.concat(e.detail[id]) : e.detail[id]))
-      } else {
-        setSelectedNotes([])
-      }
-    }
     window.addEventListener('click', deselect)
     window.addEventListener('keydown', keydown)
-    window.addEventListener('selectNotes', selectNotes)
     window.addEventListener('mousemove', moveMouse)
     window.addEventListener('mousedown', mouseDown)
     return () => {
       window.removeEventListener('click', deselect)
       window.removeEventListener('keydown', keydown)
-      window.removeEventListener('selectNotes', selectNotes)
       window.removeEventListener('mousemove', moveMouse)
       window.removeEventListener('mousedown', mouseDown)
     }
@@ -249,6 +253,7 @@ Lane.propTypes = {
   grabbing: PropTypes.bool,
   setGrabbing: PropTypes.func,
   shiftPressed: PropTypes.object,
+  selectNotes: PropTypes.object,
 }
 
 const blackKeys = [false, true, false, true, false, false, true, false, true, false, true, false]

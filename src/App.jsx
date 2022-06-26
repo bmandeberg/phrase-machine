@@ -19,6 +19,7 @@ export default function App() {
   const [beatValue, setBeatValue] = useState(uiState.beatValue)
   const [noPointerEvents, setNoPointerEvents] = useState(false)
   const [grabbing, setGrabbing] = useState(false)
+  const [selectNotes, setSelectNotes] = useState({})
   const shiftPressed = useRef(false)
   const mainContainerRef = useRef()
 
@@ -75,15 +76,11 @@ export default function App() {
     onDragStart: ({ initial: [x, y], metaKey, event }) => {
       if (!metaKey && event.button === 0) {
         if (event.target.classList.contains('note')) {
+          // dragging notes
           draggingNote.current = true
-          window.dispatchEvent(
-            new CustomEvent('selectNotes', {
-              detail: {
-                [event.target.closest('.lane-container').id]: [event.target.id],
-              },
-            })
-          )
+          setSelectNotes({ [event.target.closest('.lane-container').id]: [event.target.id] })
         } else {
+          // drag selecting
           dragSelecting.current = true
           setSelectingDimensions({
             x,
@@ -95,11 +92,16 @@ export default function App() {
       }
     },
     onDrag: ({ movement: [mx, my], initial: [ix, iy], metaKey }) => {
-      if (!metaKey && dragSelecting.current) {
-        const newDimensions = { width: Math.abs(mx), height: Math.abs(my) }
-        newDimensions.x = (mx > 0 ? ix : ix - newDimensions.width) + mainContainerRef?.current?.scrollLeft
-        newDimensions.y = (my > 0 ? iy : iy - newDimensions.height) + mainContainerRef?.current?.scrollTop
-        setSelectingDimensions(newDimensions)
+      if (!metaKey) {
+        if (dragSelecting.current) {
+          // drag selecting
+          const newDimensions = { width: Math.abs(mx), height: Math.abs(my) }
+          newDimensions.x = (mx > 0 ? ix : ix - newDimensions.width) + mainContainerRef?.current?.scrollLeft
+          newDimensions.y = (my > 0 ? iy : iy - newDimensions.height) + mainContainerRef?.current?.scrollTop
+          setSelectingDimensions(newDimensions)
+        } else if (draggingNote.current) {
+          // dragging notes
+        }
       }
     },
     onDragEnd: ({ event }) => {
@@ -132,12 +134,7 @@ export default function App() {
               }
             })
           })
-          // broadcast selected notes
-          window.dispatchEvent(
-            new CustomEvent('selectNotes', {
-              detail: selectedNotes,
-            })
-          )
+          setSelectNotes(selectedNotes)
           dragSelecting.current = false
           setSelectingDimensions(null)
         }
@@ -175,9 +172,10 @@ export default function App() {
           grabbing={grabbing}
           setGrabbing={setGrabbing}
           shiftPressed={shiftPressed}
+          selectNotes={selectNotes}
         />
       )),
-    [beatValue, beatsPerBar, grabbing, noPointerEvents, setLaneState, snap, uiState.lanes]
+    [beatValue, beatsPerBar, grabbing, noPointerEvents, selectNotes, setLaneState, snap, uiState.lanes]
   )
 
   return (
