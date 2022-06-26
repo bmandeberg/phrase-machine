@@ -1,4 +1,4 @@
-import { useRef, useCallback } from 'react'
+import { useRef, useCallback, useEffect } from 'react'
 import { useGesture } from 'react-use-gesture'
 import { v4 as uuid } from 'uuid'
 import { NOTE_HEIGHT, EIGHTH_WIDTH, MIN_MIDI_NOTE, MAX_MIDI_NOTE, RATE_MULTS } from '../globals'
@@ -20,7 +20,9 @@ export default function useNoteDrag(
   selectedNotesRef,
   shiftPressed,
   createdNote,
-  dragChanged
+  dragChanged,
+  noteDrag,
+  startNoteDrag
 ) {
   const tempNote = useRef(null)
 
@@ -132,73 +134,100 @@ export default function useNoteDrag(
     return notesCopy
   }, [])
 
+  const notesRef = useRef(notes)
+  useEffect(() => {
+    notesRef.current = notes
+  }, [notes])
+  const snapRef = useRef(snap)
+  useEffect(() => {
+    snapRef.current = snap
+  }, [snap])
+  const updateLaneStateRef = useRef(updateLaneState)
+  useEffect(() => {
+    updateLaneStateRef.current = updateLaneState
+  }, [updateLaneState])
+
   const dragStart = useRef()
   const noteStart = useRef()
   const dragDirection = useRef(0)
   const snapStart = useRef()
   const overrideDefault = useRef()
-  const dragNote = useGesture({
-    onDragStart: ({ event }) => {
-      event.stopPropagation()
-      setNoPointerEvents(true)
-      setGrabbing(true)
-      addSelectedNotes(event.target?.id)
-      dragStart.current = selectedNotesRef.current.map((id) => notes.find((note) => note.id === id).x)
-      noteStart.current = selectedNotesRef.current.map((id) => notes.find((note) => note.id === id).midiNote)
-      snapStart.current = selectedNotesRef.current.map((id) => notes.find((note) => note.id === id).xSnap)
-    },
-    onDrag: ({ movement: [mx, my], direction: [dx], shiftKey, event }) => {
-      event.stopPropagation()
+  const draggingNotes = useRef(false)
+
+  const currentDraggingNote = useRef()
+  useEffect(() => {
+    if (startNoteDrag) {
+      // drag start
+      currentDraggingNote.current = startNoteDrag
+      draggingNotes.current = true
+      dragStart.current = selectedNotesRef.current.map((id) => notesRef.current.find((note) => note.id === id).x)
+      noteStart.current = selectedNotesRef.current.map((id) => notesRef.current.find((note) => note.id === id).midiNote)
+      snapStart.current = selectedNotesRef.current.map((id) => notesRef.current.find((note) => note.id === id).xSnap)
+    } else {
+      // drag end
+      draggingNotes.current = false
+      if (dragChanged.current) {
+        updateLaneStateRef.current()
+      } else if (!shiftPressed.current) {
+        setSelectedNotes([currentDraggingNote.current])
+      }
+      dragChanged.current = false
+      dragDirection.current = 0
+      overrideDefault.current = false
+    }
+  }, [dragChanged, selectedNotesRef, setSelectedNotes, shiftPressed, startNoteDrag])
+
+  // actual note dragging
+  useEffect(() => {
+    if (noteDrag && noteDrag.movement && noteDrag.direction && draggingNotes.current) {
+      const [mx, my] = noteDrag.movement
+      const [dx] = noteDrag.direction
       dragChanged.current = mx || my
       const updateNotes = {}
       selectedNotesRef.current.forEach((id, i) => {
-        const note = notes.find((n) => n.id === id)
+        const note = notesRef.current.find((n) => n.id === id)
         let newX = dragStart.current[i]
         let newNote = noteStart.current[i]
         let xSnapNumber = note.xSnapNumber
-        const shiftDirectionX = shiftKey && Math.abs(mx) > Math.abs(my)
+        const shiftDirectionX = shiftPressed.current && Math.abs(mx) > Math.abs(my)
         // note position
         if (
           dragStart.current[i] !== undefined &&
           (Math.abs(mx) > 2 || overrideDefault.current) &&
-          (!shiftKey || shiftDirectionX)
+          (!shiftPressed.current || shiftDirectionX)
         ) {
           if (dx) {
             dragDirection.current = dx
           }
-          const lowerSnapBound = snap && snapPixels(dragStart.current[i], snap, -1).px
-          const upperSnapBound = snap && lowerSnapBound + EIGHTH_WIDTH * RATE_MULTS[snap]
+          const lowerSnapBound = snapRef.current && snapPixels(dragStart.current[i], snapRef.current, -1).px
+          const upperSnapBound = snapRef.current && lowerSnapBound + EIGHTH_WIDTH * RATE_MULTS[snapRef.current]
           const realX = dragStart.current[i] + mx
-          if (snap && !snapStart.current[i] && (realX < lowerSnapBound || realX > upperSnapBound)) {
-            snapStart.current[i] = snap
+          if (snapRef.current && !snapStart.current[i] && (realX < lowerSnapBound || realX > upperSnapBound)) {
+            snapStart.current[i] = snapRef.current
           }
           const direction = !snapStart.current[i] ? dragDirection.current : 0
-          const { px, snapNumber } = snapPixels(realX, snap, direction)
+          const { px, snapNumber } = snapPixels(realX, snapRef.current, direction)
           xSnapNumber = snapNumber
           newX = Math.max(px, 0)
-          if (snap && newX !== dragStart.current[i]) {
+          if (snapRef.current && newX !== dragStart.current[i]) {
             overrideDefault.current = true
           }
         }
         // midi note, y-axis
-        if (noteStart.current[i] && (!shiftKey || shiftDirectionX === false)) {
+        if (noteStart.current[i] && (!shiftPressed.current || shiftDirectionX === false)) {
           newNote = constrain(noteStart.current[i] - Math.round(my / NOTE_HEIGHT), MIN_MIDI_NOTE, MAX_MIDI_NOTE)
         }
         updateNotes[id] = Object.assign({}, note, {
           x: newX,
-          xSnap: snap,
+          xSnap: snapRef.current,
           xSnapNumber,
-          endSnap: snap && note.widthSnap === snap ? snap : null,
+          endSnap: snapRef.current && note.widthSnap === snapRef.current ? snapRef.current : null,
           midiNote: newNote,
         })
       })
       setNotes((notes) => batchUpdateNotes(notes, updateNotes))
-    },
-    onDragEnd: ({ shiftKey, event }) => {
-      event.stopPropagation()
-      onDragEnd(event.target?.id, shiftKey)
-    },
-  })
+    }
+  }, [batchUpdateNotes, dragChanged, noteDrag, selectedNotesRef, setNotes, shiftPressed])
 
   const widthStart = useRef()
   const dragNoteRight = useGesture({
@@ -308,5 +337,5 @@ export default function useNoteDrag(
     },
   })
 
-  return { createNote, dragNote, dragNoteLeft, dragNoteRight }
+  return { createNote, dragNoteLeft, dragNoteRight }
 }

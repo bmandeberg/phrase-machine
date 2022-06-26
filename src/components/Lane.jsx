@@ -23,6 +23,8 @@ export default function Lane({
   setGrabbing,
   shiftPressed,
   selectNotes,
+  startNoteDrag,
+  noteDrag,
 }) {
   const [laneLength, setLaneLength] = useState(lanePreset.laneLength)
   const [delimiters, setDelimiters] = useState(lanePreset.delimiters)
@@ -38,7 +40,9 @@ export default function Lane({
   const dragChanged = useRef(false)
 
   useEffect(() => {
-    selectedNotesRef.current = selectedNotes
+    if (selectedNotesRef.current !== selectedNotes) {
+      selectedNotesRef.current = selectedNotes
+    }
   }, [selectedNotes])
 
   useEffect(() => {
@@ -72,10 +76,15 @@ export default function Lane({
   useEffect(() => {
     if (selectNotes) {
       if (selectNotes[id]) {
-        setSelectedNotes((selectedNotes) =>
-          shiftPressed.current ? selectedNotes.concat(selectNotes[id]) : selectNotes[id]
-        )
+        if (!(selectNotes[id].length === 1 && selectedNotesRef.current.includes(selectNotes[id][0]))) {
+          setSelectedNotes((selectedNotes) => {
+            const newSelectedNotes = shiftPressed.current ? selectedNotes.concat(selectNotes[id]) : selectNotes[id]
+            selectedNotesRef.current = newSelectedNotes
+            return newSelectedNotes
+          })
+        }
       } else {
+        selectedNotesRef.current = []
         setSelectedNotes([])
       }
     }
@@ -140,7 +149,9 @@ export default function Lane({
     selectedNotesRef,
     shiftPressed,
     createdNote,
-    dragChanged
+    dragChanged,
+    noteDrag,
+    startNoteDrag
   )
 
   // lane dragging
@@ -254,6 +265,8 @@ Lane.propTypes = {
   setGrabbing: PropTypes.func,
   shiftPressed: PropTypes.object,
   selectNotes: PropTypes.object,
+  startNoteDrag: PropTypes.string,
+  noteDrag: PropTypes.object,
 }
 
 const blackKeys = [false, true, false, true, false, false, true, false, true, false, true, false]

@@ -20,6 +20,8 @@ export default function App() {
   const [noPointerEvents, setNoPointerEvents] = useState(false)
   const [grabbing, setGrabbing] = useState(false)
   const [selectNotes, setSelectNotes] = useState({})
+  const [noteDrag, setNoteDrag] = useState({})
+  const [startNoteDrag, setStartNoteDrag] = useState(false)
   const shiftPressed = useRef(false)
   const mainContainerRef = useRef()
 
@@ -79,6 +81,9 @@ export default function App() {
           // dragging notes
           draggingNote.current = true
           setSelectNotes({ [event.target.closest('.lane-container').id]: [event.target.id] })
+          setStartNoteDrag(event.target.id)
+          setNoPointerEvents(true)
+          setGrabbing(true)
         } else {
           // drag selecting
           dragSelecting.current = true
@@ -91,7 +96,7 @@ export default function App() {
         }
       }
     },
-    onDrag: ({ movement: [mx, my], initial: [ix, iy], metaKey }) => {
+    onDrag: ({ movement: [mx, my], direction: [dx], initial: [ix, iy], metaKey }) => {
       if (!metaKey) {
         if (dragSelecting.current) {
           // drag selecting
@@ -101,12 +106,17 @@ export default function App() {
           setSelectingDimensions(newDimensions)
         } else if (draggingNote.current) {
           // dragging notes
+          setNoteDrag({
+            movement: [mx, my],
+            direction: [dx],
+          })
         }
       }
     },
     onDragEnd: ({ event }) => {
       if (event.button === 0) {
         if (dragSelecting.current) {
+          // drag selecting
           const selectedNotes = {}
           // gather notes that intersect with selection bounds
           mainContainerRef.current?.querySelectorAll('.lane-container').forEach((lane, i) => {
@@ -137,6 +147,11 @@ export default function App() {
           setSelectNotes(selectedNotes)
           dragSelecting.current = false
           setSelectingDimensions(null)
+        } else if (draggingNote.current) {
+          // dragging notes
+          setStartNoteDrag(null)
+          setNoPointerEvents(false)
+          setGrabbing(false)
         }
       }
     },
@@ -173,9 +188,22 @@ export default function App() {
           setGrabbing={setGrabbing}
           shiftPressed={shiftPressed}
           selectNotes={selectNotes}
+          startNoteDrag={startNoteDrag}
+          noteDrag={noteDrag}
         />
       )),
-    [beatValue, beatsPerBar, grabbing, noPointerEvents, selectNotes, setLaneState, snap, uiState.lanes]
+    [
+      beatValue,
+      beatsPerBar,
+      grabbing,
+      noPointerEvents,
+      noteDrag,
+      selectNotes,
+      setLaneState,
+      snap,
+      startNoteDrag,
+      uiState.lanes,
+    ]
   )
 
   return (
