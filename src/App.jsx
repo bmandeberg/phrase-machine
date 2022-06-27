@@ -23,17 +23,22 @@ export default function App() {
   const [noteDrag, setNoteDrag] = useState({})
   const [startNoteDrag, setStartNoteDrag] = useState(false)
   const shiftPressed = useRef(false)
+  const altPressed = useRef(false)
   const mainContainerRef = useRef()
 
   useEffect(() => {
     function keydown(e) {
       if (e.key === 'Shift') {
         shiftPressed.current = true
+      } else if (e.key === 'Alt') {
+        altPressed.current = true
       }
     }
     function keyup(e) {
       if (e.key === 'Shift') {
         shiftPressed.current = false
+      } else if (e.key === 'Alt') {
+        altPressed.current = false
       }
     }
     window.addEventListener('keyup', keyup)
@@ -80,10 +85,10 @@ export default function App() {
         if (event.target.classList.contains('note')) {
           // dragging notes
           draggingNote.current = true
-          setSelectNotes({ [event.target.closest('.lane-container').id]: [event.target.id] })
-          setStartNoteDrag(event.target.id)
           setNoPointerEvents(true)
           setGrabbing(true)
+          setSelectNotes({ [event.target.closest('.lane-container').id]: [event.target.id] })
+          setStartNoteDrag(event.target.id)
         } else {
           // drag selecting
           dragSelecting.current = true
@@ -152,6 +157,7 @@ export default function App() {
           setStartNoteDrag(null)
           setNoPointerEvents(false)
           setGrabbing(false)
+          draggingNote.current = false
         }
       }
     },
@@ -187,6 +193,7 @@ export default function App() {
           grabbing={grabbing}
           setGrabbing={setGrabbing}
           shiftPressed={shiftPressed}
+          altPressed={altPressed}
           selectNotes={selectNotes}
           startNoteDrag={startNoteDrag}
           noteDrag={noteDrag}

@@ -19,6 +19,7 @@ export default function useNoteDrag(
   updateLaneState,
   selectedNotesRef,
   shiftPressed,
+  altPressed,
   createdNote,
   dragChanged,
   noteDrag,
@@ -131,7 +132,8 @@ export default function useNoteDrag(
     notes.forEach((note) => {
       notesCopy.push(updateNotes[note.id] ? updateNotes[note.id] : note)
     })
-    return notesCopy
+    // add new notes
+    return notesCopy.concat(Object.values(updateNotes).filter((note) => !notesCopy.find((nc) => nc.id === note.id)))
   }, [])
 
   const notesRef = useRef(notes)
@@ -153,39 +155,70 @@ export default function useNoteDrag(
   const snapStart = useRef()
   const overrideDefault = useRef()
   const draggingNotes = useRef(false)
+  const dragDuplicating = useRef(false)
+  const newNotes = useRef(null)
 
   const currentDraggingNote = useRef()
   useEffect(() => {
     if (startNoteDrag) {
       // drag start
       currentDraggingNote.current = startNoteDrag
-      draggingNotes.current = true
-      dragStart.current = selectedNotesRef.current.map((id) => notesRef.current.find((note) => note.id === id).x)
-      noteStart.current = selectedNotesRef.current.map((id) => notesRef.current.find((note) => note.id === id).midiNote)
-      snapStart.current = selectedNotesRef.current.map((id) => notesRef.current.find((note) => note.id === id).xSnap)
+      if (altPressed.current) {
+        // duplicating note(s) with alt key
+        dragDuplicating.current = true
+      } else {
+        // normal note drag
+        draggingNotes.current = true
+        dragStart.current = selectedNotesRef.current.map((id) => notesRef.current.find((note) => note.id === id).x)
+        noteStart.current = selectedNotesRef.current.map(
+          (id) => notesRef.current.find((note) => note.id === id).midiNote
+        )
+        snapStart.current = selectedNotesRef.current.map((id) => notesRef.current.find((note) => note.id === id).xSnap)
+      }
     } else {
       // drag end
-      draggingNotes.current = false
       if (dragChanged.current) {
         updateLaneStateRef.current()
-      } else if (!shiftPressed.current) {
+      } else if (draggingNotes.current && !shiftPressed.current) {
         setSelectedNotes([currentDraggingNote.current])
       }
+      draggingNotes.current = false
+      dragDuplicating.current = false
+      newNotes.current = null
       dragChanged.current = false
       dragDirection.current = 0
       overrideDefault.current = false
     }
-  }, [dragChanged, selectedNotesRef, setSelectedNotes, shiftPressed, startNoteDrag])
+  }, [altPressed, dragChanged, selectedNotesRef, setSelectedNotes, shiftPressed, startNoteDrag])
 
   // actual note dragging
   useEffect(() => {
-    if (noteDrag && noteDrag.movement && noteDrag.direction && draggingNotes.current) {
+    if (noteDrag && noteDrag.movement && noteDrag.direction) {
       const [mx, my] = noteDrag.movement
       const [dx] = noteDrag.direction
       dragChanged.current = mx || my
       const updateNotes = {}
+      if (dragDuplicating.current && !newNotes.current) {
+        // create new notes
+        newNotes.current = selectedNotesRef.current.map((id) => {
+          const note = Object.assign(
+            {},
+            notesRef.current.find((note) => note.id === id),
+            { id: uuid() }
+          )
+          updateNotes[note.id] = note
+          return note
+        })
+        dragStart.current = newNotes.current.map((d) => d.x)
+        noteStart.current = newNotes.current.map((d) => d.midiNote)
+        snapStart.current = newNotes.current.map((d) => d.xSnap)
+        const ids = newNotes.current.map((n) => n.id)
+        setSelectedNotes(ids)
+        selectedNotesRef.current = ids
+      }
       selectedNotesRef.current.forEach((id, i) => {
         const note = notesRef.current.find((n) => n.id === id)
+        if (!note) return false
         let newX = dragStart.current[i]
         let newNote = noteStart.current[i]
         let xSnapNumber = note.xSnapNumber
@@ -227,7 +260,7 @@ export default function useNoteDrag(
       })
       setNotes((notes) => batchUpdateNotes(notes, updateNotes))
     }
-  }, [batchUpdateNotes, dragChanged, noteDrag, selectedNotesRef, setNotes, shiftPressed])
+  }, [batchUpdateNotes, dragChanged, noteDrag, selectedNotesRef, setNotes, setSelectedNotes, shiftPressed])
 
   const widthStart = useRef()
   const dragNoteRight = useGesture({
