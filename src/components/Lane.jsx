@@ -66,18 +66,11 @@ export default function Lane({
     updateLaneStateRef.current = updateLaneState
   }, [updateLaneState])
 
-  const updateLaneParam = useCallback(
-    (param, value) => {
-      setLaneState((laneState) => Object.assign({}, laneState, { [param]: value }))
-    },
-    [setLaneState]
-  )
-
   // update lane length when notes change
   useEffect(() => {
     const farthestX = Math.max(...notes.map((note) => note.x + note.width))
     setLaneLength(Math.max(calcLaneLength(farthestX, 1), calcLaneLength(window.innerWidth - 30)))
-  }, [notes, updateLaneParam])
+  }, [notes])
 
   // sort notes while setting them
   const setNotes = useCallback((update) => {
