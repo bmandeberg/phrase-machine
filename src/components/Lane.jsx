@@ -29,7 +29,7 @@ export default function Lane({
 }) {
   const [laneLength, setLaneLength] = useState(lanePreset.laneLength)
   const [delimiters, setDelimiters] = useState(lanePreset.delimiters)
-  const [notes, setNotes] = useState(lanePreset.notes)
+  const [notes, updateNotes] = useState(lanePreset.notes)
   const [minNote, setMinNote] = useState(lanePreset.viewRange.min)
   const [maxNote, setMaxNote] = useState(lanePreset.viewRange.max)
   const lane = useRef()
@@ -66,13 +66,26 @@ export default function Lane({
     updateLaneStateRef.current = updateLaneState
   }, [updateLaneState])
 
+  // sort notes while setting them
+  const setNotes = useCallback((update) => {
+    const notesSort = (a, b) => a.x - b.x
+    if (typeof update === 'function') {
+      updateNotes((notes) => {
+        const newNotes = update(notes)
+        return newNotes.sort(notesSort)
+      })
+    } else if (typeof update === 'object' && update.sort) {
+      updateNotes(update.sort(notesSort))
+    }
+  }, [])
+
   useEffect(() => {
     setLaneLength(lanePreset.laneLength)
     setDelimiters(lanePreset.delimiters)
     setNotes(lanePreset.notes)
     setMinNote(lanePreset.viewRange.min)
     setMaxNote(lanePreset.viewRange.max)
-  }, [lanePreset])
+  }, [lanePreset, setNotes])
 
   useEffect(() => {
     if (selectNotes) {
@@ -132,7 +145,7 @@ export default function Lane({
       window.removeEventListener('mousemove', moveMouse)
       window.removeEventListener('mousedown', mouseDown)
     }
-  }, [id, shiftPressed])
+  }, [id, setNotes, shiftPressed])
 
   // note creation + dragging
 
