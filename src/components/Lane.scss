@@ -24,8 +24,19 @@
     position: sticky;
     left: 0;
     z-index: 1;
-    border-left: 4px solid var(--lane-color);
+    padding-left: 4px;
     cursor: grab;
+
+    &::before {
+      content: '';
+      width: 4px;
+      height: 100%;
+      background-color: var(--lane-color);
+      position: absolute;
+      left: 0;
+      top: 0;
+      z-index: 2;
+    }
 
     &.grabbing {
       cursor: grabbing;

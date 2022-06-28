@@ -40,4 +40,14 @@
       filter: blur(2px);
     }
   }
+
+  #lane-overflow {
+    position: fixed;
+    left: 0;
+    top: $totalHeaderHeight;
+    bottom: 0;
+    width: 30px;
+    background-color: $lightestBlue;
+    opacity: 0.5;
+  }
 }
