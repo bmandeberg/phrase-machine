@@ -269,7 +269,7 @@ export default function Lane({
       </div>
       {laneEl}
       <div className="notes">{noteEls}</div>
-      <div className="lane-expander" {...dragLaneStart()}></div>
+      <div className={classNames('lane-expander', { active: !grabbing })} {...dragLaneStart()}></div>
     </div>
   )
 }

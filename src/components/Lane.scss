@@ -10,8 +10,11 @@
     width: 100%;
     height: var(--note-height);
     background: transparent;
-    cursor: ns-resize;
     z-index: 1;
+
+    &.active {
+      cursor: ns-resize;
+    }
   }
 
   .keys {

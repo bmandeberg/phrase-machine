@@ -1,6 +1,7 @@
 import React, { useState, useCallback, useMemo, useEffect, useRef } from 'react'
 import * as Tone from 'tone'
 import { useGesture } from 'react-use-gesture'
+import classNames from 'classnames'
 import { DEFAULT_PRESET, EIGHTH_WIDTH, LANE_COLORS, NOTE_HEIGHT, KEYS_WIDTH } from './globals'
 import Lane from './components/Lane'
 import Header from './components/Header'
@@ -216,6 +217,7 @@ export default function App() {
   return (
     <div
       id="main-container"
+      className={classNames({ grabbing })}
       ref={mainContainerRef}
       style={{
         '--eighth-width': EIGHTH_WIDTH + 'px',

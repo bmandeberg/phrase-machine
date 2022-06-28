@@ -9,6 +9,10 @@
   padding-left: $padding * 2;
   padding-top: 72px;
 
+  &.grabbing {
+    cursor: grabbing !important;
+  }
+
   .empty-lane {
     height: 120px;
     width: 100%;
