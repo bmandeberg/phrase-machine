@@ -2,7 +2,7 @@ import React, { useState, useMemo, useRef, useEffect, useCallback } from 'react'
 import PropTypes from 'prop-types'
 import { v4 as uuid } from 'uuid'
 import classNames from 'classnames'
-import { NOTE_HEIGHT, EIGHTH_WIDTH } from '../globals'
+import { NOTE_HEIGHT, EIGHTH_WIDTH, calcLaneLength } from '../globals'
 import useNoteDrag from '../hooks/useNoteDrag'
 import useLaneDrag from '../hooks/useLaneDrag'
 import { noteString } from '../util'
@@ -66,6 +66,19 @@ export default function Lane({
     updateLaneStateRef.current = updateLaneState
   }, [updateLaneState])
 
+  const updateLaneParam = useCallback(
+    (param, value) => {
+      setLaneState((laneState) => Object.assign({}, laneState, { [param]: value }))
+    },
+    [setLaneState]
+  )
+
+  // update lane length when notes change
+  useEffect(() => {
+    const farthestX = Math.max(...notes.map((note) => note.x + note.width))
+    setLaneLength(Math.max(calcLaneLength(farthestX, 1), calcLaneLength(window.innerWidth - 30)))
+  }, [notes, updateLaneParam])
+
   // sort notes while setting them
   const setNotes = useCallback((update) => {
     const notesSort = (a, b) => a.x - b.x
@@ -80,11 +93,13 @@ export default function Lane({
   }, [])
 
   useEffect(() => {
-    setLaneLength(lanePreset.laneLength)
-    setDelimiters(lanePreset.delimiters)
-    setNotes(lanePreset.notes)
-    setMinNote(lanePreset.viewRange.min)
-    setMaxNote(lanePreset.viewRange.max)
+    if (lanePreset) {
+      setLaneLength(lanePreset.laneLength)
+      setDelimiters(lanePreset.delimiters)
+      setNotes(lanePreset.notes)
+      setMinNote(lanePreset.viewRange.min)
+      setMaxNote(lanePreset.viewRange.max)
+    }
   }, [lanePreset, setNotes])
 
   useEffect(() => {

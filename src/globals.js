@@ -8,9 +8,14 @@ export const KEYS_WIDTH = 10
 export const MIN_MIDI_NOTE = 21
 export const MAX_MIDI_NOTE = 127
 
+export function calcLaneLength(width, direction = -1) {
+  const measures = width / (EIGHTH_WIDTH * 8)
+  return (direction < 0 ? Math.floor(measures) : Math.ceil(measures)) * 8
+}
+
 export const DEFAULT_LANE = {
   id: uuid(),
-  laneLength: 56,
+  laneLength: calcLaneLength(window.innerWidth - 30),
   delimiters: [],
   notes: [],
   viewRange: { min: 60, max: 71 },
