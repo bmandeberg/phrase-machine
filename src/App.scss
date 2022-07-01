@@ -13,6 +13,47 @@
     cursor: grabbing !important;
   }
 
+  #lanes-container {
+    $topGutter: 8px;
+    position: relative;
+    display: inline-block;
+    padding-top: $topGutter;
+
+    #delimiters {
+      position: absolute;
+      left: 14px;
+      top: $topGutter;
+      bottom: 0;
+      pointer-events: none;
+
+      .delimiter {
+        height: 100%;
+        width: 1px;
+        background-color: $purple;
+        position: relative;
+        z-index: 1;
+
+        &::before {
+          content: '';
+          position: absolute;
+          left: 0;
+          top: 0;
+          right: 0;
+          bottom: 0;
+          background-color: $purple;
+          filter: blur(2px);
+        }
+
+        .delimiter-head {
+          position: absolute;
+          top: -21px;
+          left: -12.5px;
+          height: $padding * 2;
+        }
+      }
+    }
+  }
+
   .empty-lane {
     height: 120px;
     width: 100%;
@@ -46,7 +87,7 @@
     left: 0;
     top: $totalHeaderHeight;
     bottom: 0;
-    width: 30px;
+    width: $padding * 2;
     background: linear-gradient(to right, rgba(243, 249, 255, 1), rgba(243, 249, 255, 0.2));
   }
 }

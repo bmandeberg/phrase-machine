@@ -5,8 +5,9 @@ import classNames from 'classnames'
 import { DEFAULT_PRESET, EIGHTH_WIDTH, LANE_COLORS, NOTE_HEIGHT, KEYS_WIDTH } from './globals'
 import Lane from './components/Lane'
 import Header from './components/Header'
+import { boxesIntersect, timeToPixels } from './util'
+import delimiterGraphic from './assets/delimiter.svg'
 import './App.scss'
-import { boxesIntersect } from './util'
 
 // load/set presets
 if (!window.localStorage.getItem('phrasePresets')) {
@@ -15,6 +16,7 @@ if (!window.localStorage.getItem('phrasePresets')) {
 
 export default function App() {
   const [uiState, setUIState] = useState(JSON.parse(window.localStorage.getItem('phrasePresets')))
+  const [delimiters, setDelimiters] = useState(uiState.delimiters)
   const [snap, setSnap] = useState(uiState.snap)
   const [beatsPerBar, setBeatsPerBar] = useState(uiState.beatsPerBar)
   const [beatValue, setBeatValue] = useState(uiState.beatValue)
@@ -65,6 +67,7 @@ export default function App() {
   }, [beatValue, beatsPerBar, snap])
 
   // transport
+
   const [playing, setPlaying] = useState(false)
   const [tempo, setTempo] = useState(uiState.tempo)
   useEffect(() => {
@@ -76,6 +79,8 @@ export default function App() {
   useEffect(() => {
     Tone.Transport.timeSignature = [beatsPerBar, beatValue]
   }, [beatValue, beatsPerBar])
+
+  // global dragging
 
   const [selectingDimensions, setSelectingDimensions] = useState(null)
   const dragSelecting = useRef(false)
@@ -176,6 +181,8 @@ export default function App() {
     })
   }, [])
 
+  // elements
+
   const lanes = useMemo(
     () =>
       uiState.lanes.map((lane, i) => (
@@ -186,6 +193,7 @@ export default function App() {
           laneNum={i}
           lanePreset={lane}
           setLaneState={setLaneState}
+          delimiters={delimiters}
           beatsPerBar={beatsPerBar}
           beatValue={beatValue}
           snap={snap}
@@ -203,6 +211,7 @@ export default function App() {
     [
       beatValue,
       beatsPerBar,
+      delimiters,
       grabbing,
       noPointerEvents,
       noteDrag,
@@ -212,6 +221,23 @@ export default function App() {
       startNoteDrag,
       uiState.lanes,
     ]
+  )
+
+  const delimiterEls = useMemo(
+    () => (
+      <div id="delimiters">
+        {uiState.delimiters.slice(0, -1).map((delimiter) => (
+          <div
+            className="delimiter"
+            style={{
+              left: delimiter.snap ? timeToPixels({ [delimiter.snap]: delimiter.snapNumber }) : delimiter.x,
+            }}>
+            <img className="delimiter-head" src={delimiterGraphic} alt="" />
+          </div>
+        ))}
+      </div>
+    ),
+    [uiState.delimiters]
   )
 
   return (
@@ -237,8 +263,11 @@ export default function App() {
         beatValue={beatValue}
         setBeatValue={setBeatValue}
       />
-      {lanes}
-      {!uiState.lanes.length && <div className="empty-lane"></div>}
+      <div id="lanes-container">
+        {delimiterEls}
+        {lanes}
+        {!uiState.lanes.length && <div className="empty-lane"></div>}
+      </div>
       {selectingDimensions && (!!selectingDimensions.width || !!selectingDimensions.height) && (
         <div
           id="drag-select"
@@ -256,7 +285,6 @@ export default function App() {
 
 function laneCopy(lane) {
   return Object.assign({}, lane, {
-    delimiters: lane.delimiters.map((d) => Object.assign({}, d)),
     notes: lane.notes.map((n) => Object.assign({}, n)),
     viewRange: Object.assign({}, lane.viewRange),
   })

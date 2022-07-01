@@ -13,10 +13,10 @@ export function calcLaneLength(width, direction = -1) {
   return (direction < 0 ? Math.floor(measures) : Math.ceil(measures)) * 8
 }
 
+const laneID = uuid()
 export const DEFAULT_LANE = {
-  id: uuid(),
+  id: laneID,
   laneLength: calcLaneLength(window.innerWidth - 30),
-  delimiters: [],
   notes: [],
   viewRange: { min: 60, max: 71 },
 }
@@ -28,6 +28,11 @@ export const DEFAULT_PRESET = JSON.stringify({
   beatsPerBar: 4,
   beatValue: 4,
   lanes: [DEFAULT_LANE],
+  delimiters: [
+    {
+      lanes: { [laneID]: 1 },
+    },
+  ],
 })
 
 // rates, relative to an eighth note

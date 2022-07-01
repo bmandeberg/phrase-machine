@@ -14,6 +14,7 @@ export default function Lane({
   laneNum,
   lanePreset,
   setLaneState,
+  delimiters,
   beatsPerBar,
   beatValue,
   snap,
@@ -28,7 +29,6 @@ export default function Lane({
   noteDrag,
 }) {
   const [laneLength, setLaneLength] = useState(lanePreset.laneLength)
-  const [delimiters, setDelimiters] = useState(lanePreset.delimiters)
   const [notes, updateNotes] = useState(lanePreset.notes)
   const [minNote, setMinNote] = useState(lanePreset.viewRange.min)
   const [maxNote, setMaxNote] = useState(lanePreset.viewRange.max)
@@ -57,11 +57,10 @@ export default function Lane({
     setLaneState({
       id,
       laneLength,
-      delimiters,
       notes,
       viewRange: { min: minNote, max: maxNote },
     })
-  }, [delimiters, id, maxNote, laneLength, minNote, notes, setLaneState])
+  }, [id, maxNote, laneLength, minNote, notes, setLaneState])
   useEffect(() => {
     updateLaneStateRef.current = updateLaneState
   }, [updateLaneState])
@@ -88,7 +87,6 @@ export default function Lane({
   useEffect(() => {
     if (lanePreset) {
       setLaneLength(lanePreset.laneLength)
-      setDelimiters(lanePreset.delimiters)
       setNotes(lanePreset.notes)
       setMinNote(lanePreset.viewRange.min)
       setMaxNote(lanePreset.viewRange.max)
@@ -279,6 +277,7 @@ Lane.propTypes = {
   laneNum: PropTypes.number,
   lanePreset: PropTypes.object,
   setLaneState: PropTypes.func,
+  delimiters: PropTypes.array,
   beatsPerBar: PropTypes.number,
   beatValue: PropTypes.number,
   snap: PropTypes.string,
