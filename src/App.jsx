@@ -133,8 +133,9 @@ export default function App() {
           mainContainerRef.current?.querySelectorAll('.lane-container').forEach((lane, i) => {
             const laneData = uiState.lanes[i]
             laneData.notes.forEach((note) => {
-              const noteX = lane.offsetLeft + note.x + KEYS_WIDTH
-              const noteY = lane.offsetTop + (laneData.viewRange.max - note.midiNote) * NOTE_HEIGHT
+              const noteX = 34 + note.x + KEYS_WIDTH
+              const noteY =
+                lane.offsetTop + lane.parentElement.offsetTop + (laneData.viewRange.max - note.midiNote) * NOTE_HEIGHT
               if (
                 boxesIntersect(
                   noteX,
