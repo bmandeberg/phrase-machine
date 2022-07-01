@@ -32,6 +32,8 @@
         background-color: $purple;
         position: relative;
         z-index: 1;
+        pointer-events: all;
+        cursor: ew-resize;
 
         &::before {
           content: '';
@@ -49,6 +51,15 @@
           top: -21px;
           left: -12.5px;
           height: $padding * 2;
+        }
+
+        .delimiter-grab {
+          $grabWidth: 9px;
+          position: absolute;
+          top: 0;
+          left: -4px;
+          width: $grabWidth;
+          height: 100%;
         }
       }
     }

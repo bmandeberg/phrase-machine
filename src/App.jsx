@@ -233,6 +233,7 @@ export default function App() {
               left: delimiter.snap ? timeToPixels({ [delimiter.snap]: delimiter.snapNumber }) : delimiter.x,
             }}>
             <img className="delimiter-head" src={delimiterGraphic} alt="" />
+            <div className="delimiter-grab"></div>
           </div>
         ))}
       </div>
