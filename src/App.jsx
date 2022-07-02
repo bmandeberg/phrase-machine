@@ -37,7 +37,9 @@ export default function App() {
   const [startNoteDrag, setStartNoteDrag] = useState(null)
   const shiftPressed = useRef(false)
   const altPressed = useRef(false)
+  const metaPressed = useRef(false)
   const mainContainerRef = useRef()
+  const lanesRef = useRef()
 
   useEffect(() => {
     function keydown(e) {
@@ -45,6 +47,8 @@ export default function App() {
         shiftPressed.current = true
       } else if (e.key === 'Alt') {
         altPressed.current = true
+      } else if (e.key === 'Meta') {
+        metaPressed.current = true
       }
     }
     function keyup(e) {
@@ -52,6 +56,8 @@ export default function App() {
         shiftPressed.current = false
       } else if (e.key === 'Alt') {
         altPressed.current = false
+      } else if (e.key === 'Meta') {
+        metaPressed.current = false
       }
     }
     window.addEventListener('keyup', keyup)
@@ -116,7 +122,7 @@ export default function App() {
           setNoPointerEvents(true)
           setEwResizing(true)
           setSelectNotes({})
-          draggingDelimiter.current = event.target.closest('.delimiter').getAttribute('index')
+          draggingDelimiter.current = +event.target.closest('.delimiter').getAttribute('index')
           const delimiter = delimiters[draggingDelimiter.current]
           dragStart.current = delimiter.snap ? timeToPixels({ [delimiter.snap]: delimiter.snapNumber }) : delimiter.x
           snapStart.current = delimiter.snap
@@ -161,18 +167,24 @@ export default function App() {
             }
             const direction = !snapStart.current ? dragDirection.current : 0
             const { px, snapNumber } = snapPixels(realX, snap, direction)
-            const x = constrain(
-              px,
-              (draggingDelimiter.current + 1) * MIN_DELIMITER_WIDTH,
-              longestLane * EIGHTH_WIDTH - (delimiters.length - draggingDelimiter.current) * MIN_DELIMITER_WIDTH
-            )
+            const minX = (draggingDelimiter.current + 1) * MIN_DELIMITER_WIDTH
+            const maxX =
+              longestLane * EIGHTH_WIDTH - (delimiters.length - draggingDelimiter.current - 1) * MIN_DELIMITER_WIDTH
+            let x = px
+            let snapX = snap
+            let snapNumberX = snapNumber
+            if (x < minX || x > maxX) {
+              snapX = null
+              snapNumberX = null
+            }
+            x = constrain(x, minX, maxX)
             if (snap && x !== dragStart.current) {
               overrideDefault.current = true
             }
             const delimitersCopy = delimiters.slice()
             delimitersCopy[draggingDelimiter.current] = Object.assign(delimitersCopy[draggingDelimiter.current], {
-              snap,
-              snapNumber,
+              snap: snapX,
+              snapNumber: snapNumberX,
               x,
             })
             // push other delimiters if this one is running up against them
@@ -249,6 +261,44 @@ export default function App() {
       }
     },
   })
+
+  // create delimiter
+  const topbarMousedown = useCallback(
+    (e) => {
+      if (metaPressed.current) {
+        const realX = e.pageX - lanesRef.current?.getBoundingClientRect().left - 14
+        let closest
+        for (let i = 0; i < delimiters.length; i++) {
+          const distanceToDelimiter = Math.abs(delimiters[i].x - realX)
+          if (distanceToDelimiter < MIN_DELIMITER_WIDTH) {
+            alert('Too close to another boundary!')
+            return false
+          }
+          if (closest === undefined || distanceToDelimiter < Math.abs(delimiters[closest].x - realX)) {
+            closest = i
+          }
+        }
+        if (realX - delimiters[closest].x > 0) {
+          closest += 1
+        }
+        const delimitersCopy = delimiters.slice()
+        const { px, snapNumber } = snapPixels(realX, snap)
+        const newDelimiter = {
+          lanes: {},
+          snap,
+          snapNumber,
+          x: px,
+        }
+        uiState.lanes.forEach((lane) => {
+          newDelimiter.lanes[lane.id] = 1 / uiState.lanes.length
+        })
+        delimitersCopy.splice(closest, 0, newDelimiter)
+        setDelimiters(delimitersCopy)
+        setUIState((uiState) => Object.assign({}, uiState, { delimiters: delimitersCopy }))
+      }
+    },
+    [delimiters, snap, uiState.lanes]
+  )
 
   const setLaneState = useCallback((state) => {
     setUIState((uiState) => {
@@ -356,8 +406,8 @@ export default function App() {
         beatValue={beatValue}
         setBeatValue={setBeatValue}
       />
-      <div id="lanes-container" style={{ width: longestLane * EIGHTH_WIDTH + 14 }}>
-        <div id="transport-topbar"></div>
+      <div id="lanes-container" ref={lanesRef} style={{ width: longestLane * EIGHTH_WIDTH + 14 }}>
+        <div id="transport-topbar" onMouseDown={topbarMousedown}></div>
         {lanes}
         {delimiterEls}
         {!uiState.lanes.length && <div className="empty-lane"></div>}

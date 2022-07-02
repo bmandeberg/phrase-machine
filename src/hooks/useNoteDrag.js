@@ -43,32 +43,29 @@ export default function useNoteDrag(
       const leftOffset = -lane.current?.getBoundingClientRect().left
       if (metaKey && !tempNote.current) {
         const laneNum = maxNote - minNote - +event.target?.getAttribute('lane-num')
-        const left = lane.current?.getBoundingClientRect().left
-        if (left) {
-          tempNote.current = uuid()
-          const realX = ix + leftOffset
-          setNotes((notes) => {
-            const notesCopy = notes.slice()
-            const { px, snapNumber } = snapPixels(realX, snap, -1)
-            const newNote = {
-              id: tempNote.current,
-              midiNote: laneNum + minNote,
-              velocity: 1,
-              x: px,
-              xSnap: snap,
-              xSnapNumber: snapNumber,
-              width: snap ? EIGHTH_WIDTH * RATE_MULTS[snap] : MIN_NOTE_WIDTH,
-              widthSnap: snap,
-              endSnap: snap,
-            }
-            notesCopy.push(newNote)
-            // set as selected note
-            setSelectedNotes([newNote.id])
-            return notesCopy
-          })
-          setNoPointerEvents(true)
-          createdNote.current = true
-        }
+        tempNote.current = uuid()
+        const realX = ix + leftOffset
+        setNotes((notes) => {
+          const notesCopy = notes.slice()
+          const { px, snapNumber } = snapPixels(realX, snap, -1)
+          const newNote = {
+            id: tempNote.current,
+            midiNote: laneNum + minNote,
+            velocity: 1,
+            x: px,
+            xSnap: snap,
+            xSnapNumber: snapNumber,
+            width: snap ? EIGHTH_WIDTH * RATE_MULTS[snap] : MIN_NOTE_WIDTH,
+            widthSnap: snap,
+            endSnap: snap,
+          }
+          notesCopy.push(newNote)
+          // set as selected note
+          setSelectedNotes([newNote.id])
+          return notesCopy
+        })
+        setNoPointerEvents(true)
+        createdNote.current = true
       } else if (tempNote.current) {
         event.stopPropagation()
         // update note
