@@ -4,6 +4,7 @@ export const LANE_COLORS = ['#008dff', '#ff413e', '#33ff00', '#ff00ff', '#ff9700
 export const EIGHTH_WIDTH = 24
 export const NOTE_HEIGHT = 12
 export const KEYS_WIDTH = 10
+export const MIN_DELIMITER_WIDTH = 8
 
 export const MIN_MIDI_NOTE = 21
 export const MAX_MIDI_NOTE = 127
@@ -29,6 +30,12 @@ export const DEFAULT_PRESET = JSON.stringify({
   beatValue: 4,
   lanes: [DEFAULT_LANE],
   delimiters: [
+    {
+      lanes: { [laneID]: 1 },
+      snap: '8n',
+      snapNumber: 16,
+      x: 384,
+    },
     {
       lanes: { [laneID]: 1 },
     },

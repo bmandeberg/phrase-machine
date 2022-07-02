@@ -3,10 +3,18 @@ import * as Tone from 'tone'
 import { useGesture } from 'react-use-gesture'
 import { v4 as uuid } from 'uuid'
 import classNames from 'classnames'
-import { DEFAULT_PRESET, EIGHTH_WIDTH, LANE_COLORS, NOTE_HEIGHT, KEYS_WIDTH } from './globals'
+import {
+  DEFAULT_PRESET,
+  EIGHTH_WIDTH,
+  LANE_COLORS,
+  NOTE_HEIGHT,
+  KEYS_WIDTH,
+  RATE_MULTS,
+  MIN_DELIMITER_WIDTH,
+} from './globals'
 import Lane from './components/Lane'
 import Header from './components/Header'
-import { boxesIntersect, timeToPixels } from './util'
+import { boxesIntersect, timeToPixels, snapPixels, constrain } from './util'
 import delimiterGraphic from './assets/delimiter.svg'
 import './App.scss'
 
@@ -23,9 +31,10 @@ export default function App() {
   const [beatValue, setBeatValue] = useState(uiState.beatValue)
   const [noPointerEvents, setNoPointerEvents] = useState(false)
   const [grabbing, setGrabbing] = useState(false)
+  const [ewResizing, setEwResizing] = useState(false)
   const [selectNotes, setSelectNotes] = useState({})
   const [noteDrag, setNoteDrag] = useState({})
-  const [startNoteDrag, setStartNoteDrag] = useState(false)
+  const [startNoteDrag, setStartNoteDrag] = useState(null)
   const shiftPressed = useRef(false)
   const altPressed = useRef(false)
   const mainContainerRef = useRef()
@@ -86,6 +95,12 @@ export default function App() {
   const [selectingDimensions, setSelectingDimensions] = useState(null)
   const dragSelecting = useRef(false)
   const draggingNote = useRef(false)
+  const draggingDelimiter = useRef(null)
+  const dragStart = useRef()
+  const snapStart = useRef()
+  const dragChanged = useRef()
+  const dragDirection = useRef()
+  const overrideDefault = useRef()
   const dragNotes = useGesture({
     onDragStart: ({ initial: [x, y], metaKey, event }) => {
       if (!metaKey && event.button === 0) {
@@ -96,6 +111,15 @@ export default function App() {
           setGrabbing(true)
           setSelectNotes({ [event.target.closest('.lane-container').id]: [event.target.id] })
           setStartNoteDrag(event.target.id)
+        } else if (event.target.closest('.delimiter')) {
+          // dragging delimiters
+          setNoPointerEvents(true)
+          setEwResizing(true)
+          setSelectNotes({})
+          draggingDelimiter.current = event.target.closest('.delimiter').getAttribute('index')
+          const delimiter = delimiters[draggingDelimiter.current]
+          dragStart.current = delimiter.snap ? timeToPixels({ [delimiter.snap]: delimiter.snapNumber }) : delimiter.x
+          snapStart.current = delimiter.snap
         } else {
           // drag selecting
           dragSelecting.current = true
@@ -122,6 +146,52 @@ export default function App() {
             movement: [mx, my],
             direction: [dx],
           })
+        } else if (draggingDelimiter.current !== null) {
+          // dragging delimiters
+          dragChanged.current = mx
+          if (dragStart.current !== undefined && (Math.abs(mx) > 2 || overrideDefault.current)) {
+            if (dx) {
+              dragDirection.current = dx
+            }
+            const lowerSnapBound = snap && snapPixels(dragStart.current, snap, -1).px
+            const upperSnapBound = snap && lowerSnapBound + EIGHTH_WIDTH * RATE_MULTS[snap]
+            const realX = dragStart.current + mx
+            if (snap && !snapStart.current && (realX < lowerSnapBound || realX > upperSnapBound)) {
+              snapStart.current = snap
+            }
+            const direction = !snapStart.current ? dragDirection.current : 0
+            const { px, snapNumber } = snapPixels(realX, snap, direction)
+            const x = constrain(
+              px,
+              (draggingDelimiter.current + 1) * MIN_DELIMITER_WIDTH,
+              longestLane * EIGHTH_WIDTH - (delimiters.length - draggingDelimiter.current) * MIN_DELIMITER_WIDTH
+            )
+            if (snap && x !== dragStart.current) {
+              overrideDefault.current = true
+            }
+            const delimitersCopy = delimiters.slice()
+            delimitersCopy[draggingDelimiter.current] = Object.assign(delimitersCopy[draggingDelimiter.current], {
+              snap,
+              snapNumber,
+              x,
+            })
+            // push other delimiters if this one is running up against them
+            for (let i = draggingDelimiter.current - 1; i >= 0; i--) {
+              const maxX = x - (draggingDelimiter.current - i) * MIN_DELIMITER_WIDTH
+              if (delimiters[i].x > maxX) {
+                delimiters[i].snap = null
+                delimiters[i].x = maxX
+              }
+            }
+            for (let i = draggingDelimiter.current + 1; i < delimiters.length - 1; i++) {
+              const minX = x + (i - draggingDelimiter.current) * MIN_DELIMITER_WIDTH
+              if (delimiters[i].x < minX) {
+                delimiters[i].snap = null
+                delimiters[i].x = minX
+              }
+            }
+            setDelimiters(delimitersCopy)
+          }
         }
       }
     },
@@ -166,6 +236,15 @@ export default function App() {
           setNoPointerEvents(false)
           setGrabbing(false)
           draggingNote.current = false
+        } else if (draggingDelimiter.current !== null) {
+          // dragging delimiters
+          setNoPointerEvents(false)
+          setEwResizing(false)
+          setUIState((uiState) => Object.assign({}, uiState, { delimiters }))
+          draggingDelimiter.current = null
+          dragChanged.current = false
+          dragDirection.current = 0
+          overrideDefault.current = false
         }
       }
     },
@@ -183,7 +262,14 @@ export default function App() {
     })
   }, [])
 
-  const longestLane = useMemo(() => Math.max(...uiState.lanes.map((l) => l.laneLength)), [uiState.lanes])
+  const longestLane = useMemo(
+    () =>
+      Math.max(
+        ...uiState.lanes.map((l) => l.laneLength),
+        ...delimiters.slice(0, -1).map((d) => Math.round(d.x / EIGHTH_WIDTH))
+      ),
+    [delimiters, uiState.lanes]
+  )
 
   // elements
 
@@ -230,25 +316,27 @@ export default function App() {
   const delimiterEls = useMemo(
     () => (
       <div id="delimiters">
-        {uiState.delimiters.slice(0, -1).map((delimiter) => (
+        {delimiters.slice(0, -1).map((delimiter, i) => (
           <div
             className="delimiter"
+            key={uuid()}
+            index={i}
             style={{
               left: delimiter.snap ? timeToPixels({ [delimiter.snap]: delimiter.snapNumber }) : delimiter.x,
             }}>
-            <img className="delimiter-head" src={delimiterGraphic} alt="" />
+            <img className="delimiter-head" src={delimiterGraphic} alt="" draggable="false" />
             <div className="delimiter-grab"></div>
           </div>
         ))}
       </div>
     ),
-    [uiState.delimiters]
+    [delimiters]
   )
 
   return (
     <div
       id="main-container"
-      className={classNames({ grabbing })}
+      className={classNames({ grabbing, 'ew-resizing': ewResizing })}
       ref={mainContainerRef}
       style={{
         '--eighth-width': EIGHTH_WIDTH + 'px',

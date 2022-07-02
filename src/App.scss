@@ -12,6 +12,9 @@
   &.grabbing {
     cursor: grabbing !important;
   }
+  &.ew-resizing {
+    cursor: ew-resize !important;
+  }
 
   #lanes-container {
     $topGutter: 8px;

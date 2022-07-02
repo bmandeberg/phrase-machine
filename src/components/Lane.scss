@@ -113,6 +113,7 @@
     pointer-events: none;
 
     .tick-measure-num {
+      @extend .no-select;
       display: none;
     }
 
