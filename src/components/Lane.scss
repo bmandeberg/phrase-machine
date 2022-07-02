@@ -112,6 +112,10 @@
     display: flex;
     pointer-events: none;
 
+    .tick-measure-num {
+      display: none;
+    }
+
     .tick {
       width: var(--eighth-width);
       flex: 0 0 var(--eighth-width);
@@ -225,6 +229,13 @@
   }
 
   &.first {
+    .tick-measure-num {
+      display: block;
+      font-size: 10px;
+      margin-left: 2px;
+      color: $lightTextGray;
+    }
+
     .tick {
       &.major, &.minor {
         height: calc(100% + 10px);
@@ -232,7 +243,8 @@
       }
 
       &:first-of-type {
-        border-left: none;
+        border-left: 1px solid $lightTextGray;
+        height: 9px;
       }
     }
   }

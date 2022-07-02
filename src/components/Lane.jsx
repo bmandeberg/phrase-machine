@@ -222,14 +222,20 @@ export default function Lane({
             })}></div>
         ))}
         <div className="ticks">
-          {[...Array(laneLength)].map((_d, i) => (
-            <div
-              key={uuid()}
-              className={classNames('tick', {
-                minor: beatValue === 4 && i % 2 === 0,
-                major: i % (beatsPerBar * (beatValue === 4 ? 2 : 1)) === 0,
-              })}></div>
-          ))}
+          {[...Array(laneLength)].map((_d, i) => {
+            const eighthsPerMeasure = beatsPerBar * (beatValue === 4 ? 2 : 1)
+            const major = i % eighthsPerMeasure === 0
+            return (
+              <div
+                key={uuid()}
+                className={classNames('tick', {
+                  minor: beatValue === 4 && i % 2 === 0,
+                  major,
+                })}>
+                {major && <div className="tick-measure-num">{Math.floor(i / eighthsPerMeasure) + 1}</div>}
+              </div>
+            )
+          })}
         </div>
       </div>
     ),
