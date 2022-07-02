@@ -46,9 +46,8 @@
         background-color: $purple;
         position: absolute;
         top: 0;
-        z-index: 1;
+        z-index: 2;
         pointer-events: all;
-        cursor: ew-resize;
 
         &::before {
           content: '';
@@ -70,12 +69,14 @@
         }
 
         .delimiter-grab {
+          $extraDelimiter: 5px;
           $grabWidth: 9px;
           position: absolute;
-          top: 0;
+          top: -$extraDelimiter;
           left: -4px;
           width: $grabWidth;
-          height: 100%;
+          height: calc(100% + #{$extraDelimiter});
+          cursor: ew-resize;
         }
       }
     }
