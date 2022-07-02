@@ -1,6 +1,7 @@
 import React, { useState, useCallback, useMemo, useEffect, useRef } from 'react'
 import * as Tone from 'tone'
 import { useGesture } from 'react-use-gesture'
+import { v4 as uuid } from 'uuid'
 import classNames from 'classnames'
 import { DEFAULT_PRESET, EIGHTH_WIDTH, LANE_COLORS, NOTE_HEIGHT, KEYS_WIDTH } from './globals'
 import Lane from './components/Lane'
@@ -182,6 +183,8 @@ export default function App() {
     })
   }, [])
 
+  const longestLane = useMemo(() => Math.max(...uiState.lanes.map((l) => l.laneLength)), [uiState.lanes])
+
   // elements
 
   const lanes = useMemo(
@@ -265,9 +268,10 @@ export default function App() {
         beatValue={beatValue}
         setBeatValue={setBeatValue}
       />
-      <div id="lanes-container">
-        {delimiterEls}
+      <div id="lanes-container" style={{ width: longestLane * EIGHTH_WIDTH + 14 }}>
+        <div id="transport-topbar"></div>
         {lanes}
+        {delimiterEls}
         {!uiState.lanes.length && <div className="empty-lane"></div>}
       </div>
       {selectingDimensions && (!!selectingDimensions.width || !!selectingDimensions.height) && (

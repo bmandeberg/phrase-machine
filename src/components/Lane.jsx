@@ -261,7 +261,7 @@ export default function Lane({
   }, [notes, minNote, maxNote, selectedNotes, noPointerEvents, grabbing, dragNoteLeft, dragNoteRight])
 
   return (
-    <div id={id} className="lane-container" style={{ '--lane-color': color }}>
+    <div id={id} className={classNames('lane-container', { first: laneNum === 0 })} style={{ '--lane-color': color }}>
       <div className={classNames('keys', { grabbing })} {...dragLane()}>
         {keyEls}
       </div>

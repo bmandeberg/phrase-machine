@@ -1,7 +1,7 @@
 @import '../sass-globals.scss';
 
 .lane-container {
-  display: flex;
+  display: inline-flex;
   position: relative;
 
   .lane-expander {
@@ -220,6 +220,19 @@
             left: -$noteDragWidth - 1px;
           }
         }
+      }
+    }
+  }
+
+  &.first {
+    .tick {
+      &.major, &.minor {
+        height: calc(100% + 10px);
+        margin-top: -9px;
+      }
+
+      &:first-of-type {
+        border-left: none;
       }
     }
   }
