@@ -102,6 +102,7 @@ export default function App() {
   const dragSelecting = useRef(false)
   const draggingNote = useRef(false)
   const [draggingDelimiter, setDraggingDelimiter] = useState(null)
+  const wasDraggingDelimiter = useRef(null)
   const dragStart = useRef()
   const snapStart = useRef()
   const dragChanged = useRef()
@@ -124,6 +125,7 @@ export default function App() {
           setSelectNotes({})
           const delimiterIndex = +event.target.closest('.delimiter').getAttribute('index')
           setDraggingDelimiter(delimiterIndex)
+          wasDraggingDelimiter.current = delimiterIndex
           const delimiter = delimiters[delimiterIndex]
           dragStart.current = delimiter.snap ? timeToPixels({ [delimiter.snap]: delimiter.snapNumber }) : delimiter.x
           snapStart.current = delimiter.snap
@@ -383,6 +385,7 @@ export default function App() {
             i={i + 1}
             deleteDelimiter={deleteDelimiter}
             dragging={draggingDelimiter === i + 1}
+            wasDragging={wasDraggingDelimiter}
           />
         ))}
       </div>
