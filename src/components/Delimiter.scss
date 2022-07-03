@@ -1,0 +1,63 @@
+@import '../sass-globals.scss';
+
+.delimiter {
+  height: calc(100% - 6px);
+  width: 1px;
+  background-color: $purple;
+  position: absolute;
+  top: 0;
+  z-index: 2;
+  pointer-events: all;
+
+  &::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    background-color: $purple;
+    filter: blur(2px);
+  }
+
+  .delimiter-head {
+    @extend .no-select;
+    position: absolute;
+    top: -13px;
+    left: -12.5px;
+    height: $padding * 2;
+  }
+
+  .delimiter-grab {
+    $extraDelimiter: 8px;
+    $grabWidth: 9px;
+    position: absolute;
+    top: -$extraDelimiter;
+    left: -4px;
+    width: $grabWidth;
+    height: calc(100% + #{$extraDelimiter});
+    cursor: ew-resize;
+  }
+
+  .delimiter-x {
+    @extend .no-select;
+    position: absolute;
+    top: -13px;
+    height: 13px;
+    left: -6px;
+    cursor: pointer;
+    opacity: 0;
+    transition: opacity $fastTransitionTime ease, top $fastTransitionTime ease;
+  }
+
+  &.active {
+    .delimiter-x {
+      opacity: 1;
+      top: -21px;
+
+      &:hover {
+        opacity: 0.8;
+      }
+    }
+  }
+}

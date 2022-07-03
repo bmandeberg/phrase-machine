@@ -1,8 +1,8 @@
 import React, { useState, useCallback, useMemo, useEffect, useRef } from 'react'
 import * as Tone from 'tone'
 import { useGesture } from 'react-use-gesture'
-import { v4 as uuid } from 'uuid'
 import classNames from 'classnames'
+import { v4 as uuid } from 'uuid'
 import {
   DEFAULT_PRESET,
   EIGHTH_WIDTH,
@@ -14,8 +14,8 @@ import {
 } from './globals'
 import Lane from './components/Lane'
 import Header from './components/Header'
+import Delimiter from './components/Delimiter'
 import { boxesIntersect, timeToPixels, snapPixels, constrain } from './util'
-import delimiterGraphic from './assets/delimiter.svg'
 import './App.scss'
 
 // load/set presets
@@ -101,7 +101,7 @@ export default function App() {
   const [selectingDimensions, setSelectingDimensions] = useState(null)
   const dragSelecting = useRef(false)
   const draggingNote = useRef(false)
-  const draggingDelimiter = useRef(null)
+  const [draggingDelimiter, setDraggingDelimiter] = useState(null)
   const dragStart = useRef()
   const snapStart = useRef()
   const dragChanged = useRef()
@@ -117,13 +117,14 @@ export default function App() {
           setGrabbing(true)
           setSelectNotes({ [event.target.closest('.lane-container').id]: [event.target.id] })
           setStartNoteDrag(event.target.id)
-        } else if (event.target.closest('.delimiter')) {
+        } else if (event.target.closest('.delimiter') && !event.target.classList.contains('delimiter-x')) {
           // dragging delimiters
           setNoPointerEvents(true)
           setEwResizing(true)
           setSelectNotes({})
-          draggingDelimiter.current = +event.target.closest('.delimiter').getAttribute('index')
-          const delimiter = delimiters[draggingDelimiter.current]
+          const delimiterIndex = +event.target.closest('.delimiter').getAttribute('index')
+          setDraggingDelimiter(delimiterIndex)
+          const delimiter = delimiters[delimiterIndex]
           dragStart.current = delimiter.snap ? timeToPixels({ [delimiter.snap]: delimiter.snapNumber }) : delimiter.x
           snapStart.current = delimiter.snap
         } else {
@@ -152,7 +153,7 @@ export default function App() {
             movement: [mx, my],
             direction: [dx],
           })
-        } else if (draggingDelimiter.current !== null) {
+        } else if (draggingDelimiter !== null) {
           // dragging delimiters
           dragChanged.current = mx
           if (dragStart.current !== undefined && (Math.abs(mx) > 2 || overrideDefault.current)) {
@@ -167,9 +168,8 @@ export default function App() {
             }
             const direction = !snapStart.current ? dragDirection.current : 0
             const { px, snapNumber } = snapPixels(realX, snap, direction)
-            const minX = draggingDelimiter.current * MIN_DELIMITER_WIDTH
-            const maxX =
-              longestLane * EIGHTH_WIDTH - (delimiters.length - draggingDelimiter.current) * MIN_DELIMITER_WIDTH
+            const minX = draggingDelimiter * MIN_DELIMITER_WIDTH
+            const maxX = longestLane * EIGHTH_WIDTH - (delimiters.length - draggingDelimiter) * MIN_DELIMITER_WIDTH
             let x = px
             let snapX = snap
             let snapNumberX = snapNumber
@@ -181,28 +181,31 @@ export default function App() {
             if (snap && x !== dragStart.current) {
               overrideDefault.current = true
             }
-            const delimitersCopy = delimiters.slice()
-            delimitersCopy[draggingDelimiter.current] = Object.assign(delimitersCopy[draggingDelimiter.current], {
-              snap: snapX,
-              snapNumber: snapNumberX,
-              x,
-            })
-            // push other delimiters if this one is running up against them
-            for (let i = draggingDelimiter.current - 1; i > 0; i--) {
-              const maxX = x - (draggingDelimiter.current - i) * MIN_DELIMITER_WIDTH
-              if (delimiters[i].x > maxX) {
-                delimiters[i].snap = null
-                delimiters[i].x = maxX
+            // set delimiter positions
+            if (x !== delimiters[draggingDelimiter].x) {
+              const delimitersCopy = delimiters.slice()
+              delimitersCopy[draggingDelimiter] = Object.assign(delimitersCopy[draggingDelimiter], {
+                snap: snapX,
+                snapNumber: snapNumberX,
+                x,
+              })
+              // push other delimiters if this one is running up against them
+              for (let i = draggingDelimiter - 1; i > 0; i--) {
+                const maxX = x - (draggingDelimiter - i) * MIN_DELIMITER_WIDTH
+                if (delimiters[i].x > maxX) {
+                  delimiters[i].snap = null
+                  delimiters[i].x = maxX
+                }
               }
-            }
-            for (let i = draggingDelimiter.current + 1; i < delimiters.length; i++) {
-              const minX = x + (i - draggingDelimiter.current) * MIN_DELIMITER_WIDTH
-              if (delimiters[i].x < minX) {
-                delimiters[i].snap = null
-                delimiters[i].x = minX
+              for (let i = draggingDelimiter + 1; i < delimiters.length; i++) {
+                const minX = x + (i - draggingDelimiter) * MIN_DELIMITER_WIDTH
+                if (delimiters[i].x < minX) {
+                  delimiters[i].snap = null
+                  delimiters[i].x = minX
+                }
               }
+              setDelimiters(delimitersCopy)
             }
-            setDelimiters(delimitersCopy)
           }
         }
       }
@@ -248,12 +251,12 @@ export default function App() {
           setNoPointerEvents(false)
           setGrabbing(false)
           draggingNote.current = false
-        } else if (draggingDelimiter.current !== null) {
+        } else if (draggingDelimiter !== null) {
           // dragging delimiters
           setNoPointerEvents(false)
           setEwResizing(false)
           setUIState((uiState) => Object.assign({}, uiState, { delimiters }))
-          draggingDelimiter.current = null
+          setDraggingDelimiter(null)
           dragChanged.current = false
           dragDirection.current = 0
           overrideDefault.current = false
@@ -295,6 +298,16 @@ export default function App() {
       }
     },
     [delimiters, snap]
+  )
+
+  const deleteDelimiter = useCallback(
+    (i) => {
+      const delimitersCopy = delimiters.slice()
+      delimitersCopy.splice(i, 1)
+      setDelimiters(delimitersCopy)
+      setUIState((uiState) => Object.assign({}, uiState, { delimiters: delimitersCopy }))
+    },
+    [delimiters]
   )
 
   const setLaneState = useCallback((state) => {
@@ -364,20 +377,17 @@ export default function App() {
     () => (
       <div id="delimiters">
         {delimiters.slice(1).map((delimiter, i) => (
-          <div
-            className="delimiter"
+          <Delimiter
             key={uuid()}
-            index={i + 1}
-            style={{
-              left: delimiter.snap ? timeToPixels({ [delimiter.snap]: delimiter.snapNumber }) : delimiter.x,
-            }}>
-            <img className="delimiter-head" src={delimiterGraphic} alt="" draggable="false" />
-            <div className="delimiter-grab"></div>
-          </div>
+            delimiter={delimiter}
+            i={i + 1}
+            deleteDelimiter={deleteDelimiter}
+            dragging={draggingDelimiter === i + 1}
+          />
         ))}
       </div>
     ),
-    [delimiters]
+    [deleteDelimiter, delimiters, draggingDelimiter]
   )
 
   return (
