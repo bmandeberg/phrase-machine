@@ -284,21 +284,17 @@ export default function App() {
         }
         const delimitersCopy = delimiters.slice()
         const { px, snapNumber } = snapPixels(realX, snap)
-        const newDelimiter = {
-          lanes: {},
+        delimitersCopy.splice(closest, 0, {
+          lanes: Object.assign({}, delimiters[closest - 1].lanes),
           snap,
           snapNumber,
           x: px,
-        }
-        uiState.lanes.forEach((lane) => {
-          newDelimiter.lanes[lane.id] = 1 / uiState.lanes.length
         })
-        delimitersCopy.splice(closest, 0, newDelimiter)
         setDelimiters(delimitersCopy)
         setUIState((uiState) => Object.assign({}, uiState, { delimiters: delimitersCopy }))
       }
     },
-    [delimiters, snap, uiState.lanes]
+    [delimiters, snap]
   )
 
   const setLaneState = useCallback((state) => {
