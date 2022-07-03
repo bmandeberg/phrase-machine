@@ -103,6 +103,7 @@ export default function App() {
   const draggingNote = useRef(false)
   const [draggingDelimiter, setDraggingDelimiter] = useState(null)
   const wasDraggingDelimiter = useRef(null)
+  const delimiterDragHover = useRef(false)
   const dragStart = useRef()
   const snapStart = useRef()
   const dragChanged = useRef()
@@ -255,6 +256,9 @@ export default function App() {
           draggingNote.current = false
         } else if (draggingDelimiter !== null) {
           // dragging delimiters
+          if (event.target.classList.contains('delimiter-grab')) {
+            delimiterDragHover.current = true
+          }
           setNoPointerEvents(false)
           setEwResizing(false)
           setUIState((uiState) => Object.assign({}, uiState, { delimiters }))
@@ -287,6 +291,7 @@ export default function App() {
         if (realX - delimiters[closest].x > 0) {
           closest += 1
         }
+        wasDraggingDelimiter.current = null
         const delimitersCopy = delimiters.slice()
         const { px, snapNumber } = snapPixels(realX, snap)
         delimitersCopy.splice(closest, 0, {
@@ -306,6 +311,7 @@ export default function App() {
     (i) => {
       const delimitersCopy = delimiters.slice()
       delimitersCopy.splice(i, 1)
+      wasDraggingDelimiter.current = null
       setDelimiters(delimitersCopy)
       setUIState((uiState) => Object.assign({}, uiState, { delimiters: delimitersCopy }))
     },
@@ -386,6 +392,7 @@ export default function App() {
             deleteDelimiter={deleteDelimiter}
             dragging={draggingDelimiter === i + 1}
             wasDragging={wasDraggingDelimiter}
+            dragHover={delimiterDragHover}
           />
         ))}
       </div>

@@ -7,18 +7,28 @@ import delimiterGraphic from '../assets/delimiter.svg'
 import xIcon from '../assets/x-icon-purple.svg'
 import './Delimiter.scss'
 
-export default function Delimiter({ delimiter, i, deleteDelimiter, dragging, wasDragging }) {
+export default function Delimiter({ delimiter, i, deleteDelimiter, dragging, wasDragging, dragHover }) {
   const [active, setActive] = useState(dragging || wasDragging.current === i)
+  const [hovering, setHovering] = useState(false)
 
   useEffect(() => {
     if (dragging === null && wasDragging.current === i) {
-      setActive(false)
+      console.log(dragHover.current)
+      if (dragHover.current) {
+        dragHover.current = false
+      } else {
+        setActive(false)
+      }
       wasDragging.current = null
     }
-  }, [dragging, i, wasDragging])
+  }, [dragHover, dragging, i, wasDragging])
+
+  useEffect(() => {
+    setActive(hovering || dragging)
+  }, [dragging, hovering])
 
   const hover = useHover((e) => {
-    setActive(e.hovering || dragging)
+    setHovering(e.hovering)
   })
   useEffect(() => {
     setActive(dragging)
@@ -44,4 +54,5 @@ Delimiter.propTypes = {
   deleteDelimiter: PropTypes.func,
   dragging: PropTypes.bool,
   wasDragging: PropTypes.object,
+  dragHover: PropTypes.object,
 }
