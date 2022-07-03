@@ -32,12 +32,13 @@ export const DEFAULT_PRESET = JSON.stringify({
   delimiters: [
     {
       lanes: { [laneID]: 1 },
-      snap: '8n',
-      snapNumber: 16,
-      x: 384,
+      x: 0,
     },
     {
       lanes: { [laneID]: 1 },
+      snap: '8n',
+      snapNumber: 16,
+      x: 384,
     },
   ],
 })

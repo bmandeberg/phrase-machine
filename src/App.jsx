@@ -167,9 +167,9 @@ export default function App() {
             }
             const direction = !snapStart.current ? dragDirection.current : 0
             const { px, snapNumber } = snapPixels(realX, snap, direction)
-            const minX = (draggingDelimiter.current + 1) * MIN_DELIMITER_WIDTH
+            const minX = draggingDelimiter.current * MIN_DELIMITER_WIDTH
             const maxX =
-              longestLane * EIGHTH_WIDTH - (delimiters.length - draggingDelimiter.current - 1) * MIN_DELIMITER_WIDTH
+              longestLane * EIGHTH_WIDTH - (delimiters.length - draggingDelimiter.current) * MIN_DELIMITER_WIDTH
             let x = px
             let snapX = snap
             let snapNumberX = snapNumber
@@ -188,14 +188,14 @@ export default function App() {
               x,
             })
             // push other delimiters if this one is running up against them
-            for (let i = draggingDelimiter.current - 1; i >= 0; i--) {
+            for (let i = draggingDelimiter.current - 1; i > 0; i--) {
               const maxX = x - (draggingDelimiter.current - i) * MIN_DELIMITER_WIDTH
               if (delimiters[i].x > maxX) {
                 delimiters[i].snap = null
                 delimiters[i].x = maxX
               }
             }
-            for (let i = draggingDelimiter.current + 1; i < delimiters.length - 1; i++) {
+            for (let i = draggingDelimiter.current + 1; i < delimiters.length; i++) {
               const minX = x + (i - draggingDelimiter.current) * MIN_DELIMITER_WIDTH
               if (delimiters[i].x < minX) {
                 delimiters[i].snap = null
@@ -263,6 +263,7 @@ export default function App() {
   })
 
   // create delimiter
+
   const topbarMousedown = useCallback(
     (e) => {
       if (metaPressed.current) {
@@ -316,7 +317,7 @@ export default function App() {
     () =>
       Math.max(
         ...uiState.lanes.map((l) => l.laneLength),
-        ...delimiters.slice(0, -1).map((d) => Math.round(d.x / EIGHTH_WIDTH))
+        ...delimiters.slice(1).map((d) => Math.round(d.x / EIGHTH_WIDTH))
       ),
     [delimiters, uiState.lanes]
   )
@@ -366,11 +367,11 @@ export default function App() {
   const delimiterEls = useMemo(
     () => (
       <div id="delimiters">
-        {delimiters.slice(0, -1).map((delimiter, i) => (
+        {delimiters.slice(1).map((delimiter, i) => (
           <div
             className="delimiter"
             key={uuid()}
-            index={i}
+            index={i + 1}
             style={{
               left: delimiter.snap ? timeToPixels({ [delimiter.snap]: delimiter.snapNumber }) : delimiter.x,
             }}>
