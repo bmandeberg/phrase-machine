@@ -34,12 +34,6 @@ export const DEFAULT_PRESET = JSON.stringify({
       lanes: { [laneID]: 1 },
       x: 0,
     },
-    {
-      lanes: { [laneID]: 1 },
-      snap: '8n',
-      snapNumber: 16,
-      x: 384,
-    },
   ],
 })
 
