@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import PropTypes from 'prop-types'
 import classNames from 'classnames'
 import { useHover } from 'react-use-gesture'
@@ -9,13 +9,26 @@ import './Delimiter.scss'
 
 export default function Delimiter({ delimiter, i, deleteDelimiter, dragging, wasDragging, dragHover }) {
   const [active, setActive] = useState(dragging || wasDragging.current === i)
-  const [hovering, setHovering] = useState(false)
+  const [hovering, setHovering] = useState(dragHover.current === i)
+  const hoveringRef = useRef(hovering)
 
   useEffect(() => {
-    if (dragging === null && wasDragging.current === i) {
-      console.log(dragHover.current)
-      if (dragHover.current) {
-        dragHover.current = false
+    if (hoveringRef.current !== hovering) {
+      if (hoveringRef.current) {
+        dragHover.current = null
+      }
+      hoveringRef.current = hovering
+    }
+  }, [dragHover, hovering])
+
+  useEffect(() => {
+    setActive(hovering || dragging || dragHover.current === i)
+  }, [dragHover, dragging, hovering, i])
+
+  useEffect(() => {
+    if (!dragging && wasDragging.current === i) {
+      if (dragHover.current === i) {
+        dragHover.current = null
       } else {
         setActive(false)
       }
@@ -23,16 +36,9 @@ export default function Delimiter({ delimiter, i, deleteDelimiter, dragging, was
     }
   }, [dragHover, dragging, i, wasDragging])
 
-  useEffect(() => {
-    setActive(hovering || dragging)
-  }, [dragging, hovering])
-
   const hover = useHover((e) => {
     setHovering(e.hovering)
   })
-  useEffect(() => {
-    setActive(dragging)
-  }, [dragging])
 
   return (
     <div

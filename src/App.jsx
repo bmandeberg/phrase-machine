@@ -103,7 +103,7 @@ export default function App() {
   const draggingNote = useRef(false)
   const [draggingDelimiter, setDraggingDelimiter] = useState(null)
   const wasDraggingDelimiter = useRef(null)
-  const delimiterDragHover = useRef(false)
+  const delimiterDragHover = useRef(null)
   const dragStart = useRef()
   const snapStart = useRef()
   const dragChanged = useRef()
@@ -257,7 +257,7 @@ export default function App() {
         } else if (draggingDelimiter !== null) {
           // dragging delimiters
           if (event.target.classList.contains('delimiter-grab')) {
-            delimiterDragHover.current = true
+            delimiterDragHover.current = draggingDelimiter
           }
           setNoPointerEvents(false)
           setEwResizing(false)
