@@ -272,6 +272,7 @@ export default function Lane({
       style={{
         '--lane-color': LANE_COLORS[laneNum].base,
         '--lane-color-hover': LANE_COLORS[laneNum].hover,
+        '--lane-color-lane': LANE_COLORS[laneNum].lane,
         '--lane-color-light': LANE_COLORS[laneNum].light,
         '--lane-color-lightest': LANE_COLORS[laneNum].lightest,
       }}>

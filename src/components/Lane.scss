@@ -3,6 +3,7 @@
 .lane-container {
   display: inline-flex;
   position: relative;
+  box-shadow: 0 3px 3px -2px #dadada;
 
   .lane-expander {
     position: absolute;
@@ -85,11 +86,11 @@
       height: var(--note-height);
 
       &.e-key {
-        border-bottom: 1px solid $lightBlue;
+        border-bottom: 1px solid var(--lane-color-lane);
       }
 
       &.black-key {
-        background: $lightBlue;
+        background: var(--lane-color-lane);
       }
 
       &:last-of-type {
