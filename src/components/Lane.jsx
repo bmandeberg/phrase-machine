@@ -26,6 +26,8 @@ export default function Lane({
   selectNotes,
   startNoteDrag,
   noteDrag,
+  longestLane,
+  updateLongestLane,
 }) {
   const [laneLength, setLaneLength] = useState(lanePreset.laneLength)
   const [notes, updateNotes] = useState(lanePreset.notes)
@@ -69,6 +71,10 @@ export default function Lane({
     const farthestX = Math.max(...notes.map((note) => note.x + note.width))
     setLaneLength(Math.max(calcLaneLength(farthestX, 1), calcLaneLength(window.innerWidth - 30)))
   }, [notes])
+
+  useEffect(() => {
+    updateLongestLane(laneLength, laneNum)
+  }, [laneLength, laneNum, updateLongestLane])
 
   // sort notes while setting them
   const setNotes = useCallback((update) => {
@@ -209,7 +215,7 @@ export default function Lane({
 
   const laneEl = useMemo(
     () => (
-      <div className="lane" ref={lane} style={{ '--lane-width': laneLength * EIGHTH_WIDTH + 'px' }}>
+      <div className="lane" ref={lane} style={{ '--lane-width': longestLane * EIGHTH_WIDTH + 'px' }}>
         {[...Array(maxNote - minNote + 1)].map((_d, i) => (
           <div
             key={uuid()}
@@ -221,7 +227,7 @@ export default function Lane({
             })}></div>
         ))}
         <div className="ticks">
-          {[...Array(laneLength)].map((_d, i) => {
+          {[...Array(longestLane)].map((_d, i) => {
             const eighthsPerMeasure = beatsPerBar * (beatValue === 4 ? 2 : 1)
             const major = i % eighthsPerMeasure === 0
             return (
@@ -238,7 +244,7 @@ export default function Lane({
         </div>
       </div>
     ),
-    [beatValue, beatsPerBar, createNote, laneLength, maxNote, minNote]
+    [beatValue, beatsPerBar, createNote, longestLane, maxNote, minNote]
   )
 
   const noteEls = useMemo(() => {
@@ -303,6 +309,8 @@ Lane.propTypes = {
   selectNotes: PropTypes.object,
   startNoteDrag: PropTypes.string,
   noteDrag: PropTypes.object,
+  longestLane: PropTypes.number,
+  updateLongestLane: PropTypes.func,
 }
 
 const blackKeys = [false, true, false, true, false, false, true, false, true, false, true, false]

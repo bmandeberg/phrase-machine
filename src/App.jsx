@@ -333,14 +333,31 @@ export default function App() {
     })
   }, [])
 
-  const longestLane = useMemo(
-    () =>
-      Math.max(
-        ...uiState.lanes.map((l) => l.laneLength),
-        ...delimiters.slice(1).map((d) => Math.round(d.x / EIGHTH_WIDTH))
-      ),
-    [delimiters, uiState.lanes]
-  )
+  // lane length
+
+  const [laneLengths, setLaneLengths] = useState(uiState.lanes.map((lane) => lane.laneLength))
+
+  const computeLongestLane = useCallback(() => {
+    return Math.max(...laneLengths, ...delimiters.slice(1).map((d) => Math.round(d.x / EIGHTH_WIDTH)))
+  }, [delimiters, laneLengths])
+
+  const [longestLane, setLongestLane] = useState(computeLongestLane())
+
+  useEffect(() => {
+    setLongestLane(computeLongestLane())
+  }, [computeLongestLane])
+
+  const updateLongestLane = useCallback((length, i) => {
+    setLaneLengths((laneLenghts) => {
+      const laneLengthsCopy = laneLenghts.slice()
+      laneLengthsCopy[i] = length
+      return laneLengthsCopy
+    })
+  }, [])
+
+  useEffect(() => {
+    setLaneLengths(uiState.lanes.map((lane) => lane.laneLength))
+  }, [uiState.lanes])
 
   // elements
 
@@ -366,6 +383,8 @@ export default function App() {
           selectNotes={selectNotes}
           startNoteDrag={startNoteDrag}
           noteDrag={noteDrag}
+          longestLane={longestLane}
+          updateLongestLane={updateLongestLane}
         />
       )),
     [
@@ -373,6 +392,7 @@ export default function App() {
       beatsPerBar,
       delimiters,
       grabbing,
+      longestLane,
       noPointerEvents,
       noteDrag,
       selectNotes,
@@ -380,6 +400,7 @@ export default function App() {
       snap,
       startNoteDrag,
       uiState.lanes,
+      updateLongestLane,
     ]
   )
 
