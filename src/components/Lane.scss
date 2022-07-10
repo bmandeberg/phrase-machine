@@ -149,11 +149,11 @@
     .note {
       position: absolute;
       height: var(--note-height);
-      background: $blue;
+      background: var(--lane-color);
       pointer-events: all;
-      box-shadow: 0px 0px 2px lighten($blue, 30%);
+      box-shadow: 0px 0px 2px var(--lane-color-light);
       box-sizing: border-box;
-      border: 1px solid lighten($blue, 35%);
+      border: 1px solid var(--lane-color-lightest);
       cursor: grab;
 
       &.grabbing {
@@ -161,7 +161,7 @@
       }
 
       &:hover {
-        background: $blueHover;
+        background: var(--lane-color-hover);
       }
 
       &.no-pointer {
@@ -198,11 +198,11 @@
       }
 
       &.selected {
-        border: 2px solid $blue;
-        background: lighten($blue, 35%);
+        border: 2px solid var(--lane-color);
+        background: var(--lane-color-lightest);
 
         &:hover {
-          background: lighten($blue, 30%);
+          background: var(--lane-color-light);
         }
 
         .note-drag-left,
@@ -238,7 +238,8 @@
     }
 
     .tick {
-      &.major, &.minor {
+      &.major,
+      &.minor {
         height: calc(100% + 10px);
         margin-top: -9px;
       }

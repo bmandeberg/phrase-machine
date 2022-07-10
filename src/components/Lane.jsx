@@ -2,7 +2,7 @@ import React, { useState, useMemo, useRef, useEffect, useCallback } from 'react'
 import PropTypes from 'prop-types'
 import { v4 as uuid } from 'uuid'
 import classNames from 'classnames'
-import { NOTE_HEIGHT, EIGHTH_WIDTH, calcLaneLength } from '../globals'
+import { NOTE_HEIGHT, EIGHTH_WIDTH, calcLaneLength, LANE_COLORS } from '../globals'
 import useNoteDrag from '../hooks/useNoteDrag'
 import useLaneDrag from '../hooks/useLaneDrag'
 import { noteString } from '../util'
@@ -10,7 +10,6 @@ import './Lane.scss'
 
 export default function Lane({
   id,
-  color,
   laneNum,
   lanePreset,
   setLaneState,
@@ -267,7 +266,15 @@ export default function Lane({
   }, [notes, minNote, maxNote, selectedNotes, noPointerEvents, grabbing, dragNoteLeft, dragNoteRight])
 
   return (
-    <div id={id} className={classNames('lane-container', { first: laneNum === 0 })} style={{ '--lane-color': color }}>
+    <div
+      id={id}
+      className={classNames('lane-container', { first: laneNum === 0 })}
+      style={{
+        '--lane-color': LANE_COLORS[laneNum].base,
+        '--lane-color-hover': LANE_COLORS[laneNum].hover,
+        '--lane-color-light': LANE_COLORS[laneNum].light,
+        '--lane-color-lightest': LANE_COLORS[laneNum].lightest,
+      }}>
       <div className={classNames('keys', { grabbing })} {...dragLane()}>
         {keyEls}
       </div>
@@ -279,7 +286,6 @@ export default function Lane({
 }
 Lane.propTypes = {
   id: PropTypes.string,
-  color: PropTypes.string,
   laneNum: PropTypes.number,
   lanePreset: PropTypes.object,
   setLaneState: PropTypes.func,

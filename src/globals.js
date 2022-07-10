@@ -1,6 +1,15 @@
 import { v4 as uuid } from 'uuid'
 
-export const LANE_COLORS = ['#008dff', '#00DD69', '#7C00FF', '#FF88E3', '#FF3154', '#FF9B00', '#66FF7C', '#EDDF00']
+export const LANE_COLORS = [
+  { base: '#008dff', hover: '#33a4ff', light: '#8fd2ff', lightest: '#b3ddff' },
+  { base: '#00DD69', hover: '#20f279', light: '#82f9b2', lightest: '#a2fcc7' },
+  { base: '#FF88E3', hover: '#ffabef', light: '#f9c7ef', lightest: '#fcd4f4' },
+  { base: '#7C00FF', hover: '#994aff', light: '#c3a4ff', lightest: '#d4b8ff' },
+  { base: '#FF3154', hover: '#ff577b', light: '#f99bbd', lightest: '#fcb4cb' },
+  { base: '#FF9B00', hover: '#ffb452', light: '#ffd0a6', lightest: '#ffdebb' },
+  { base: '#d600a9', hover: '#ef48cf', light: '#ff92f5', lightest: '#ffa9f3' },
+  { base: '#00c6a9', hover: '#40e2c7', light: '#62efd4', lightest: '#80ffe7' },
+]
 export const EIGHTH_WIDTH = 24
 export const NOTE_HEIGHT = 12
 export const KEYS_WIDTH = 10
@@ -16,12 +25,12 @@ export function calcLaneLength(width, direction = -1) {
 }
 
 const laneID = uuid()
-export const DEFAULT_LANE = {
-  id: laneID,
-  laneLength: calcLaneLength(window.innerWidth - 30),
+export const DEFAULT_LANE = (id, laneLength) => ({
+  id: id || laneID,
+  laneLength: laneLength || calcLaneLength(window.innerWidth - 30),
   notes: [],
   viewRange: { min: 60, max: 71 },
-}
+})
 
 export const DEFAULT_PRESET = JSON.stringify({
   id: uuid(),
@@ -29,7 +38,7 @@ export const DEFAULT_PRESET = JSON.stringify({
   snap: '8n',
   beatsPerBar: 4,
   beatValue: 4,
-  lanes: [DEFAULT_LANE],
+  lanes: [DEFAULT_LANE()],
   delimiters: [
     {
       lanes: { [laneID]: 1 },

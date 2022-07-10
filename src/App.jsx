@@ -6,12 +6,12 @@ import { v4 as uuid } from 'uuid'
 import {
   DEFAULT_PRESET,
   EIGHTH_WIDTH,
-  LANE_COLORS,
   NOTE_HEIGHT,
   KEYS_WIDTH,
   RATE_MULTS,
   MIN_DELIMITER_WIDTH,
   MAX_LANES,
+  DEFAULT_LANE,
 } from './globals'
 import Lane from './components/Lane'
 import Header from './components/Header'
@@ -350,7 +350,6 @@ export default function App() {
         <Lane
           key={lane.id}
           id={lane.id}
-          color={LANE_COLORS[i]}
           laneNum={i}
           lanePreset={lane}
           setLaneState={setLaneState}
@@ -403,8 +402,30 @@ export default function App() {
     [deleteDelimiter, delimiters, draggingDelimiter]
   )
 
+  // lane management
+
+  const addLane = useCallback(() => {
+    const laneID = uuid()
+    // update delimiters
+    const delimitersCopy = delimiters.map((d) => {
+      for (const lane in d.lanes) {
+        d.lanes[lane] = d.lanes[lane] * (uiState.lanes.length / (uiState.lanes.length + 1))
+        d.lanes[laneID] = 1 / (uiState.lanes.length + 1)
+      }
+      return d
+    })
+    setDelimiters(delimitersCopy)
+    // add new lane and update state
+    setUIState((uiState) =>
+      Object.assign({}, uiState, {
+        lanes: uiState.lanes.concat([DEFAULT_LANE(laneID, longestLane)]),
+        delimiters: delimitersCopy,
+      })
+    )
+  }, [delimiters, longestLane, uiState.lanes.length])
+
   const [addLaneHover, setAddLaneHover] = useState(false)
-  const addLane = useMemo(
+  const addLaneButton = useMemo(
     () =>
       uiState.lanes.length < MAX_LANES ? (
         <div id="add-lane">
@@ -414,10 +435,11 @@ export default function App() {
             id="add-lane-button"
             onMouseEnter={() => setAddLaneHover(true)}
             onMouseLeave={() => setAddLaneHover(false)}
+            onClick={addLane}
           />
         </div>
       ) : null,
-    [addLaneHover, uiState.lanes.length]
+    [addLane, addLaneHover, uiState.lanes.length]
   )
 
   return (
@@ -448,7 +470,7 @@ export default function App() {
         {lanes}
         {delimiterEls}
         {!uiState.lanes.length && <div className="empty-lane"></div>}
-        {addLane}
+        {addLaneButton}
       </div>
       {selectingDimensions && (!!selectingDimensions.width || !!selectingDimensions.height) && (
         <div
