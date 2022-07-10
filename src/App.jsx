@@ -404,6 +404,11 @@ export default function App() {
     ]
   )
 
+  const [mainScroll, setMainScroll] = useState(0)
+  const containerScroll = useCallback((e) => {
+    setMainScroll(e.target.scrollLeft)
+  }, [])
+
   const delimiterEls = useMemo(
     () => (
       <div id="delimiters">
@@ -416,11 +421,12 @@ export default function App() {
             dragging={draggingDelimiter === i + 1}
             wasDragging={wasDraggingDelimiter}
             dragHover={delimiterDragHover}
+            mainScroll={mainScroll}
           />
         ))}
       </div>
     ),
-    [deleteDelimiter, delimiters, draggingDelimiter]
+    [deleteDelimiter, delimiters, draggingDelimiter, mainScroll]
   )
 
   // lane management
@@ -473,6 +479,7 @@ export default function App() {
         '--note-height': NOTE_HEIGHT + 'px',
         '--keys-width': KEYS_WIDTH + 'px',
       }}
+      onScroll={containerScroll}
       {...dragNotes()}>
       <Header
         playing={playing}

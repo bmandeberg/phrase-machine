@@ -8,7 +8,7 @@ import xIcon from '../assets/x-icon-purple.svg'
 import './Delimiter.scss'
 import { KEYS_WIDTH } from '../globals'
 
-export default function Delimiter({ delimiter, i, deleteDelimiter, dragging, wasDragging, dragHover }) {
+export default function Delimiter({ delimiter, i, deleteDelimiter, dragging, wasDragging, dragHover, mainScroll }) {
   const [active, setActive] = useState(dragging || wasDragging.current === i)
   const [hovering, setHovering] = useState(dragHover.current === i)
   const hoveringRef = useRef(hovering)
@@ -42,8 +42,12 @@ export default function Delimiter({ delimiter, i, deleteDelimiter, dragging, was
   })
 
   const left = useMemo(
-    () => (delimiter.snap ? timeToPixels({ [delimiter.snap]: delimiter.snapNumber }) : delimiter.x) + 34 + KEYS_WIDTH,
-    [delimiter.snap, delimiter.snapNumber, delimiter.x]
+    () =>
+      (delimiter.snap ? timeToPixels({ [delimiter.snap]: delimiter.snapNumber }) : delimiter.x) +
+      34 +
+      KEYS_WIDTH -
+      mainScroll,
+    [delimiter.snap, delimiter.snapNumber, delimiter.x, mainScroll]
   )
 
   return (
@@ -61,4 +65,5 @@ Delimiter.propTypes = {
   dragging: PropTypes.bool,
   wasDragging: PropTypes.object,
   dragHover: PropTypes.object,
+  mainScroll: PropTypes.number,
 }
