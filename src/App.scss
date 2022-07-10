@@ -78,4 +78,16 @@
     width: $padding * 2;
     background: linear-gradient(to right, rgba(243, 249, 255, 1), rgba(243, 249, 255, 0.2));
   }
+
+  #add-lane {
+    position: absolute;
+    bottom: $padding * -1.8;
+    left: $padding * -1.5;
+    z-index: 3;
+
+    #add-lane-button {
+      height: $padding * 1.3;
+      cursor: pointer;
+    }
+  }
 }

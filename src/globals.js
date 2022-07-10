@@ -5,6 +5,7 @@ export const EIGHTH_WIDTH = 24
 export const NOTE_HEIGHT = 12
 export const KEYS_WIDTH = 10
 export const MIN_DELIMITER_WIDTH = 8
+export const MAX_LANES = 8
 
 export const MIN_MIDI_NOTE = 21
 export const MAX_MIDI_NOTE = 127

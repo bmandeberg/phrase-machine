@@ -11,11 +11,14 @@ import {
   KEYS_WIDTH,
   RATE_MULTS,
   MIN_DELIMITER_WIDTH,
+  MAX_LANES,
 } from './globals'
 import Lane from './components/Lane'
 import Header from './components/Header'
 import Delimiter from './components/Delimiter'
 import { boxesIntersect, timeToPixels, snapPixels, constrain } from './util'
+import addIcon from './assets/add-icon.svg'
+import addIconHover from './assets/add-icon-hover.svg'
 import './App.scss'
 
 // load/set presets
@@ -400,6 +403,23 @@ export default function App() {
     [deleteDelimiter, delimiters, draggingDelimiter]
   )
 
+  const [addLaneHover, setAddLaneHover] = useState(false)
+  const addLane = useMemo(
+    () =>
+      uiState.lanes.length < MAX_LANES ? (
+        <div id="add-lane">
+          <img
+            src={addLaneHover ? addIconHover : addIcon}
+            alt=""
+            id="add-lane-button"
+            onMouseEnter={() => setAddLaneHover(true)}
+            onMouseLeave={() => setAddLaneHover(false)}
+          />
+        </div>
+      ) : null,
+    [addLaneHover, uiState.lanes.length]
+  )
+
   return (
     <div
       id="main-container"
@@ -428,6 +448,7 @@ export default function App() {
         {lanes}
         {delimiterEls}
         {!uiState.lanes.length && <div className="empty-lane"></div>}
+        {addLane}
       </div>
       {selectingDimensions && (!!selectingDimensions.width || !!selectingDimensions.height) && (
         <div
