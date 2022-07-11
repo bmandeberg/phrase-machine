@@ -45,7 +45,6 @@ export default function App() {
   const mainContainerRef = useRef()
   const lanesRef = useRef()
 
-  const [scrollTop, setScrollTop] = useState(0)
   useEffect(() => {
     function keydown(e) {
       if (e.key === 'Shift') {
@@ -65,16 +64,11 @@ export default function App() {
         metaPressed.current = false
       }
     }
-    function scroll() {
-      setScrollTop(document.documentElement.scrollTop)
-    }
     window.addEventListener('keyup', keyup)
     window.addEventListener('keydown', keydown)
-    document.body.onscroll = scroll
     return () => {
       window.removeEventListener('keyup', keyup)
       window.removeEventListener('keydown', keydown)
-      document.body.onscroll = null
     }
   }, [])
 
@@ -502,7 +496,7 @@ export default function App() {
       />
       <div
         id="transport-topbar"
-        style={{ top: 72 + scrollTop, width: longestLane * EIGHTH_WIDTH }}
+        style={{ width: longestLane * EIGHTH_WIDTH }}
         onMouseDown={topbarMousedown}>
         <Ticks longestLane={longestLane} beatsPerBar={beatsPerBar} beatValue={beatValue} showNumbers />
       </div>
