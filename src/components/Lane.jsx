@@ -56,11 +56,13 @@ export default function Lane({
 
   const updateLaneStateRef = useRef(() => {})
   const updateLaneState = useCallback(() => {
-    setLaneState({
-      id,
-      laneLength,
-      notes,
-      viewRange: { min: minNote, max: maxNote },
+    setTimeout(() => {
+      setLaneState({
+        id,
+        laneLength,
+        notes,
+        viewRange: { min: minNote, max: maxNote },
+      })
     })
   }, [id, maxNote, laneLength, minNote, notes, setLaneState])
   useEffect(() => {
