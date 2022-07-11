@@ -491,6 +491,8 @@ export default function App() {
       />
       <div id="transport-topbar" style={{ width: longestLane * EIGHTH_WIDTH }} onMouseDown={topbarMousedown}>
         <Ticks longestLane={longestLane} beatsPerBar={beatsPerBar} beatValue={beatValue} showNumbers />
+        <div class="lane-overflow"></div>
+        <div class="lane-overflow hide-overflow"></div>
       </div>
       <div id="lanes-container" ref={lanesRef} style={{ width: longestLane * EIGHTH_WIDTH + 14 }}>
         {lanes}

@@ -41,6 +41,22 @@
         }
       }
     }
+
+    .lane-overflow {
+      position: fixed;
+      left: 0;
+      top: 72px;
+      height: 10px;
+      width: 30px;
+      background: linear-gradient(to right, rgba(243, 249, 255, 1), rgba(243, 249, 255, 0.2));
+
+      &.hide-overflow {
+        position: absolute;
+        left: -30px;
+        top: 0;
+        background: $lightestBlue;
+      }
+    }
   }
 
   #lanes-container {
