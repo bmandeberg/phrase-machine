@@ -1,0 +1,38 @@
+@import '../sass-globals.scss';
+
+.ticks {
+  position: absolute;
+  top: 0;
+  left: -1px;
+  height: 100%;
+  width: 100%;
+  display: flex;
+  pointer-events: none;
+
+  .tick-measure-num {
+    @extend .no-select;
+    font-size: 10px;
+    margin-left: 2px;
+    color: $lightTextGray;
+  }
+
+  .tick {
+    width: var(--eighth-width);
+    flex: 0 0 var(--eighth-width);
+    height: 100%;
+    box-sizing: border-box;
+    border-left: 1px solid $lightGray;
+
+    &.minor {
+      border-color: $mediumGray;
+    }
+
+    &.major {
+      border-color: $lightTextGray;
+    }
+
+    &:first-of-type {
+      border-left: none;
+    }
+  }
+}

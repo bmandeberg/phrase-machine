@@ -16,6 +16,7 @@ import {
 import Lane from './components/Lane'
 import Header from './components/Header'
 import Delimiter from './components/Delimiter'
+import Ticks from './components/Ticks'
 import { boxesIntersect, timeToPixels, snapPixels, constrain } from './util'
 import addIcon from './assets/add-icon.svg'
 import addIconHover from './assets/add-icon-hover.svg'
@@ -44,6 +45,7 @@ export default function App() {
   const mainContainerRef = useRef()
   const lanesRef = useRef()
 
+  const [scrollTop, setScrollTop] = useState(0)
   useEffect(() => {
     function keydown(e) {
       if (e.key === 'Shift') {
@@ -63,11 +65,16 @@ export default function App() {
         metaPressed.current = false
       }
     }
+    function scroll() {
+      setScrollTop(document.documentElement.scrollTop)
+    }
     window.addEventListener('keyup', keyup)
     window.addEventListener('keydown', keydown)
+    document.body.onscroll = scroll
     return () => {
       window.removeEventListener('keyup', keyup)
       window.removeEventListener('keydown', keydown)
+      document.body.onscroll = null
     }
   }, [])
 
@@ -404,9 +411,9 @@ export default function App() {
     ]
   )
 
-  const [mainScroll, setMainScroll] = useState(0)
+  const [scrollLeft, setScrollLeft] = useState(0)
   const containerScroll = useCallback((e) => {
-    setMainScroll(e.target.scrollLeft)
+    setScrollLeft(e.target.scrollLeft)
   }, [])
 
   const delimiterEls = useMemo(
@@ -421,12 +428,12 @@ export default function App() {
             dragging={draggingDelimiter === i + 1}
             wasDragging={wasDraggingDelimiter}
             dragHover={delimiterDragHover}
-            mainScroll={mainScroll}
+            scrollLeft={scrollLeft}
           />
         ))}
       </div>
     ),
-    [deleteDelimiter, delimiters, draggingDelimiter, mainScroll]
+    [deleteDelimiter, delimiters, draggingDelimiter, scrollLeft]
   )
 
   // lane management
@@ -493,8 +500,13 @@ export default function App() {
         beatValue={beatValue}
         setBeatValue={setBeatValue}
       />
+      <div
+        id="transport-topbar"
+        style={{ top: 72 + scrollTop, width: longestLane * EIGHTH_WIDTH }}
+        onMouseDown={topbarMousedown}>
+        <Ticks longestLane={longestLane} beatsPerBar={beatsPerBar} beatValue={beatValue} showNumbers />
+      </div>
       <div id="lanes-container" ref={lanesRef} style={{ width: longestLane * EIGHTH_WIDTH + 14 }}>
-        <div id="transport-topbar" onMouseDown={topbarMousedown}></div>
         {lanes}
         {delimiterEls}
         {!uiState.lanes.length && <div className="empty-lane"></div>}

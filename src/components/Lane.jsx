@@ -3,6 +3,7 @@ import PropTypes from 'prop-types'
 import { v4 as uuid } from 'uuid'
 import classNames from 'classnames'
 import { NOTE_HEIGHT, EIGHTH_WIDTH, calcLaneLength, LANE_COLORS } from '../globals'
+import Ticks from './Ticks'
 import useNoteDrag from '../hooks/useNoteDrag'
 import useLaneDrag from '../hooks/useLaneDrag'
 import { noteString } from '../util'
@@ -226,22 +227,7 @@ export default function Lane({
               'e-key': !isBlackKey(maxNote - minNote - i + minNote) && nextKeyIsWhite(maxNote - minNote - i + minNote),
             })}></div>
         ))}
-        <div className="ticks">
-          {[...Array(longestLane)].map((_d, i) => {
-            const eighthsPerMeasure = beatsPerBar * (beatValue === 4 ? 2 : 1)
-            const major = i % eighthsPerMeasure === 0
-            return (
-              <div
-                key={uuid()}
-                className={classNames('tick', {
-                  minor: beatValue === 4 && i % 2 === 0,
-                  major,
-                })}>
-                {major && <div className="tick-measure-num">{Math.floor(i / eighthsPerMeasure) + 1}</div>}
-              </div>
-            )
-          })}
-        </div>
+        <Ticks longestLane={longestLane} beatsPerBar={beatsPerBar} beatValue={beatValue} />
       </div>
     ),
     [beatValue, beatsPerBar, createNote, longestLane, maxNote, minNote]
@@ -274,7 +260,7 @@ export default function Lane({
   return (
     <div
       id={id}
-      className={classNames('lane-container', { first: laneNum === 0 })}
+      className="lane-container"
       style={{
         '--lane-color': LANE_COLORS[laneNum].base,
         '--lane-color-hover': LANE_COLORS[laneNum].hover,

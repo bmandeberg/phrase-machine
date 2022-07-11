@@ -17,22 +17,33 @@
     cursor: ew-resize !important;
   }
 
+  #transport-topbar {
+    position: absolute;
+    left: 30px;
+    height: 8px;
+    padding-left: 14px;
+    background: $blueGray;
+    display: flex;
+    z-index: 2;
+
+    .ticks {
+      padding-left: 15px;
+
+      .tick {
+        height: calc(100% + 1px);
+
+        &:first-of-type {
+          border-left: 1px solid $lightTextGray;
+        }
+      }
+    }
+  }
+
   #lanes-container {
     $topGutter: 8px;
     position: relative;
     display: inline-block;
     padding-top: $topGutter;
-
-    #transport-topbar {
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      height: 8px;
-      padding-left: 14px;
-      background: $blueGray;
-      display: flex;
-    }
 
     #delimiters {
       position: absolute;
