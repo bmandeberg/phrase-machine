@@ -405,29 +405,25 @@ export default function App() {
     ]
   )
 
-  const [scrollLeft, setScrollLeft] = useState(0)
-  const containerScroll = useCallback((e) => {
-    setScrollLeft(e.target.scrollLeft)
-  }, [])
-
   const delimiterEls = useMemo(
     () => (
-      <div id="delimiters">
-        {delimiters.slice(1).map((delimiter, i) => (
-          <Delimiter
-            key={uuid()}
-            delimiter={delimiter}
-            i={i + 1}
-            deleteDelimiter={deleteDelimiter}
-            dragging={draggingDelimiter === i + 1}
-            wasDragging={wasDraggingDelimiter}
-            dragHover={delimiterDragHover}
-            scrollLeft={scrollLeft}
-          />
-        ))}
+      <div id="delimiters-container">
+        <div id="delimiters">
+          {delimiters.slice(1).map((delimiter, i) => (
+            <Delimiter
+              key={uuid()}
+              delimiter={delimiter}
+              i={i + 1}
+              deleteDelimiter={deleteDelimiter}
+              dragging={draggingDelimiter === i + 1}
+              wasDragging={wasDraggingDelimiter}
+              dragHover={delimiterDragHover}
+            />
+          ))}
+        </div>
       </div>
     ),
-    [deleteDelimiter, delimiters, draggingDelimiter, scrollLeft]
+    [deleteDelimiter, delimiters, draggingDelimiter]
   )
 
   // lane management
@@ -480,7 +476,6 @@ export default function App() {
         '--note-height': NOTE_HEIGHT + 'px',
         '--keys-width': KEYS_WIDTH + 'px',
       }}
-      onScroll={containerScroll}
       {...dragNotes()}>
       <Header
         playing={playing}
@@ -494,10 +489,7 @@ export default function App() {
         beatValue={beatValue}
         setBeatValue={setBeatValue}
       />
-      <div
-        id="transport-topbar"
-        style={{ width: longestLane * EIGHTH_WIDTH }}
-        onMouseDown={topbarMousedown}>
+      <div id="transport-topbar" style={{ width: longestLane * EIGHTH_WIDTH }} onMouseDown={topbarMousedown}>
         <Ticks longestLane={longestLane} beatsPerBar={beatsPerBar} beatValue={beatValue} showNumbers />
       </div>
       <div id="lanes-container" ref={lanesRef} style={{ width: longestLane * EIGHTH_WIDTH + 14 }}>

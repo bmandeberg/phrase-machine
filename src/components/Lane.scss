@@ -194,4 +194,11 @@
       }
     }
   }
+
+  &.first {
+    .lane {
+      border-top: none;
+      margin-top: 1px;
+    }
+  }
 }

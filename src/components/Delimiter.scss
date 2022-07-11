@@ -1,10 +1,10 @@
 @import '../sass-globals.scss';
 
 .delimiter {
-  height: calc(100% - 6px);
   width: 1px;
+  height: 100vh;
   background-color: $purple;
-  position: fixed;
+  position: absolute;
   top: 72;
   z-index: 2;
   pointer-events: all;

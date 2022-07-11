@@ -260,7 +260,7 @@ export default function Lane({
   return (
     <div
       id={id}
-      className="lane-container"
+      className={classNames('lane-container', { first: laneNum === 0 })}
       style={{
         '--lane-color': LANE_COLORS[laneNum].base,
         '--lane-color-hover': LANE_COLORS[laneNum].hover,
