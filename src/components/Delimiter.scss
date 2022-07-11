@@ -23,7 +23,7 @@
   .delimiter-head {
     @extend .no-select;
     position: absolute;
-    top: -13px;
+    top: -11px;
     left: -12.5px;
     height: $padding * 2;
   }
@@ -42,7 +42,7 @@
   .delimiter-x {
     @extend .no-select;
     position: absolute;
-    top: -13px;
+    top: -11px;
     height: 13px;
     left: -6px;
     cursor: pointer;
