@@ -489,8 +489,14 @@ export default function App() {
         beatValue={beatValue}
         setBeatValue={setBeatValue}
       />
-      <div id="transport-topbar" style={{ width: longestLane * EIGHTH_WIDTH }} onMouseDown={topbarMousedown}>
-        <Ticks longestLane={longestLane} beatsPerBar={beatsPerBar} beatValue={beatValue} showNumbers />
+      <div id="transport-topbar" style={{ width: longestLane * EIGHTH_WIDTH }}>
+        <Ticks
+          longestLane={longestLane}
+          beatsPerBar={beatsPerBar}
+          beatValue={beatValue}
+          showNumbers
+          click={topbarMousedown}
+        />
         <div class="lane-overflow"></div>
         <div class="lane-overflow hide-overflow"></div>
       </div>

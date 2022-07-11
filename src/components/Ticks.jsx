@@ -4,9 +4,9 @@ import { v4 as uuid } from 'uuid'
 import classNames from 'classnames'
 import './Ticks.scss'
 
-export default function Ticks({ longestLane, beatsPerBar, beatValue, showNumbers }) {
+export default function Ticks({ longestLane, beatsPerBar, beatValue, showNumbers, click }) {
   return (
-    <div className="ticks">
+    <div className="ticks" onClick={click}>
       {[...Array(longestLane)].map((_d, i) => {
         const eighthsPerMeasure = beatsPerBar * (beatValue === 4 ? 2 : 1)
         const major = i % eighthsPerMeasure === 0
@@ -29,4 +29,5 @@ Ticks.propTypes = {
   beatsPerBar: PropTypes.number,
   beatValue: PropTypes.number,
   showNumbers: PropTypes.bool,
+  click: PropTypes.func,
 }
