@@ -177,7 +177,9 @@ export default function useNoteDrag(
       if (dragChanged.current) {
         updateLaneStateRef.current()
       } else if (draggingNotes.current && !shiftPressed.current) {
-        setSelectedNotes([currentDraggingNote.current])
+        setSelectedNotes(
+          notesRef.current.find((note) => note.id === currentDraggingNote.current) ? [currentDraggingNote.current] : []
+        )
       }
       draggingNotes.current = false
       dragDuplicating.current = false
