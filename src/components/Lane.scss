@@ -8,7 +8,8 @@
   .lane-expander {
     position: absolute;
     bottom: calc(var(--note-height) * -0.5);
-    width: 100%;
+    left: 0;
+    width: calc(var(--keys-width, 10px) + 4px);
     height: var(--note-height);
     background: transparent;
     z-index: 1;
