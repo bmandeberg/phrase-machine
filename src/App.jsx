@@ -256,6 +256,7 @@ export default function App() {
               }
             })
           })
+          console.log(selectedNotes)
           setSelectNotes(selectedNotes)
           dragSelecting.current = false
           setSelectingDimensions(null)

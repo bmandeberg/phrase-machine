@@ -106,13 +106,11 @@ export default function Lane({
   useEffect(() => {
     if (selectNotes) {
       if (selectNotes[id]) {
-        if (!(selectNotes[id].length === 1 && selectedNotesRef.current.includes(selectNotes[id][0]))) {
-          setSelectedNotes((selectedNotes) => {
-            const newSelectedNotes = shiftPressed.current ? selectedNotes.concat(selectNotes[id]) : selectNotes[id]
-            selectedNotesRef.current = newSelectedNotes
-            return newSelectedNotes
-          })
-        }
+        setSelectedNotes((selectedNotes) => {
+          const newSelectedNotes = shiftPressed.current ? selectedNotes.concat(selectNotes[id]) : selectNotes[id]
+          selectedNotesRef.current = newSelectedNotes
+          return newSelectedNotes
+        })
       } else {
         selectedNotesRef.current = []
         setSelectedNotes([])
