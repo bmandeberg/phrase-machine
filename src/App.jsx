@@ -410,6 +410,7 @@ export default function App() {
           longestLane={longestLane}
           updateLongestLane={updateLongestLane}
           updateSelectedNotes={updateSelectedNotes}
+          setSelectNotes={setSelectNotes}
         />
       )),
     [

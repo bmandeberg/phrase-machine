@@ -7,6 +7,7 @@ import { constrain, snapPixels } from '../util'
 const MIN_NOTE_WIDTH = 5
 
 export default function useNoteDrag(
+  id,
   lane,
   maxNote,
   minNote,
@@ -15,7 +16,6 @@ export default function useNoteDrag(
   setNotes,
   setSelectedNotes,
   setNoPointerEvents,
-  setGrabbing,
   updateLaneState,
   selectedNotesRef,
   shiftPressed,
@@ -23,7 +23,8 @@ export default function useNoteDrag(
   createdNote,
   dragChanged,
   noteDrag,
-  startNoteDrag
+  startNoteDrag,
+  setSelectNotes
 ) {
   const tempNote = useRef(null)
 
@@ -61,7 +62,7 @@ export default function useNoteDrag(
           }
           notesCopy.push(newNote)
           // set as selected note
-          setSelectedNotes([newNote.id])
+          setSelectNotes({ [id]: [newNote.id] })
           return notesCopy
         })
         setNoPointerEvents(true)
@@ -91,38 +92,6 @@ export default function useNoteDrag(
   })
 
   // note dragging
-
-  const addSelectedNotes = useCallback(
-    (id) => {
-      if (!selectedNotesRef.current.includes(id)) {
-        if (shiftPressed.current) {
-          selectedNotesRef.current.push(id)
-        } else {
-          selectedNotesRef.current = [id]
-        }
-      } else {
-        selectedNotesRef.current.push(selectedNotesRef.current.splice(selectedNotesRef.current.indexOf(id), 1)[0])
-      }
-      setSelectedNotes(selectedNotesRef.current.slice())
-    },
-    [selectedNotesRef, setSelectedNotes, shiftPressed]
-  )
-
-  const onDragEnd = useCallback(
-    (id, shiftKey) => {
-      setNoPointerEvents(false)
-      setGrabbing(false)
-      if (!dragChanged.current && !shiftKey) {
-        setSelectedNotes([id])
-      } else if (dragChanged.current) {
-        updateLaneState()
-      }
-      dragChanged.current = false
-      dragDirection.current = 0
-      overrideDefault.current = false
-    },
-    [dragChanged, setGrabbing, setNoPointerEvents, setSelectedNotes, updateLaneState]
-  )
 
   const batchUpdateNotes = useCallback((notes, updateNotes) => {
     const notesCopy = []
