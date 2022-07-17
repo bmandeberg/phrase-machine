@@ -352,8 +352,9 @@ export default function App() {
   const [longestLane, setLongestLane] = useState(computeLongestLane())
 
   useEffect(() => {
-    setLongestLane(computeLongestLane())
-  }, [computeLongestLane])
+    const newLongestLane = computeLongestLane()
+    setLongestLane((longestLane) => (startNoteDrag ? Math.max(longestLane, newLongestLane) : newLongestLane))
+  }, [computeLongestLane, startNoteDrag])
 
   const updateLongestLane = useCallback((length, i) => {
     setLaneLengths((laneLenghts) => {
