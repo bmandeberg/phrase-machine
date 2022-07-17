@@ -163,7 +163,7 @@ export default function Lane({
 
   // note creation + dragging
 
-  const { createNote, dragNoteLeft, dragNoteRight } = useNoteDrag(
+  const { createNote } = useNoteDrag(
     lane,
     maxNote,
     minNote,
@@ -249,15 +249,11 @@ export default function Lane({
             grabbing,
           })}
           style={{ left: note.x, bottom: (note.midiNote - minNote) * NOTE_HEIGHT + 1, width: note.width }}>
-          <div
-            className={classNames('note-drag-left', { outside: note.width < minNoteWidth })}
-            {...dragNoteLeft()}></div>
-          <div
-            className={classNames('note-drag-right', { outside: note.width < minNoteWidth })}
-            {...dragNoteRight()}></div>
+          <div className={classNames('note-drag-left', { outside: note.width < minNoteWidth })}></div>
+          <div className={classNames('note-drag-right', { outside: note.width < minNoteWidth })}></div>
         </div>
       ))
-  }, [notes, minNote, maxNote, selectedNotes, noPointerEvents, grabbing, dragNoteLeft, dragNoteRight])
+  }, [notes, minNote, maxNote, selectedNotes, noPointerEvents, grabbing])
 
   return (
     <div

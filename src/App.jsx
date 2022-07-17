@@ -121,14 +121,28 @@ export default function App() {
   const dragNotes = useGesture({
     onDragStart: ({ initial: [x, y], metaKey, event }) => {
       if (!metaKey && event.button === 0) {
-        if (event.target.classList.contains('note')) {
+        if (
+          event.target.classList.contains('note') ||
+          event.target.classList.contains('note-drag-right') ||
+          event.target.classList.contains('note-drag-left')
+        ) {
           // dragging notes
           draggingNote.current = true
           setNoPointerEvents(true)
-          setGrabbing(true)
+          let note, type
+          if (event.target.classList.contains('note')) {
+            note = event.target.id
+            type = 'drag'
+            setGrabbing(true)
+          } else {
+            note = event.target.parentElement.id
+            setEwResizing(true)
+            type = event.target.classList.contains('note-drag-right') ? 'drag-right' : 'drag-left'
+          }
           setStartNoteDrag({
-            note: event.target.id,
-            preselected: Object.values(selectedNotes).flat().includes(event.target.id),
+            note,
+            type,
+            preselected: Object.values(selectedNotes).flat().includes(note),
           })
         } else if (event.target.closest('.delimiter') && !event.target.classList.contains('delimiter-x')) {
           // dragging delimiters
@@ -264,6 +278,7 @@ export default function App() {
           setStartNoteDrag(null)
           setNoPointerEvents(false)
           setGrabbing(false)
+          setEwResizing(false)
           draggingNote.current = false
         } else if (draggingDelimiter !== null) {
           // dragging delimiters
