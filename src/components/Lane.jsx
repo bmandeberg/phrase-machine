@@ -112,7 +112,7 @@ export default function Lane({
           selectedNotesRef.current = newSelectedNotes
           return newSelectedNotes
         })
-      } else {
+      } else if (!shiftPressed.current || !Object.keys(selectNotes).length) {
         selectedNotesRef.current = []
         setSelectedNotes([])
       }
