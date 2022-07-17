@@ -427,12 +427,17 @@ export default function App() {
               dragging={draggingDelimiter === i + 1}
               wasDragging={wasDraggingDelimiter}
               dragHover={delimiterDragHover}
+              height={Math.min(
+                uiState.lanes.reduce((prev, curr) => prev + (curr.viewRange.max - curr.viewRange.min + 1) * 12 + 8, 0) +
+                  1,
+                window.innerHeight - 72
+              )}
             />
           ))}
         </div>
       </div>
     ),
-    [deleteDelimiter, delimiters, draggingDelimiter]
+    [deleteDelimiter, delimiters, draggingDelimiter, uiState.lanes]
   )
 
   // lane management

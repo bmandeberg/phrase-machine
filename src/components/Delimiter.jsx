@@ -7,7 +7,7 @@ import delimiterGraphic from '../assets/delimiter.svg'
 import xIcon from '../assets/x-icon-purple.svg'
 import './Delimiter.scss'
 
-export default function Delimiter({ delimiter, i, deleteDelimiter, dragging, wasDragging, dragHover }) {
+export default function Delimiter({ delimiter, i, deleteDelimiter, dragging, wasDragging, dragHover, height }) {
   const [active, setActive] = useState(dragging || wasDragging.current === i)
   const [hovering, setHovering] = useState(dragHover.current === i)
   const hoveringRef = useRef(hovering)
@@ -46,7 +46,11 @@ export default function Delimiter({ delimiter, i, deleteDelimiter, dragging, was
   )
 
   return (
-    <div className={classNames('delimiter', { active })} index={i} {...hover()} style={{ left }}>
+    <div
+      className={classNames('delimiter', { active })}
+      index={i}
+      {...hover()}
+      style={{ left, '--delimiter-height': height + 'px' }}>
       <img className="delimiter-head" src={delimiterGraphic} alt="" draggable="false" />
       <div className="delimiter-grab"></div>
       <img className="delimiter-x" src={xIcon} alt="" draggable="false" onClick={() => deleteDelimiter(i)} />
@@ -60,4 +64,5 @@ Delimiter.propTypes = {
   dragging: PropTypes.bool,
   wasDragging: PropTypes.object,
   dragHover: PropTypes.object,
+  height: PropTypes.number,
 }
