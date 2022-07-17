@@ -108,7 +108,11 @@ export default function Lane({
     if (selectNotes) {
       if (selectNotes[id]) {
         setSelectedNotes((selectedNotes) => {
-          const newSelectedNotes = shiftPressed.current ? selectedNotes.concat(selectNotes[id]) : selectNotes[id]
+          const newSelectedNotes = shiftPressed.current
+            ? selectedNotes
+                .concat(selectNotes[id])
+                .filter((noteID) => !(selectedNotes.includes(noteID) && selectNotes[id].includes(noteID)))
+            : selectNotes[id]
           selectedNotesRef.current = newSelectedNotes
           return newSelectedNotes
         })
