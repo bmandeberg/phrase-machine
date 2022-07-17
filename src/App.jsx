@@ -37,6 +37,7 @@ export default function App() {
   const [grabbing, setGrabbing] = useState(false)
   const [ewResizing, setEwResizing] = useState(false)
   const [selectNotes, setSelectNotes] = useState({})
+  const [selectedNotes, setSelectedNotes] = useState({})
   const [noteDrag, setNoteDrag] = useState({})
   const [startNoteDrag, setStartNoteDrag] = useState(null)
   const shiftPressed = useRef(false)
@@ -86,6 +87,10 @@ export default function App() {
     )
   }, [beatValue, beatsPerBar, snap])
 
+  const updateSelectedNotes = useCallback((id, notes) => {
+    setSelectedNotes((selectedNotes) => Object.assign({}, selectedNotes, { [id]: notes }))
+  }, [])
+
   // transport
 
   const [playing, setPlaying] = useState(false)
@@ -121,8 +126,10 @@ export default function App() {
           draggingNote.current = true
           setNoPointerEvents(true)
           setGrabbing(true)
-          setSelectNotes({ [event.target.closest('.lane-container').id]: [event.target.id] })
-          setStartNoteDrag(event.target.id)
+          setStartNoteDrag({
+            note: event.target.id,
+            preselected: Object.values(selectedNotes).flat().includes(event.target.id),
+          })
         } else if (event.target.closest('.delimiter') && !event.target.classList.contains('delimiter-x')) {
           // dragging delimiters
           setNoPointerEvents(true)
@@ -386,6 +393,7 @@ export default function App() {
           noteDrag={noteDrag}
           longestLane={longestLane}
           updateLongestLane={updateLongestLane}
+          updateSelectedNotes={updateSelectedNotes}
         />
       )),
     [
@@ -402,6 +410,7 @@ export default function App() {
       startNoteDrag,
       uiState.lanes,
       updateLongestLane,
+      updateSelectedNotes,
     ]
   )
 
@@ -497,8 +506,8 @@ export default function App() {
           showNumbers
           click={topbarMousedown}
         />
-        <div class="lane-overflow"></div>
-        <div class="lane-overflow hide-overflow"></div>
+        <div className="lane-overflow"></div>
+        <div className="lane-overflow hide-overflow"></div>
       </div>
       <div id="lanes-container" ref={lanesRef} style={{ width: longestLane * EIGHTH_WIDTH + 14 }}>
         {lanes}

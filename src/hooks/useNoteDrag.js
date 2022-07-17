@@ -156,14 +156,31 @@ export default function useNoteDrag(
   const newNotes = useRef(null)
 
   const currentDraggingNote = useRef()
+  const draggingThisLane = useRef(false)
+  const noteShiftSelected = useRef(false)
   useEffect(() => {
-    if (startNoteDrag) {
+    if (startNoteDrag && startNoteDrag.note) {
       // drag start
-      currentDraggingNote.current = startNoteDrag
+      currentDraggingNote.current = startNoteDrag.note
+      draggingThisLane.current = !!notesRef.current.find((note) => note.id === currentDraggingNote.current)
       if (altPressed.current) {
         // duplicating note(s) with alt key
         dragDuplicating.current = true
       } else {
+        // handle note selection
+        if (draggingThisLane.current) {
+          if (!startNoteDrag.preselected) {
+            noteShiftSelected.current = shiftPressed.current
+            const newSelectedNotes = shiftPressed.current
+              ? selectedNotesRef.current.concat([currentDraggingNote.current])
+              : [currentDraggingNote.current]
+            selectedNotesRef.current = newSelectedNotes
+            setSelectedNotes(newSelectedNotes)
+          }
+        } else if (!shiftPressed.current && !startNoteDrag.preselected) {
+          selectedNotesRef.current = []
+          setSelectedNotes([])
+        }
         // normal note drag
         draggingNotes.current = true
         dragStart.current = selectedNotesRef.current.map((id) => notesRef.current.find((note) => note.id === id).x)
@@ -176,10 +193,18 @@ export default function useNoteDrag(
       // drag end
       if (dragChanged.current) {
         updateLaneStateRef.current()
-      } else if (draggingNotes.current && !shiftPressed.current) {
-        setSelectedNotes(
-          notesRef.current.find((note) => note.id === currentDraggingNote.current) ? [currentDraggingNote.current] : []
-        )
+      } else if (draggingNotes.current) {
+        if (!shiftPressed.current) {
+          setSelectedNotes(draggingThisLane.current ? [currentDraggingNote.current] : [])
+        } else if (draggingThisLane.current) {
+          if (selectedNotesRef.current.includes(currentDraggingNote.current)) {
+            if (!noteShiftSelected.current) {
+              setSelectedNotes((selectedNotes) => selectedNotes.filter((id) => id !== currentDraggingNote.current))
+            }
+          } else {
+            setSelectedNotes((selectedNotes) => selectedNotes.concat([currentDraggingNote.current]))
+          }
+        }
       }
       draggingNotes.current = false
       dragDuplicating.current = false
@@ -187,6 +212,7 @@ export default function useNoteDrag(
       dragChanged.current = false
       dragDirection.current = 0
       overrideDefault.current = false
+      noteShiftSelected.current = false
     }
   }, [altPressed, dragChanged, selectedNotesRef, setSelectedNotes, shiftPressed, startNoteDrag])
 

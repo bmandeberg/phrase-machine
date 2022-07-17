@@ -29,6 +29,7 @@ export default function Lane({
   noteDrag,
   longestLane,
   updateLongestLane,
+  updateSelectedNotes,
 }) {
   const [laneLength, setLaneLength] = useState(lanePreset.laneLength)
   const [notes, updateNotes] = useState(lanePreset.notes)
@@ -43,10 +44,11 @@ export default function Lane({
   const dragChanged = useRef(false)
 
   useEffect(() => {
+    updateSelectedNotes(id, selectedNotes)
     if (selectedNotesRef.current !== selectedNotes) {
       selectedNotesRef.current = selectedNotes
     }
-  }, [selectedNotes])
+  }, [id, selectedNotes, updateSelectedNotes])
 
   useEffect(() => {
     noPointerEventsRef.current = noPointerEvents
@@ -295,10 +297,11 @@ Lane.propTypes = {
   shiftPressed: PropTypes.object,
   altPressed: PropTypes.object,
   selectNotes: PropTypes.object,
-  startNoteDrag: PropTypes.string,
+  startNoteDrag: PropTypes.object,
   noteDrag: PropTypes.object,
   longestLane: PropTypes.number,
   updateLongestLane: PropTypes.func,
+  updateSelectedNotes: PropTypes.func,
 }
 
 const blackKeys = [false, true, false, true, false, false, true, false, true, false, true, false]
