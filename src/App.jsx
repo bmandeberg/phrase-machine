@@ -449,6 +449,7 @@ export default function App() {
             src={addLaneHover ? addIconHover : addIcon}
             alt=""
             id="add-lane-button"
+            className={classNames({ 'no-lanes': !uiState.lanes.length })}
             onMouseEnter={() => setAddLaneHover(true)}
             onMouseLeave={() => setAddLaneHover(false)}
             onClick={addLane}
