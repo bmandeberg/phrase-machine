@@ -466,7 +466,7 @@ export default function App() {
             className={classNames({ 'no-lanes': !uiState.lanes.length })}
             onMouseEnter={() => setAddLaneHover(true)}
             onMouseLeave={() => setAddLaneHover(false)}
-            onClick={addLane}
+            onClick={() => addLane()}
           />
         </div>
       ) : null,
@@ -593,7 +593,7 @@ export default function App() {
         {lanes}
         {delimiterEls}
         {!uiState.lanes.length && (
-          <div className="empty-lane" onClick={addLane} style={{ width: windowLaneLength * EIGHTH_WIDTH + 14 }}>
+          <div className="empty-lane" onClick={() => addLane()} style={{ width: windowLaneLength * EIGHTH_WIDTH + 14 }}>
             😴
           </div>
         )}
