@@ -2,7 +2,7 @@ import { useRef } from 'react'
 import { useGesture } from 'react-use-gesture'
 import { NOTE_HEIGHT, MIN_MIDI_NOTE, MAX_MIDI_NOTE } from '../globals'
 
-const MIN_NOTE_LANES = 4
+const MIN_NOTE_LANES = 8
 
 export default function useLaneDrag(
   minNote,
@@ -25,7 +25,7 @@ export default function useLaneDrag(
     onDrag: ({ movement: [mx, my], event }) => {
       event.stopPropagation()
       const newMinNote = minNoteStart.current - Math.round(my / NOTE_HEIGHT)
-      if (minNoteStart.current && maxNote - newMinNote >= MIN_NOTE_LANES && newMinNote !== minNote) {
+      if (minNoteStart.current && maxNote - newMinNote >= MIN_NOTE_LANES - 1 && newMinNote !== minNote) {
         setMinNote(newMinNote)
         dragChanged.current = true
       }

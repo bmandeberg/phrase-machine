@@ -23,7 +23,7 @@ module.exports = {
       },
       {
         test: /\.(svg|png)$/i,
-        use: ['url-loader?limit=100000'],
+        type: 'asset/resource',
       },
     ],
   },

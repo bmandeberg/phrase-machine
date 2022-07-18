@@ -207,6 +207,7 @@ export default function Lane({
   const keyEls = useMemo(() => {
     const numNotes = maxNote - minNote + 1
     const noC = maxNote - minNote < 12 && maxNote % 12 > minNote % 12 && minNote % 12 !== 0
+    const cOccluded = maxNote - (minNote + (12 - (minNote % 12))) < 7
     return [...Array(numNotes)].map((_d, i) => (
       <div
         key={uuid()}
@@ -214,10 +215,10 @@ export default function Lane({
           'black-key': isBlackKey(maxNote - minNote - i + minNote),
           'e-key': !isBlackKey(maxNote - minNote - i + minNote) && nextKeyIsWhite(maxNote - minNote - i + minNote),
         })}>
-        {!noC && numNotes - 1 - i + minNote >= 24 && (numNotes - 1 - i + minNote) % 12 === 0 && (
+        {!noC && i >= 7 && numNotes - 1 - i + minNote >= 24 && (numNotes - 1 - i + minNote) % 12 === 0 && (
           <p className="note-name">C{(numNotes - 1 - i + minNote - 24) / 12 + 1}</p>
         )}
-        {noC && i === numNotes - 1 && <p className="note-name">{noteString(minNote)}</p>}
+        {(noC || cOccluded) && i === numNotes - 1 && <p className="note-name">{noteString(minNote)}</p>}
       </div>
     ))
   }, [maxNote, minNote])
@@ -278,6 +279,12 @@ export default function Lane({
       {laneEl}
       <div className="notes">{noteEls}</div>
       <div className={classNames('lane-expander', { active: !grabbing })} {...dragLaneStart()}></div>
+      <div className="lane-controls">
+        <div title="Mute lane" className="lane-action mute"></div>
+        <div title="Solo lane" className="lane-action solo"></div>
+        <div title="Delete lane" className="lane-action trash"></div>
+        <div title="Duplicate lane" className="lane-action duplicate"></div>
+      </div>
     </div>
   )
 }

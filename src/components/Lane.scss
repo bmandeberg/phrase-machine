@@ -196,6 +196,66 @@
     }
   }
 
+  .lane-controls {
+    position: absolute;
+    left: -30px;
+    top: 0;
+    bottom: 0;
+    width: 30px;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    $laneActionHeight: 14px;
+    .lane-action {
+      cursor: pointer;
+      width: 100%;
+      height: $laneActionHeight;
+      margin-bottom: 8px;
+
+      &.mute {
+        background: transparent url('../assets/m-icon-blue.png') no-repeat center center;
+        background-size: auto $laneActionHeight;
+
+        &:hover {
+          background: transparent url('../assets/m-icon-red.png') no-repeat center center;
+          background-size: auto $laneActionHeight;
+        }
+      }
+
+      &.solo {
+        background: transparent url('../assets/s-icon-blue.png') no-repeat center center;
+        background-size: auto $laneActionHeight;
+
+        &:hover {
+          background: transparent url('../assets/s-icon-green.png') no-repeat center center;
+          background-size: auto $laneActionHeight;
+        }
+      }
+
+      &.trash {
+        background: transparent url('../assets/trash-icon-blue.png') no-repeat center center;
+        background-size: auto $laneActionHeight;
+
+        &:hover {
+          background: transparent url('../assets/trash-icon-red.png') no-repeat center center;
+          background-size: auto $laneActionHeight;
+        }
+      }
+
+      &.duplicate {
+        background: transparent url('../assets/plus-icon-blue.png') no-repeat center center;
+        background-size: auto $laneActionHeight;
+
+        &:hover {
+          background: transparent url('../assets/plus-icon-green.png') no-repeat center center;
+          background-size: auto $laneActionHeight;
+        }
+      }
+    }
+  }
+
   &.first {
     .lane {
       border-top: none;
