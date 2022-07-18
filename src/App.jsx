@@ -394,26 +394,40 @@ export default function App() {
     [uiState.lanes]
   )
 
-  const addLane = useCallback(() => {
-    const laneID = uuid()
-    // update delimiters
-    const delimitersCopy = delimiters.map((d) => {
-      for (const lane in d.lanes) {
-        d.lanes[lane] = d.lanes[lane] * (uiState.lanes.length / (uiState.lanes.length + 1))
-      }
-      d.lanes[laneID] = 1 / (uiState.lanes.length + 1)
-      return d
-    })
-    setDelimiters(delimitersCopy)
-    // add new lane and update state
-
-    setUIState((uiState) =>
-      Object.assign({}, uiState, {
-        lanes: uiState.lanes.concat([DEFAULT_LANE(laneID, longestLane, nextAvailableColor)]),
-        delimiters: delimitersCopy,
+  const addLane = useCallback(
+    (duplicateID) => {
+      const laneID = uuid()
+      // update delimiters
+      const delimitersCopy = delimiters.map((d) => {
+        for (const lane in d.lanes) {
+          d.lanes[lane] = d.lanes[lane] * (uiState.lanes.length / (uiState.lanes.length + 1))
+        }
+        d.lanes[laneID] = 1 / (uiState.lanes.length + 1)
+        return d
       })
-    )
-  }, [delimiters, longestLane, nextAvailableColor, uiState.lanes.length])
+      setDelimiters(delimitersCopy)
+      // add new lane and update state
+
+      const newLane = duplicateID
+        ? Object.assign(
+            {},
+            laneCopy(
+              uiState.lanes.find((lane) => lane.id === duplicateID),
+              laneID,
+              true
+            ),
+            { colorIndex: nextAvailableColor }
+          )
+        : DEFAULT_LANE(laneID, longestLane, nextAvailableColor)
+      setUIState((uiState) =>
+        Object.assign({}, uiState, {
+          lanes: uiState.lanes.concat([newLane]),
+          delimiters: delimitersCopy,
+        })
+      )
+    },
+    [delimiters, longestLane, nextAvailableColor, uiState.lanes]
+  )
 
   const deleteLane = useCallback(
     (id) => {
@@ -488,10 +502,12 @@ export default function App() {
           updateLongestLane={updateLongestLane}
           updateSelectedNotes={updateSelectedNotes}
           setSelectNotes={setSelectNotes}
+          addLane={addLane}
           deleteLane={deleteLane}
         />
       )),
     [
+      addLane,
       beatValue,
       beatsPerBar,
       deleteLane,
@@ -598,9 +614,10 @@ export default function App() {
   )
 }
 
-function laneCopy(lane) {
+function laneCopy(lane, id, updateNoteIDs) {
   return Object.assign({}, lane, {
-    notes: lane.notes.map((n) => Object.assign({}, n)),
+    id: id || lane.id,
+    notes: lane.notes.map((n) => Object.assign({}, n, { id: updateNoteIDs ? uuid() : n.id })),
     viewRange: Object.assign({}, lane.viewRange),
   })
 }

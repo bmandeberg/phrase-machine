@@ -32,6 +32,7 @@ export default function Lane({
   updateLongestLane,
   updateSelectedNotes,
   setSelectNotes,
+  addLane,
   deleteLane,
 }) {
   const [laneLength, setLaneLength] = useState(lanePreset.laneLength)
@@ -251,10 +252,10 @@ export default function Lane({
         <div title="Mute lane" className="lane-action mute"></div>
         <div title="Solo lane" className="lane-action solo"></div>
         <div title="Delete lane" className="lane-action trash" onClick={() => deleteLane(id)}></div>
-        <div title="Duplicate lane" className="lane-action duplicate"></div>
+        <div title="Duplicate lane" className="lane-action duplicate" onClick={() => addLane(id)}></div>
       </div>
     ),
-    [deleteLane, id]
+    [addLane, deleteLane, id]
   )
 
   const noteEls = useMemo(() => {
@@ -321,6 +322,7 @@ Lane.propTypes = {
   updateLongestLane: PropTypes.func,
   updateSelectedNotes: PropTypes.func,
   setSelectNotes: PropTypes.func,
+  addLane: PropTypes.func,
   deleteLane: PropTypes.func,
 }
 
