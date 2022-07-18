@@ -12,6 +12,7 @@ import './Lane.scss'
 export default function Lane({
   id,
   laneNum,
+  colorIndex,
   lanePreset,
   setLaneState,
   delimiters,
@@ -31,6 +32,7 @@ export default function Lane({
   updateLongestLane,
   updateSelectedNotes,
   setSelectNotes,
+  deleteLane,
 }) {
   const [laneLength, setLaneLength] = useState(lanePreset.laneLength)
   const [notes, updateNotes] = useState(lanePreset.notes)
@@ -65,9 +67,10 @@ export default function Lane({
         laneLength,
         notes,
         viewRange: { min: minNote, max: maxNote },
+        colorIndex,
       })
     })
-  }, [id, maxNote, laneLength, minNote, notes, setLaneState])
+  }, [setLaneState, id, laneLength, notes, minNote, maxNote, colorIndex])
   useEffect(() => {
     updateLaneStateRef.current = updateLaneState
   }, [updateLaneState])
@@ -242,6 +245,18 @@ export default function Lane({
     [beatValue, beatsPerBar, createNote, longestLane, maxNote, minNote]
   )
 
+  const laneControls = useMemo(
+    () => (
+      <div className="lane-controls">
+        <div title="Mute lane" className="lane-action mute"></div>
+        <div title="Solo lane" className="lane-action solo"></div>
+        <div title="Delete lane" className="lane-action trash" onClick={() => deleteLane(id)}></div>
+        <div title="Duplicate lane" className="lane-action duplicate"></div>
+      </div>
+    ),
+    [deleteLane, id]
+  )
+
   const noteEls = useMemo(() => {
     const minNoteWidth = 16
     return notes
@@ -267,11 +282,11 @@ export default function Lane({
       id={id}
       className={classNames('lane-container', { first: laneNum === 0 })}
       style={{
-        '--lane-color': LANE_COLORS[laneNum].base,
-        '--lane-color-hover': LANE_COLORS[laneNum].hover,
-        '--lane-color-lane': LANE_COLORS[laneNum].lane,
-        '--lane-color-light': LANE_COLORS[laneNum].light,
-        '--lane-color-lightest': LANE_COLORS[laneNum].lightest,
+        '--lane-color': LANE_COLORS[colorIndex].base,
+        '--lane-color-hover': LANE_COLORS[colorIndex].hover,
+        '--lane-color-lane': LANE_COLORS[colorIndex].lane,
+        '--lane-color-light': LANE_COLORS[colorIndex].light,
+        '--lane-color-lightest': LANE_COLORS[colorIndex].lightest,
       }}>
       <div className={classNames('keys', { grabbing })} {...dragLane()}>
         {keyEls}
@@ -279,18 +294,14 @@ export default function Lane({
       {laneEl}
       <div className="notes">{noteEls}</div>
       <div className={classNames('lane-expander', { active: !grabbing })} {...dragLaneStart()}></div>
-      <div className="lane-controls">
-        <div title="Mute lane" className="lane-action mute"></div>
-        <div title="Solo lane" className="lane-action solo"></div>
-        <div title="Delete lane" className="lane-action trash"></div>
-        <div title="Duplicate lane" className="lane-action duplicate"></div>
-      </div>
+      {laneControls}
     </div>
   )
 }
 Lane.propTypes = {
   id: PropTypes.string,
   laneNum: PropTypes.number,
+  colorIndex: PropTypes.number,
   lanePreset: PropTypes.object,
   setLaneState: PropTypes.func,
   delimiters: PropTypes.array,
@@ -310,6 +321,7 @@ Lane.propTypes = {
   updateLongestLane: PropTypes.func,
   updateSelectedNotes: PropTypes.func,
   setSelectNotes: PropTypes.func,
+  deleteLane: PropTypes.func,
 }
 
 const blackKeys = [false, true, false, true, false, false, true, false, true, false, true, false]

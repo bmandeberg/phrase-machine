@@ -85,13 +85,18 @@
   }
 
   .empty-lane {
-    height: 120px;
-    width: 100%;
-    background: darken($lightestBlue, 4%);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 146px;
+    font-size: 24px;
+    color: $blue;
+    background-color: $lightestBlue;
+    transition: background-color $transitionTime ease;
     cursor: crosshair;
 
     &:hover {
-      background: $mediumBlue;
+      background-color: darken($lightBlue, 2%);
     }
   }
 

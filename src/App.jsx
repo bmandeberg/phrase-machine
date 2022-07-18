@@ -12,6 +12,8 @@ import {
   MIN_DELIMITER_WIDTH,
   MAX_LANES,
   DEFAULT_LANE,
+  LANE_COLORS,
+  calcLaneLength,
 } from './globals'
 import Lane from './components/Lane'
 import Header from './components/Header'
@@ -361,7 +363,7 @@ export default function App() {
   const [laneLengths, setLaneLengths] = useState(uiState.lanes.map((lane) => lane.laneLength))
 
   const computeLongestLane = useCallback(() => {
-    return Math.max(...laneLengths, ...delimiters.slice(1).map((d) => Math.round(d.x / EIGHTH_WIDTH)))
+    return Math.max(...laneLengths, ...delimiters.slice(1).map((d) => Math.round(d.x / EIGHTH_WIDTH)), 0)
   }, [delimiters, laneLengths])
 
   const [longestLane, setLongestLane] = useState(computeLongestLane())
@@ -383,6 +385,79 @@ export default function App() {
     setLaneLengths(uiState.lanes.map((lane) => lane.laneLength))
   }, [uiState.lanes])
 
+  const windowLaneLength = useMemo(() => Math.max(calcLaneLength(window.innerWidth - 30), longestLane), [longestLane])
+
+  // lane management
+
+  const nextAvailableColor = useMemo(
+    () => LANE_COLORS.findIndex((_c, i) => !uiState.lanes.find((lane) => lane.colorIndex === i)) || 0,
+    [uiState.lanes]
+  )
+
+  const addLane = useCallback(() => {
+    const laneID = uuid()
+    // update delimiters
+    const delimitersCopy = delimiters.map((d) => {
+      for (const lane in d.lanes) {
+        d.lanes[lane] = d.lanes[lane] * (uiState.lanes.length / (uiState.lanes.length + 1))
+      }
+      d.lanes[laneID] = 1 / (uiState.lanes.length + 1)
+      return d
+    })
+    setDelimiters(delimitersCopy)
+    // add new lane and update state
+
+    setUIState((uiState) =>
+      Object.assign({}, uiState, {
+        lanes: uiState.lanes.concat([DEFAULT_LANE(laneID, longestLane, nextAvailableColor)]),
+        delimiters: delimitersCopy,
+      })
+    )
+  }, [delimiters, longestLane, nextAvailableColor, uiState.lanes.length])
+
+  const deleteLane = useCallback(
+    (id) => {
+      // update delimiters
+      const delimitersCopy = delimiters.map((d) => {
+        const removePct = d.lanes[id]
+        delete d.lanes[id]
+        if (removePct) {
+          for (const lane in d.lanes) {
+            d.lanes[lane] = d.lanes[lane] / (1 - removePct)
+          }
+        }
+        return d
+      })
+      setDelimiters(delimitersCopy)
+      // remove lane and update state
+      setUIState((uiState) =>
+        Object.assign({}, uiState, {
+          lanes: uiState.lanes.filter((lane) => lane.id !== id),
+          delimiters: delimitersCopy,
+        })
+      )
+    },
+    [delimiters]
+  )
+
+  const [addLaneHover, setAddLaneHover] = useState(false)
+  const addLaneButton = useMemo(
+    () =>
+      uiState.lanes.length < MAX_LANES ? (
+        <div id="add-lane">
+          <img
+            src={addLaneHover ? addIconHover : addIcon}
+            alt=""
+            id="add-lane-button"
+            onMouseEnter={() => setAddLaneHover(true)}
+            onMouseLeave={() => setAddLaneHover(false)}
+            onClick={addLane}
+          />
+        </div>
+      ) : null,
+    [addLane, addLaneHover, uiState.lanes.length]
+  )
+
   // elements
 
   const lanes = useMemo(
@@ -392,6 +467,7 @@ export default function App() {
           key={lane.id}
           id={lane.id}
           laneNum={i}
+          colorIndex={lane.colorIndex}
           lanePreset={lane}
           setLaneState={setLaneState}
           delimiters={delimiters}
@@ -407,18 +483,19 @@ export default function App() {
           selectNotes={selectNotes}
           startNoteDrag={startNoteDrag}
           noteDrag={noteDrag}
-          longestLane={longestLane}
+          longestLane={windowLaneLength}
           updateLongestLane={updateLongestLane}
           updateSelectedNotes={updateSelectedNotes}
           setSelectNotes={setSelectNotes}
+          deleteLane={deleteLane}
         />
       )),
     [
       beatValue,
       beatsPerBar,
+      deleteLane,
       delimiters,
       grabbing,
-      longestLane,
       noPointerEvents,
       noteDrag,
       selectNotes,
@@ -428,6 +505,7 @@ export default function App() {
       uiState.lanes,
       updateLongestLane,
       updateSelectedNotes,
+      windowLaneLength,
     ]
   )
 
@@ -457,46 +535,6 @@ export default function App() {
     [deleteDelimiter, delimiters, draggingDelimiter, uiState.lanes]
   )
 
-  // lane management
-
-  const addLane = useCallback(() => {
-    const laneID = uuid()
-    // update delimiters
-    const delimitersCopy = delimiters.map((d) => {
-      for (const lane in d.lanes) {
-        d.lanes[lane] = d.lanes[lane] * (uiState.lanes.length / (uiState.lanes.length + 1))
-        d.lanes[laneID] = 1 / (uiState.lanes.length + 1)
-      }
-      return d
-    })
-    setDelimiters(delimitersCopy)
-    // add new lane and update state
-    setUIState((uiState) =>
-      Object.assign({}, uiState, {
-        lanes: uiState.lanes.concat([DEFAULT_LANE(laneID, longestLane)]),
-        delimiters: delimitersCopy,
-      })
-    )
-  }, [delimiters, longestLane, uiState.lanes.length])
-
-  const [addLaneHover, setAddLaneHover] = useState(false)
-  const addLaneButton = useMemo(
-    () =>
-      uiState.lanes.length < MAX_LANES ? (
-        <div id="add-lane">
-          <img
-            src={addLaneHover ? addIconHover : addIcon}
-            alt=""
-            id="add-lane-button"
-            onMouseEnter={() => setAddLaneHover(true)}
-            onMouseLeave={() => setAddLaneHover(false)}
-            onClick={addLane}
-          />
-        </div>
-      ) : null,
-    [addLane, addLaneHover, uiState.lanes.length]
-  )
-
   return (
     <div
       id="main-container"
@@ -520,9 +558,9 @@ export default function App() {
         beatValue={beatValue}
         setBeatValue={setBeatValue}
       />
-      <div id="transport-topbar" style={{ width: longestLane * EIGHTH_WIDTH }}>
+      <div id="transport-topbar" style={{ width: windowLaneLength * EIGHTH_WIDTH }}>
         <Ticks
-          longestLane={longestLane}
+          longestLane={windowLaneLength}
           beatsPerBar={beatsPerBar}
           beatValue={beatValue}
           showNumbers
@@ -531,10 +569,17 @@ export default function App() {
         <div className="lane-overflow"></div>
         <div className="lane-overflow hide-overflow"></div>
       </div>
-      <div id="lanes-container" ref={lanesRef} style={{ width: longestLane * EIGHTH_WIDTH + 14 }}>
+      <div
+        id="lanes-container"
+        ref={lanesRef}
+        style={{ width: (!uiState.lanes.length ? longestLane : windowLaneLength) * EIGHTH_WIDTH + 14 }}>
         {lanes}
         {delimiterEls}
-        {!uiState.lanes.length && <div className="empty-lane"></div>}
+        {!uiState.lanes.length && (
+          <div className="empty-lane" onClick={addLane} style={{ width: windowLaneLength * EIGHTH_WIDTH + 14 }}>
+            😴
+          </div>
+        )}
         {addLaneButton}
       </div>
       {selectingDimensions && (!!selectingDimensions.width || !!selectingDimensions.height) && (

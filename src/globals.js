@@ -25,11 +25,12 @@ export function calcLaneLength(width, direction = -1) {
 }
 
 const laneID = uuid()
-export const DEFAULT_LANE = (id, laneLength) => ({
-  id: id || laneID,
-  laneLength: laneLength || calcLaneLength(window.innerWidth - 30),
+export const DEFAULT_LANE = (id = laneID, laneLength = calcLaneLength(window.innerWidth - 30), colorIndex = 0) => ({
+  id,
+  laneLength,
   notes: [],
   viewRange: { min: 60, max: 71 },
+  colorIndex,
 })
 
 export const DEFAULT_PRESET = JSON.stringify({
