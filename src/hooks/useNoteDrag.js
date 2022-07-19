@@ -138,6 +138,12 @@ export default function useNoteDrag(
       if (altPressed.current) {
         // duplicating note(s) with alt key
         dragDuplicating.current = true
+        // handle note selection
+        if (!startNoteDrag.preselected) {
+          const newSelectedNotes = draggingThisLane.current ? [currentDraggingNote.current] : []
+          selectedNotesRef.current = newSelectedNotes
+          setSelectedNotes(newSelectedNotes)
+        }
       } else {
         // handle note selection
         if (draggingThisLane.current) {
@@ -239,7 +245,7 @@ export default function useNoteDrag(
       selectedNotesRef.current.forEach((id, i) => {
         const note = notesRef.current.find((n) => n.id === id)
         if (!note) return false
-        if (draggingNotes.current) {
+        if (draggingNotes.current || dragDuplicating.current) {
           // dragging notes
           let newX = dragStart.current[i]
           let newNote = noteStart.current[i]
