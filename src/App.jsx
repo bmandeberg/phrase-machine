@@ -80,14 +80,8 @@ export default function App() {
   }, [uiState])
 
   useEffect(() => {
-    setUIState((uiState) =>
-      Object.assign({}, uiState, {
-        snap,
-        beatsPerBar,
-        beatValue,
-      })
-    )
-  }, [beatValue, beatsPerBar, snap])
+    setUIState((uiState) => Object.assign({}, uiState, { snap }))
+  }, [snap])
 
   const updateSelectedNotes = useCallback((id, notes) => {
     setSelectedNotes((selectedNotes) => Object.assign({}, selectedNotes, { [id]: notes }))
@@ -101,10 +95,12 @@ export default function App() {
     if (Tone.Transport.bpm.value !== tempo) {
       Tone.Transport.bpm.value = tempo
     }
+    setUIState((uiState) => Object.assign({}, uiState, { tempo }))
   }, [tempo])
 
   useEffect(() => {
     Tone.Transport.timeSignature = [beatsPerBar, beatValue]
+    setUIState((uiState) => Object.assign({}, uiState, { beatsPerBar, beatValue }))
   }, [beatValue, beatsPerBar])
 
   // global dragging
