@@ -1,5 +1,6 @@
 import React, { useState, useCallback, useMemo, useEffect } from 'react'
 import PropTypes from 'prop-types'
+import Switch from 'react-switch'
 import NumInput from './ui/NumInput'
 import Dropdown from './ui/Dropdown'
 import { RATES } from '../globals'
@@ -20,8 +21,10 @@ export default function Header({
   setPlaying,
   tempo,
   setTempo,
-  snap,
-  setSnap,
+  snapToGrid,
+  setSnapToGrid,
+  grid,
+  setGrid,
   beatsPerBar,
   setBeatsPerBar,
   beatValue,
@@ -63,10 +66,7 @@ export default function Header({
     [hoverPlayStop, playStop, playing]
   )
 
-  const snapOptions = useMemo(
-    () => [{ value: null, label: 'none' }].concat(RATES.map((rate) => ({ value: rate, label: rate }))),
-    []
-  )
+  const snapOptions = useMemo(() => RATES.map((rate) => ({ value: rate, label: rate })), [])
 
   return (
     <div id="header">
@@ -90,11 +90,27 @@ export default function Header({
         options={BEATS_PER_BAR_OPTIONS}
         small
       />
+      <div className="switch-container header-item">
+        <Switch
+          className="instrument-switch"
+          onChange={setSnapToGrid}
+          checked={snapToGrid}
+          uncheckedIcon={false}
+          checkedIcon={false}
+          offColor={'#a8d6ff'}
+          onColor={'#a8d6ff'}
+          offHandleColor={'#008dff'}
+          onHandleColor={'#ff88e3'}
+          width={48}
+          height={24}
+        />
+        <p className="header-label">Snap</p>
+      </div>
       <Dropdown
         className="header-item no-text-transform"
-        label="Snap"
-        value={snap}
-        setValue={setSnap}
+        label="Grid"
+        value={grid}
+        setValue={setGrid}
         options={snapOptions}
         small
       />
@@ -106,8 +122,10 @@ Header.propTypes = {
   setPlaying: PropTypes.func,
   tempo: PropTypes.number,
   setTempo: PropTypes.func,
-  snap: PropTypes.string,
-  setSnap: PropTypes.func,
+  snapToGrid: PropTypes.string,
+  setSnapToGrid: PropTypes.func,
+  grid: PropTypes.string,
+  setGrid: PropTypes.func,
   beatsPerBar: PropTypes.number,
   setBeatsPerBar: PropTypes.func,
   beatValue: PropTypes.number,

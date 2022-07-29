@@ -32,7 +32,8 @@ if (!window.localStorage.getItem('phrasePresets')) {
 export default function App() {
   const [uiState, setUIState] = useState(JSON.parse(window.localStorage.getItem('phrasePresets')))
   const [delimiters, setDelimiters] = useState(uiState.delimiters)
-  const [snap, setSnap] = useState(uiState.snap)
+  const [snapToGrid, setSnapToGrid] = useState(uiState.snapToGrid)
+  const [grid, setGrid] = useState(uiState.grid)
   const [beatsPerBar, setBeatsPerBar] = useState(uiState.beatsPerBar)
   const [beatValue, setBeatValue] = useState(uiState.beatValue)
   const [noPointerEvents, setNoPointerEvents] = useState(false)
@@ -47,6 +48,8 @@ export default function App() {
   const metaPressed = useRef(false)
   const mainContainerRef = useRef()
   const lanesRef = useRef()
+
+  const snap = useMemo(() => (snapToGrid ? grid : null), [grid, snapToGrid])
 
   useEffect(() => {
     function keydown(e) {
@@ -80,8 +83,12 @@ export default function App() {
   }, [uiState])
 
   useEffect(() => {
-    setUIState((uiState) => Object.assign({}, uiState, { snap }))
-  }, [snap])
+    setUIState((uiState) => Object.assign({}, uiState, { grid }))
+  }, [grid])
+
+  useEffect(() => {
+    setUIState((uiState) => Object.assign({}, uiState, { snapToGrid }))
+  }, [snapToGrid])
 
   const updateSelectedNotes = useCallback((id, notes) => {
     setSelectedNotes((selectedNotes) => Object.assign({}, selectedNotes, { [id]: notes }))
@@ -564,8 +571,10 @@ export default function App() {
         setPlaying={setPlaying}
         tempo={tempo}
         setTempo={setTempo}
-        snap={snap}
-        setSnap={setSnap}
+        snapToGrid={snapToGrid}
+        setSnapToGrid={setSnapToGrid}
+        grid={grid}
+        setGrid={setGrid}
         beatsPerBar={beatsPerBar}
         setBeatsPerBar={setBeatsPerBar}
         beatValue={beatValue}

@@ -50,4 +50,14 @@ $headerHeight: 40px;
       transform: rotate(25deg);
     }
   }
+
+  .switch-container {
+    display: inline-block;
+  }
+
+  .header-label {
+    text-transform: uppercase;
+    color: $pink;
+    margin-top: -2px;
+  }
 }
