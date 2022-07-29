@@ -116,6 +116,7 @@ export default function useNoteDrag(
   }, [updateLaneState])
 
   const dragStart = useRef()
+  const dragEnd = useRef()
   const noteStart = useRef()
   const dragDirection = useRef(0)
   const snapStart = useRef()
@@ -159,8 +160,8 @@ export default function useNoteDrag(
           selectedNotesRef.current = []
           setSelectedNotes([])
         }
+        dragStart.current = selectedNotesRef.current.map((id) => notesRef.current.find((note) => note.id === id).x)
         if (['drag', 'drag-left'].includes(startNoteDrag.type)) {
-          dragStart.current = selectedNotesRef.current.map((id) => notesRef.current.find((note) => note.id === id).x)
           snapStart.current = selectedNotesRef.current.map(
             (id) => notesRef.current.find((note) => note.id === id).xSnap
           )
@@ -179,6 +180,10 @@ export default function useNoteDrag(
         } else if (startNoteDrag.type === 'drag-right') {
           // drag-right
           draggingRight.current = true
+          dragEnd.current = selectedNotesRef.current.map((id) => {
+            const note = notesRef.current.find((note) => note.id === id)
+            return note.x + note.width
+          })
           snapStart.current = selectedNotesRef.current.map(
             (id) => notesRef.current.find((note) => note.id === id).endSnap
           )
@@ -246,7 +251,9 @@ export default function useNoteDrag(
         const note = notesRef.current.find((n) => n.id === id)
         if (!note) return false
         if (draggingNotes.current || dragDuplicating.current) {
-          // dragging notes
+          /*
+            dragging notes
+          */
           let newX = dragStart.current[i]
           let newNote = noteStart.current[i]
           let xSnapNumber = note.xSnapNumber
@@ -286,36 +293,41 @@ export default function useNoteDrag(
             midiNote: newNote,
           })
         } else if (draggingRight.current) {
-          // drag-right
+          /*
+            drag-right
+          */
           if (
-            widthStart.current[i] &&
+            dragEnd.current[i] !== undefined &&
+            widthStart.current[i] !== undefined &&
             (Math.abs(mx) > 2 || overrideDefault.current) &&
             (widthStart.current[i] + mx >= MIN_NOTE_WIDTH || note.width !== MIN_NOTE_WIDTH)
           ) {
             if (dx) {
               dragDirection.current = dx
             }
-            const lowerSnapBound = snapRef.current && snapPixels(widthStart.current[i], snapRef.current, -1).px
+            const lowerSnapBound = snapRef.current && snapPixels(dragEnd.current[i], snapRef.current, -1).px
             const upperSnapBound = snapRef.current && lowerSnapBound + EIGHTH_WIDTH * RATE_MULTS[snapRef.current]
-            const width = widthStart.current[i] + mx
-            if (snapRef.current && !snapStart.current[i] && (width < lowerSnapBound || width > upperSnapBound)) {
+            const realX = dragEnd.current[i] + mx
+            if (snapRef.current && !snapStart.current[i] && (realX < lowerSnapBound || realX > upperSnapBound)) {
               snapStart.current[i] = snapRef.current
             }
             const direction = !snapStart.current[i] ? dragDirection.current : 0
-            const { px, snapNumber } = snapPixels(width, snapRef.current, direction)
-            const newWidth = Math.max(px, MIN_NOTE_WIDTH)
-            if (!snapRef.current || newWidth !== widthStart.current[i]) {
+            const { px, snapNumber } = snapPixels(realX, snapRef.current, direction)
+            const newX = Math.max(px, MIN_NOTE_WIDTH)
+            if (!snapRef.current || newX !== dragEnd.current[i]) {
               overrideDefault.current = true
             }
             updateNotes[id] = Object.assign({}, note, {
-              width: newWidth,
+              width: newX - dragStart.current[i],
               endSnap: snapRef.current,
               widthSnap: snapRef.current && snapRef.current === note.xSnap ? snapRef.current : null,
               widthSnapNumber: snapNumber,
             })
           }
         } else if (draggingLeft.current) {
-          // drag-left
+          /*
+            drag-left
+          */
           if (
             widthStart.current[i] &&
             (Math.abs(mx) > 2 || overrideDefault.current) &&
