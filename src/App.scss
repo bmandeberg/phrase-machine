@@ -103,7 +103,7 @@
   #drag-select {
     position: absolute;
     border: 1px solid $pink;
-    z-index: 2;
+    z-index: 3;
 
     &::before {
       content: '';
