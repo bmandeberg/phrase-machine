@@ -122,7 +122,7 @@ Header.propTypes = {
   setPlaying: PropTypes.func,
   tempo: PropTypes.number,
   setTempo: PropTypes.func,
-  snapToGrid: PropTypes.string,
+  snapToGrid: PropTypes.bool,
   setSnapToGrid: PropTypes.func,
   grid: PropTypes.string,
   setGrid: PropTypes.func,

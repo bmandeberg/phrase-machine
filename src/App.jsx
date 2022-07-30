@@ -14,6 +14,7 @@ import {
   DEFAULT_LANE,
   LANE_COLORS,
   calcLaneLength,
+  mapLaneLength,
 } from './globals'
 import Lane from './components/Lane'
 import Header from './components/Header'
@@ -491,6 +492,7 @@ export default function App() {
           delimiters={delimiters}
           beatsPerBar={beatsPerBar}
           beatValue={beatValue}
+          grid={grid}
           snap={snap}
           noPointerEvents={noPointerEvents}
           setNoPointerEvents={setNoPointerEvents}
@@ -516,6 +518,7 @@ export default function App() {
       deleteLane,
       delimiters,
       grabbing,
+      grid,
       noPointerEvents,
       noteDrag,
       selectNotes,
@@ -580,11 +583,14 @@ export default function App() {
         beatValue={beatValue}
         setBeatValue={setBeatValue}
       />
-      <div id="transport-topbar" style={{ width: windowLaneLength * EIGHTH_WIDTH }}>
+      <div
+        id="transport-topbar"
+        style={{ width: mapLaneLength(windowLaneLength, grid) * RATE_MULTS[grid] * EIGHTH_WIDTH }}>
         <Ticks
           longestLane={windowLaneLength}
           beatsPerBar={beatsPerBar}
           beatValue={beatValue}
+          grid={grid}
           showNumbers
           click={topbarMousedown}
         />
@@ -594,11 +600,20 @@ export default function App() {
       <div
         id="lanes-container"
         ref={lanesRef}
-        style={{ width: (!uiState.lanes.length ? longestLane : windowLaneLength) * EIGHTH_WIDTH + 14 }}>
+        style={{
+          width:
+            mapLaneLength(!uiState.lanes.length ? longestLane : windowLaneLength, grid) *
+              RATE_MULTS[grid] *
+              EIGHTH_WIDTH +
+            14,
+        }}>
         {lanes}
         {delimiterEls}
         {!uiState.lanes.length && (
-          <div className="empty-lane" onClick={() => addLane()} style={{ width: windowLaneLength * EIGHTH_WIDTH + 14 }}>
+          <div
+            className="empty-lane"
+            onClick={() => addLane()}
+            style={{ width: mapLaneLength(windowLaneLength, grid) * RATE_MULTS[grid] * EIGHTH_WIDTH + 14 }}>
             😴
           </div>
         )}

@@ -73,4 +73,28 @@ export const RATE_MULTS = {
   // '64t': 0.25 / 3,
 }
 
+export function mapLaneLength(laneLength, grid) {
+  return Math.ceil(laneLength / RATE_MULTS[grid])
+}
+
+export const RATE_TICKS = {
+  '1n': () => true,
+  '1n.': () => true,
+  '2n': () => true,
+  '2n.': () => true,
+  '2t': () => true,
+  '4n': () => true,
+  '4n.': () => true,
+  '4t': (i) => i % 3 === 0,
+  '8n': (i) => i % 2 === 0,
+  '8n.': () => true,
+  '8t': (i) => i % 3 === 0,
+  '16n': (i) => i % 4 === 0,
+  '16n.': () => true,
+  '16t': (i) => i % 6 === 0,
+  '32n': (i) => i % 8 === 0,
+  '32n.': () => true,
+  '32t': (i) => i % 12 === 0,
+}
+
 export const RATES = Object.keys(RATE_MULTS)

@@ -6,8 +6,16 @@
   left: -1px;
   height: 100%;
   width: 100%;
-  display: flex;
   pointer-events: none;
+
+  .ticks-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+    display: flex;
+  }
 
   .tick-measure-num {
     @extend .no-select;
@@ -18,8 +26,7 @@
   }
 
   .tick {
-    width: var(--eighth-width);
-    flex: 0 0 var(--eighth-width);
+    flex: 0 0 var(--tick-width);
     height: 100%;
     box-sizing: border-box;
     border-left: 1px solid $lightGray;
@@ -32,7 +39,8 @@
       border-color: $lightTextGray;
     }
 
-    &:first-of-type {
+    &:first-of-type,
+    &.hidden {
       border-left: none;
     }
   }

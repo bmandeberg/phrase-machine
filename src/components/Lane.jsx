@@ -2,7 +2,7 @@ import React, { useState, useMemo, useRef, useEffect, useCallback } from 'react'
 import PropTypes from 'prop-types'
 import { v4 as uuid } from 'uuid'
 import classNames from 'classnames'
-import { NOTE_HEIGHT, EIGHTH_WIDTH, calcLaneLength, LANE_COLORS } from '../globals'
+import { NOTE_HEIGHT, EIGHTH_WIDTH, calcLaneLength, LANE_COLORS, RATE_MULTS, mapLaneLength } from '../globals'
 import Ticks from './Ticks'
 import useNoteDrag from '../hooks/useNoteDrag'
 import useLaneDrag from '../hooks/useLaneDrag'
@@ -18,6 +18,7 @@ export default function Lane({
   delimiters,
   beatsPerBar,
   beatValue,
+  grid,
   snap,
   noPointerEvents,
   setNoPointerEvents,
@@ -229,7 +230,10 @@ export default function Lane({
 
   const laneEl = useMemo(
     () => (
-      <div className="lane" ref={lane} style={{ '--lane-width': longestLane * EIGHTH_WIDTH + 'px' }}>
+      <div
+        className="lane"
+        ref={lane}
+        style={{ '--lane-width': mapLaneLength(longestLane, grid) * RATE_MULTS[grid] * EIGHTH_WIDTH + 'px' }}>
         {[...Array(maxNote - minNote + 1)].map((_d, i) => (
           <div
             key={uuid()}
@@ -240,10 +244,10 @@ export default function Lane({
               'e-key': !isBlackKey(maxNote - minNote - i + minNote) && nextKeyIsWhite(maxNote - minNote - i + minNote),
             })}></div>
         ))}
-        <Ticks longestLane={longestLane} beatsPerBar={beatsPerBar} beatValue={beatValue} />
+        <Ticks longestLane={longestLane} beatsPerBar={beatsPerBar} beatValue={beatValue} grid={grid} />
       </div>
     ),
-    [beatValue, beatsPerBar, createNote, longestLane, maxNote, minNote]
+    [beatValue, beatsPerBar, createNote, grid, longestLane, maxNote, minNote]
   )
 
   const laneControls = useMemo(
@@ -308,6 +312,7 @@ Lane.propTypes = {
   delimiters: PropTypes.array,
   beatsPerBar: PropTypes.number,
   beatValue: PropTypes.number,
+  grid: PropTypes.string,
   snap: PropTypes.string,
   noPointerEvents: PropTypes.bool,
   setNoPointerEvents: PropTypes.func,

@@ -25,13 +25,16 @@
     z-index: 2;
 
     .ticks {
-      padding-left: 13px;
       height: 10px;
       background: $blueGray;
       border: 1px solid $lightGray;
       box-sizing: border-box;
       margin-left: 1px;
       pointer-events: all;
+
+      .ticks-container {
+        padding-left: 13px;
+      }
 
       .tick {
         height: calc(100% + 2px);
