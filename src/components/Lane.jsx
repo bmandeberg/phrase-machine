@@ -314,6 +314,7 @@ export default function Lane({
         '--lane-color-lane': LANE_COLORS[colorIndex].lane,
         '--lane-color-light': LANE_COLORS[colorIndex].light,
         '--lane-color-lightest': LANE_COLORS[colorIndex].lightest,
+        '--lane-color-dark': LANE_COLORS[colorIndex].dark,
       }}>
       <div className={classNames('keys', { grabbing })} {...dragLane()}>
         {keyEls}

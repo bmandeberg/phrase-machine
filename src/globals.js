@@ -1,14 +1,14 @@
 import { v4 as uuid } from 'uuid'
 
 export const LANE_COLORS = [
-  { base: '#008dff', hover: '#33a4ff', lane: '#e6f3fc', light: '#8fd2ff', lightest: '#b3ddff' },
-  { base: '#00DD69', hover: '#20f279', lane: '#e8f7eb', light: '#82f9b2', lightest: '#a2fcc7' },
-  { base: '#FF88E3', hover: '#ffabef', lane: '#ffeeff', light: '#f9c7ef', lightest: '#fcd4f4' },
-  { base: '#7C00FF', hover: '#994aff', lane: '#efeeff', light: '#c3a4ff', lightest: '#d4b8ff' },
-  { base: '#FF3154', hover: '#ff577b', lane: '#fff0f5', light: '#f99bbd', lightest: '#fcb4cb' },
-  { base: '#FF9B00', hover: '#ffb452', lane: '#fff2e3', light: '#ffd0a6', lightest: '#ffdebb' },
-  { base: '#d600a9', hover: '#ef48cf', lane: '#f9edf9', light: '#ff92f5', lightest: '#ffa9f3' },
-  { base: '#00c6a9', hover: '#40e2c7', lane: '#e1f9f4', light: '#62efd4', lightest: '#80ffe7' },
+  { base: '#008dff', hover: '#33a4ff', lane: '#e6f3fc', light: '#8fd2ff', lightest: '#b3ddff', dark: '#0247aa' },
+  { base: '#00DD69', hover: '#20f279', lane: '#e8f7eb', light: '#82f9b2', lightest: '#a2fcc7', dark: '#03843a' },
+  { base: '#FF88E3', hover: '#ffabef', lane: '#ffeeff', light: '#f9c7ef', lightest: '#fcd4f4', dark: '#c4009f' },
+  { base: '#7C00FF', hover: '#994aff', lane: '#efeeff', light: '#c3a4ff', lightest: '#d4b8ff', dark: '#4600a0' },
+  { base: '#FF3154', hover: '#ff577b', lane: '#fff0f5', light: '#f99bbd', lightest: '#fcb4cb', dark: '#bf0029' },
+  { base: '#FF9B00', hover: '#ffb452', lane: '#fff2e3', light: '#ffd0a6', lightest: '#ffdebb', dark: '#af5300' },
+  { base: '#d600a9', hover: '#ef48cf', lane: '#f9edf9', light: '#ff92f5', lightest: '#ffa9f3', dark: '#9b0085' },
+  { base: '#00c6a9', hover: '#40e2c7', lane: '#e1f9f4', light: '#62efd4', lightest: '#80ffe7', dark: '#006b68' },
 ]
 export const EIGHTH_WIDTH = 24
 export const NOTE_HEIGHT = 12
