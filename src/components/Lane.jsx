@@ -3,6 +3,7 @@ import PropTypes from 'prop-types'
 import { v4 as uuid } from 'uuid'
 import classNames from 'classnames'
 import { NOTE_HEIGHT, EIGHTH_WIDTH, calcLaneLength, LANE_COLORS, RATE_MULTS, mapLaneLength } from '../globals'
+import { timeToPixels } from '../util'
 import Ticks from './Ticks'
 import useNoteDrag from '../hooks/useNoteDrag'
 import useLaneDrag from '../hooks/useLaneDrag'
@@ -15,6 +16,7 @@ export default function Lane({
   colorIndex,
   lanePreset,
   setLaneState,
+  draggingDelimiter,
   delimiters,
   beatsPerBar,
   beatValue,
@@ -282,6 +284,26 @@ export default function Lane({
       ))
   }, [notes, minNote, maxNote, selectedNotes, noPointerEvents, grabbing])
 
+  const delimiterProbabilityEls = useMemo(
+    () =>
+      delimiters.map((delimiter) => (
+        <div
+          key={uuid()}
+          className={classNames('delimiter-probability', { disabled: draggingDelimiter })}
+          style={{
+            left: delimiter.snap ? timeToPixels({ [delimiter.snap]: delimiter.snapNumber }) : delimiter.x,
+          }}>
+          <div
+            className="delimiter-probability-bar"
+            style={{ height: (maxNote - minNote + 1) * NOTE_HEIGHT * delimiter.lanes[id] }}>
+            <div className="delimiter-probability-number">{delimiter.lanes[id].toFixed(2)}</div>
+            <div className="delimiter-probability-bar-drag"></div>
+          </div>
+        </div>
+      )),
+    [delimiters, draggingDelimiter, id, maxNote, minNote]
+  )
+
   return (
     <div
       id={id}
@@ -298,6 +320,7 @@ export default function Lane({
       </div>
       {laneEl}
       <div className="notes">{noteEls}</div>
+      <div className="delimiter-probabilities">{delimiterProbabilityEls}</div>
       <div className={classNames('lane-expander', { active: !grabbing })} {...dragLaneStart()}></div>
       {laneControls}
     </div>
@@ -309,6 +332,7 @@ Lane.propTypes = {
   colorIndex: PropTypes.number,
   lanePreset: PropTypes.object,
   setLaneState: PropTypes.func,
+  draggingDelimiter: PropTypes.number,
   delimiters: PropTypes.array,
   beatsPerBar: PropTypes.number,
   beatValue: PropTypes.number,

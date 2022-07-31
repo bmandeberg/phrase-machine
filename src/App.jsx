@@ -203,7 +203,7 @@ export default function App() {
             const direction = !snapStart.current ? dragDirection.current : 0
             const { px, snapNumber } = snapPixels(realX, snap, direction)
             const minX = draggingDelimiter * MIN_DELIMITER_WIDTH
-            const maxX = longestLane * EIGHTH_WIDTH - (delimiters.length - draggingDelimiter) * MIN_DELIMITER_WIDTH
+            const maxX = windowLaneLength * EIGHTH_WIDTH - (delimiters.length - draggingDelimiter) * MIN_DELIMITER_WIDTH
             let x = px
             let snapX = snap
             let snapNumberX = snapNumber
@@ -490,6 +490,7 @@ export default function App() {
           lanePreset={lane}
           setLaneState={setLaneState}
           delimiters={delimiters}
+          draggingDelimiter={draggingDelimiter}
           beatsPerBar={beatsPerBar}
           beatValue={beatValue}
           grid={grid}
@@ -517,6 +518,7 @@ export default function App() {
       beatsPerBar,
       deleteLane,
       delimiters,
+      draggingDelimiter,
       grabbing,
       grid,
       noPointerEvents,
