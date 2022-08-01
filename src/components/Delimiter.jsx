@@ -53,7 +53,16 @@ export default function Delimiter({ delimiter, i, deleteDelimiter, dragging, was
       style={{ left, '--delimiter-height': height + 'px' }}>
       <img className="delimiter-head" src={delimiterGraphic} alt="" draggable="false" />
       <div className="delimiter-grab"></div>
-      <img className="delimiter-x" src={xIcon} alt="" draggable="false" onClick={() => deleteDelimiter(i)} />
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        fill="none"
+        viewBox="0 0 24 24"
+        class="humbleicons hi-times delimiter-x">
+        <g xmlns="http://www.w3.org/2000/svg" stroke-linecap="round" stroke-width="2">
+          <path d="M6 18L18 6M18 18L6 6" />
+        </g>
+      </svg>
+      {/* <img className="delimiter-x" src={xIcon} alt="" draggable="false" onClick={() => deleteDelimiter(i)} /> */}
     </div>
   )
 }

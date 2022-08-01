@@ -2,15 +2,15 @@
 
 $headerHeight: 40px;
 #header {
-  height: 72px;
+  height: $headerHeight;
   display: flex;
   align-items: center;
   position: fixed;
-  top: 0;
+  top: 16px;
   left: 0;
   right: 0;
-  background: $lightestBlue;
-  z-index: 3;
+  background: transparent;
+  z-index: 4;
   padding-left: $padding * 2;
 
   #logo {

@@ -17,6 +17,16 @@
     cursor: ew-resize !important;
   }
 
+  #header-background {
+    height: 72px;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 3;
+    background: $lightestBlue;
+  }
+
   #transport-topbar {
     position: sticky;
     top: 0;

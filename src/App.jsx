@@ -571,6 +571,7 @@ export default function App() {
         '--keys-width': KEYS_WIDTH + 'px',
       }}
       {...dragNotes()}>
+      <div id="header-background"></div>
       <Header
         playing={playing}
         setPlaying={setPlaying}

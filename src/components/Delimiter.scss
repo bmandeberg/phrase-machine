@@ -47,16 +47,17 @@
     left: -6px;
     cursor: pointer;
     opacity: 0;
+    stroke: $darkTextGray;
     transition: opacity $fastTransitionTime ease, top $fastTransitionTime ease;
   }
 
   &.active {
     .delimiter-x {
       opacity: 1;
-      top: -21px;
+      top: -17px;
 
-      &:hover {
-        opacity: 0.8;
+      &:hover g {
+        stroke: $red;
       }
     }
   }
