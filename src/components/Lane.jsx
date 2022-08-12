@@ -37,6 +37,7 @@ export default function Lane({
   setSelectNotes,
   addLane,
   deleteLane,
+  changingProbability,
 }) {
   const [laneLength, setLaneLength] = useState(lanePreset.laneLength)
   const [notes, updateNotes] = useState(lanePreset.notes)
@@ -49,6 +50,7 @@ export default function Lane({
   const mouseMoved = useRef(false)
   const createdNote = useRef(false)
   const dragChanged = useRef(false)
+  const delimiterProbabilities = useRef()
 
   useEffect(() => {
     updateSelectedNotes(id, selectedNotes)
@@ -286,10 +288,12 @@ export default function Lane({
 
   const delimiterProbabilityEls = useMemo(
     () =>
-      delimiters.map((delimiter) => (
+      delimiters.map((delimiter, i) => (
         <div
           key={uuid()}
-          className={classNames('delimiter-probability', { disabled: draggingDelimiter })}
+          className={classNames('delimiter-probability', {
+            disabled: draggingDelimiter,
+          })}
           style={{
             left: delimiter.snap ? timeToPixels({ [delimiter.snap]: delimiter.snapNumber }) : delimiter.x,
           }}>
@@ -297,16 +301,29 @@ export default function Lane({
             className="delimiter-probability-bar"
             style={{ height: (maxNote - minNote + 1) * NOTE_HEIGHT * delimiter.lanes[id] }}>
             <div className="delimiter-probability-number">{delimiter.lanes[id].toFixed(2)}</div>
-            <div className="delimiter-probability-bar-drag"></div>
+            <div
+              className="delimiter-probability-bar-drag"
+              delimiter-index={i}
+              lane-id={id}
+              full-height={(maxNote - minNote + 1) * NOTE_HEIGHT}></div>
           </div>
         </div>
       )),
     [delimiters, draggingDelimiter, id, maxNote, minNote]
   )
 
+  useEffect(() => {
+    const probabilityEls = delimiterProbabilities.current.querySelectorAll('.delimiter-probability')
+    if (changingProbability !== null && delimiterProbabilities.current) {
+      probabilityEls[changingProbability].classList.add('open')
+    } else {
+      probabilityEls.forEach((p) => p.classList.remove('open'))
+    }
+  }, [changingProbability])
+
   return (
     <div
-      id={id}
+      id={'lane-' + id}
       className={classNames('lane-container', { first: laneNum === 0 })}
       style={{
         '--lane-color': LANE_COLORS[colorIndex].base,
@@ -321,7 +338,9 @@ export default function Lane({
       </div>
       {laneEl}
       <div className="notes">{noteEls}</div>
-      <div className="delimiter-probabilities">{delimiterProbabilityEls}</div>
+      <div className="delimiter-probabilities" ref={delimiterProbabilities}>
+        {delimiterProbabilityEls}
+      </div>
       <div className={classNames('lane-expander', { active: !grabbing })} {...dragLaneStart()}></div>
       {laneControls}
     </div>
@@ -354,6 +373,7 @@ Lane.propTypes = {
   setSelectNotes: PropTypes.func,
   addLane: PropTypes.func,
   deleteLane: PropTypes.func,
+  changingProbability: PropTypes.number,
 }
 
 const blackKeys = [false, true, false, true, false, false, true, false, true, false, true, false]

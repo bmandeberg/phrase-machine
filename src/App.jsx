@@ -40,10 +40,12 @@ export default function App() {
   const [noPointerEvents, setNoPointerEvents] = useState(false)
   const [grabbing, setGrabbing] = useState(false)
   const [ewResizing, setEwResizing] = useState(false)
+  const [nsResizing, setNsResizing] = useState(false)
   const [selectNotes, setSelectNotes] = useState({})
   const [selectedNotes, setSelectedNotes] = useState({})
   const [noteDrag, setNoteDrag] = useState({})
   const [startNoteDrag, setStartNoteDrag] = useState(null)
+  const [changingProbability, setChangingProbability] = useState(null)
   const shiftPressed = useRef(false)
   const altPressed = useRef(false)
   const metaPressed = useRef(false)
@@ -124,6 +126,11 @@ export default function App() {
   const dragChanged = useRef()
   const dragDirection = useRef()
   const overrideDefault = useRef()
+  const delimiterIndex = useRef()
+  const delimitersRef = useRef(delimiters)
+  const laneID = useRef()
+  const fullHeight = useRef()
+  const percentage = useRef()
   const dragNotes = useGesture({
     onDragStart: ({ initial: [x, y], metaKey, event }) => {
       if (!metaKey && event.button === 0) {
@@ -161,6 +168,16 @@ export default function App() {
           const delimiter = delimiters[delimiterIndex]
           dragStart.current = delimiter.snap ? timeToPixels({ [delimiter.snap]: delimiter.snapNumber }) : delimiter.x
           snapStart.current = delimiter.snap
+        } else if (event.target.classList.contains('delimiter-probability-bar-drag')) {
+          // dragging probability bar
+          setNoPointerEvents(true)
+          setNsResizing(true)
+          delimitersRef.current = delimiters
+          delimiterIndex.current = +event.target.getAttribute('delimiter-index')
+          laneID.current = event.target.getAttribute('lane-id')
+          fullHeight.current = +event.target.getAttribute('full-height')
+          percentage.current = { ...delimiters[delimiterIndex.current].lanes }
+          setChangingProbability(delimiterIndex.current)
         } else {
           // drag selecting
           dragSelecting.current = true
@@ -241,6 +258,46 @@ export default function App() {
               setDelimiters(delimitersCopy)
             }
           }
+        } else if (changingProbability !== null) {
+          // dragging probability bar
+          const percentChange = constrain(
+            my / -fullHeight.current,
+            -percentage.current[laneID.current],
+            1 - percentage.current[laneID.current]
+          )
+          if (percentChange) {
+            function updateDOMHeight(delimiterLaneID, pct) {
+              const lane = uiState.lanes.find((l) => l.id === delimiterLaneID)
+              const probabilityBar = document.querySelector(
+                `#lane-${delimiterLaneID} .delimiter-probability:nth-child(${
+                  delimiterIndex.current + 1
+                }) .delimiter-probability-bar`
+              )
+              probabilityBar.style.height = (lane.viewRange.max - lane.viewRange.min + 1) * NOTE_HEIGHT * pct + 'px'
+              probabilityBar.querySelector('.delimiter-probability-number').innerHTML = pct.toFixed(2)
+            }
+            let compensationAmount = -percentChange
+            delimitersRef.current[delimiterIndex.current].lanes[laneID.current] =
+              percentage.current[laneID.current] + percentChange
+            updateDOMHeight(laneID.current, percentage.current[laneID.current] + percentChange)
+            const otherLanes = Object.keys(delimitersRef.current[delimiterIndex.current].lanes)
+              .filter((delimiterLaneID) => delimiterLaneID !== laneID.current)
+              .map((delimiterLaneID) => ({
+                laneID: delimiterLaneID,
+                pct: delimitersRef.current[delimiterIndex.current].lanes[delimiterLaneID],
+              }))
+              .sort((a, b) => (percentChange > 0 ? a.pct - b.pct : b.pct - a.pct))
+            otherLanes.forEach((lane, i) => {
+              const compensationSlice = compensationAmount / (otherLanes.length - i)
+              const delta =
+                percentChange > 0
+                  ? Math.max(compensationSlice, -percentage.current[lane.laneID])
+                  : Math.min(compensationSlice, 1 - percentage.current[lane.laneID])
+              delimitersRef.current[delimiterIndex.current].lanes[lane.laneID] = percentage.current[lane.laneID] + delta
+              updateDOMHeight(lane.laneID, percentage.current[lane.laneID] + delta)
+              compensationAmount -= delta
+            })
+          }
         }
       }
     },
@@ -298,6 +355,13 @@ export default function App() {
           dragChanged.current = false
           dragDirection.current = 0
           overrideDefault.current = false
+        } else if (changingProbability !== null) {
+          // dragging probability bar
+          setNoPointerEvents(false)
+          setNsResizing(false)
+          setDelimiters(delimitersRef.current)
+          setUIState((uiState) => Object.assign({}, uiState, { delimiters }))
+          setChangingProbability(null)
         }
       }
     },
@@ -510,12 +574,14 @@ export default function App() {
           setSelectNotes={setSelectNotes}
           addLane={addLane}
           deleteLane={deleteLane}
+          changingProbability={changingProbability}
         />
       )),
     [
       addLane,
       beatValue,
       beatsPerBar,
+      changingProbability,
       deleteLane,
       delimiters,
       draggingDelimiter,
@@ -563,7 +629,7 @@ export default function App() {
   return (
     <div
       id="main-container"
-      className={classNames({ grabbing, 'ew-resizing': ewResizing })}
+      className={classNames({ grabbing, 'ew-resizing': ewResizing, 'ns-resizing': nsResizing })}
       ref={mainContainerRef}
       style={{
         '--eighth-width': EIGHTH_WIDTH + 'px',

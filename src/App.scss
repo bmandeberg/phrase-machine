@@ -16,6 +16,9 @@
   &.ew-resizing {
     cursor: ew-resize !important;
   }
+  &.ns-resizing {
+    cursor: ns-resize !important;
+  }
 
   #header-background {
     height: 72px;

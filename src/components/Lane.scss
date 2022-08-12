@@ -234,7 +234,6 @@
         left: 0;
         width: 100%;
         background: var(--lane-color);
-        transition: height $fastTransitionTime ease;
 
         .delimiter-probability-number {
           position: absolute;
@@ -261,7 +260,8 @@
         }
       }
 
-      &:hover {
+      &:hover,
+      &.open {
         width: $padding + 1px;
         opacity: 1;
 
