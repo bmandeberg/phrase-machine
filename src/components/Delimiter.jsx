@@ -4,7 +4,6 @@ import classNames from 'classnames'
 import { useHover } from 'react-use-gesture'
 import { timeToPixels } from '../util'
 import delimiterGraphic from '../assets/delimiter.svg'
-import xIcon from '../assets/x-icon-purple.svg'
 import './Delimiter.scss'
 
 export default function Delimiter({ delimiter, i, deleteDelimiter, dragging, wasDragging, dragHover, height }) {
@@ -53,7 +52,12 @@ export default function Delimiter({ delimiter, i, deleteDelimiter, dragging, was
       style={{ left, '--delimiter-height': height + 'px' }}>
       <img className="delimiter-head" src={delimiterGraphic} alt="" draggable="false" />
       <div className="delimiter-grab"></div>
-      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" className="humbleicons hi-times delimiter-x">
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        fill="none"
+        viewBox="0 0 24 24"
+        className="humbleicons hi-times delimiter-x"
+        onClick={() => deleteDelimiter(i)}>
         <g xmlns="http://www.w3.org/2000/svg" strokeLinecap="round" strokeWidth="2">
           <path d="M6 18L18 6M18 18L6 6" />
         </g>
