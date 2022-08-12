@@ -273,8 +273,15 @@ export default function App() {
                   delimiterIndex.current + 1
                 }) .delimiter-probability-bar`
               )
-              probabilityBar.style.height = (lane.viewRange.max - lane.viewRange.min + 1) * NOTE_HEIGHT * pct + 'px'
-              probabilityBar.querySelector('.delimiter-probability-number').innerHTML = pct.toFixed(2)
+              const laneHeight = (lane.viewRange.max - lane.viewRange.min + 1) * NOTE_HEIGHT
+              probabilityBar.style.height = laneHeight * pct + 'px'
+              const probabilityNumber = probabilityBar.querySelector('.delimiter-probability-number')
+              probabilityNumber.innerHTML = pct.toFixed(2)
+              if ((1 - pct) * laneHeight <= 16) {
+                probabilityNumber.classList.add('number-below')
+              } else {
+                probabilityNumber.classList.remove('number-below')
+              }
             }
             let compensationAmount = -percentChange
             delimitersRef.current[delimiterIndex.current].lanes[laneID.current] =

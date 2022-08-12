@@ -236,6 +236,7 @@
         background: var(--lane-color);
 
         .delimiter-probability-number {
+          @extend .no-select;
           position: absolute;
           top: -8px;
           left: 0.5px;
@@ -246,6 +247,11 @@
           pointer-events: none;
           opacity: 0;
           transition: opacity $fastTransitionTime ease, top $fastTransitionTime ease;
+
+          &.number-below {
+            top: 4px;
+            color: #ffffff;
+          }
         }
 
         .delimiter-probability-bar-drag {

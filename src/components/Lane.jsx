@@ -286,31 +286,33 @@ export default function Lane({
       ))
   }, [notes, minNote, maxNote, selectedNotes, noPointerEvents, grabbing])
 
-  const delimiterProbabilityEls = useMemo(
-    () =>
-      delimiters.map((delimiter, i) => (
-        <div
-          key={uuid()}
-          className={classNames('delimiter-probability', {
-            disabled: draggingDelimiter,
-          })}
-          style={{
-            left: delimiter.snap ? timeToPixels({ [delimiter.snap]: delimiter.snapNumber }) : delimiter.x,
-          }}>
+  const delimiterProbabilityEls = useMemo(() => {
+    const laneHeight = (maxNote - minNote + 1) * NOTE_HEIGHT
+    return delimiters.map((delimiter, i) => (
+      <div
+        key={uuid()}
+        className={classNames('delimiter-probability', {
+          disabled: draggingDelimiter,
+        })}
+        style={{
+          left: delimiter.snap ? timeToPixels({ [delimiter.snap]: delimiter.snapNumber }) : delimiter.x,
+        }}>
+        <div className="delimiter-probability-bar" style={{ height: laneHeight * delimiter.lanes[id] }}>
           <div
-            className="delimiter-probability-bar"
-            style={{ height: (maxNote - minNote + 1) * NOTE_HEIGHT * delimiter.lanes[id] }}>
-            <div className="delimiter-probability-number">{delimiter.lanes[id].toFixed(2)}</div>
-            <div
-              className="delimiter-probability-bar-drag"
-              delimiter-index={i}
-              lane-id={id}
-              full-height={(maxNote - minNote + 1) * NOTE_HEIGHT}></div>
+            className={classNames('delimiter-probability-number', {
+              'number-below': (1 - delimiter.lanes[id]) * laneHeight <= 16,
+            })}>
+            {delimiter.lanes[id].toFixed(2)}
           </div>
+          <div
+            className="delimiter-probability-bar-drag"
+            delimiter-index={i}
+            lane-id={id}
+            full-height={laneHeight}></div>
         </div>
-      )),
-    [delimiters, draggingDelimiter, id, maxNote, minNote]
-  )
+      </div>
+    ))
+  }, [delimiters, draggingDelimiter, id, maxNote, minNote])
 
   useEffect(() => {
     const probabilityEls = delimiterProbabilities.current.querySelectorAll('.delimiter-probability')
