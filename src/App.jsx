@@ -46,6 +46,7 @@ export default function App() {
   const [noteDrag, setNoteDrag] = useState({})
   const [startNoteDrag, setStartNoteDrag] = useState(null)
   const [changingProbability, setChangingProbability] = useState(null)
+  const [anyLaneSolod, setAnyLaneSolod] = useState(uiState.lanes.some((l) => l.solo))
   const shiftPressed = useRef(false)
   const altPressed = useRef(false)
   const metaPressed = useRef(false)
@@ -548,6 +549,22 @@ export default function App() {
     [addLane, addLaneHover, uiState.lanes.length]
   )
 
+  const setMuteSolo = useCallback((id, update) => {
+    // handle lane mute and solo probabilities
+    function addAudible() {
+      // add solo or remove mute
+    }
+    function removeAudible() {
+      // remove solo or add mute
+    }
+    setUIState((uiState) => {
+      const uiStateCopy = deepStateCopy(uiState)
+      const laneIndex = uiStateCopy.lanes.findIndex((l) => l.id === id)
+      uiStateCopy.lanes[laneIndex] = { ...uiStateCopy.lanes[laneIndex], ...update }
+      return uiStateCopy
+    })
+  }, [])
+
   // elements
 
   const lanes = useMemo(
@@ -582,6 +599,7 @@ export default function App() {
           addLane={addLane}
           deleteLane={deleteLane}
           changingProbability={changingProbability}
+          setMuteSolo={setMuteSolo}
         />
       )),
     [
@@ -598,6 +616,7 @@ export default function App() {
       noteDrag,
       selectNotes,
       setLaneState,
+      setMuteSolo,
       snap,
       startNoteDrag,
       uiState.lanes,

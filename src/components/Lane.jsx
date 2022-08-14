@@ -38,11 +38,14 @@ export default function Lane({
   addLane,
   deleteLane,
   changingProbability,
+  setMuteSolo,
 }) {
   const [laneLength, setLaneLength] = useState(lanePreset.laneLength)
   const [notes, updateNotes] = useState(lanePreset.notes)
   const [minNote, setMinNote] = useState(lanePreset.viewRange.min)
   const [maxNote, setMaxNote] = useState(lanePreset.viewRange.max)
+  const [mute, setMute] = useState(lanePreset.mute)
+  const [solo, setSolo] = useState(lanePreset.solo)
   const lane = useRef()
   const [selectedNotes, setSelectedNotes] = useState([]) // list of note IDs
   const selectedNotesRef = useRef(selectedNotes)
@@ -110,6 +113,8 @@ export default function Lane({
       setNotes(lanePreset.notes)
       setMinNote(lanePreset.viewRange.min)
       setMaxNote(lanePreset.viewRange.max)
+      setMute(lanePreset.mute)
+      setSolo(lanePreset.solo)
     }
   }, [lanePreset, setNotes])
 
@@ -257,13 +262,19 @@ export default function Lane({
   const laneControls = useMemo(
     () => (
       <div className="lane-controls">
-        <div title="Mute lane" className="lane-action mute"></div>
-        <div title="Solo lane" className="lane-action solo"></div>
+        <div
+          title="Mute lane"
+          className={classNames('lane-action mute', { active: mute })}
+          onClick={() => setMuteSolo(id, { mute: !mute })}></div>
+        <div
+          title="Solo lane"
+          className={classNames('lane-action solo', { active: solo })}
+          onClick={() => setMuteSolo(id, { solo: !solo })}></div>
         <div title="Delete lane" className="lane-action trash" onClick={() => deleteLane(id)}></div>
         <div title="Duplicate lane" className="lane-action duplicate" onClick={() => addLane(id)}></div>
       </div>
     ),
-    [addLane, deleteLane, id]
+    [addLane, deleteLane, id, mute, setMuteSolo, solo]
   )
 
   const noteEls = useMemo(() => {
@@ -376,6 +387,7 @@ Lane.propTypes = {
   addLane: PropTypes.func,
   deleteLane: PropTypes.func,
   changingProbability: PropTypes.number,
+  setMuteSolo: PropTypes.func,
 }
 
 const blackKeys = [false, true, false, true, false, false, true, false, true, false, true, false]

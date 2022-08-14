@@ -31,6 +31,8 @@ export const DEFAULT_LANE = (id = laneID, laneLength = calcLaneLength(window.inn
   notes: [],
   viewRange: { min: 60, max: 71 },
   colorIndex,
+  mute: false,
+  solo: false,
 })
 
 export const DEFAULT_PRESET = JSON.stringify({

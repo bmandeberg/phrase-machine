@@ -303,7 +303,8 @@
         background: transparent url('../assets/m-icon-blue.png') no-repeat center center;
         background-size: auto $laneActionHeight;
 
-        &:hover {
+        &:hover,
+        &.active {
           background: transparent url('../assets/m-icon-red.png') no-repeat center center;
           background-size: auto $laneActionHeight;
         }
@@ -313,7 +314,8 @@
         background: transparent url('../assets/s-icon-blue.png') no-repeat center center;
         background-size: auto $laneActionHeight;
 
-        &:hover {
+        &:hover,
+        &.active {
           background: transparent url('../assets/s-icon-green.png') no-repeat center center;
           background-size: auto $laneActionHeight;
         }
