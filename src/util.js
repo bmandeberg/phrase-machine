@@ -38,8 +38,8 @@ export function pixelsToTime(px, snap) {
 
 export function timeToPixels(time) {
   let px = 0
-  Object.keys(time).forEach((t) => {
+  for (const t of Object.keys(time)) {
     px += RATE_MULTS[t] * EIGHTH_WIDTH * time[t]
-  })
+  }
   return px
 }

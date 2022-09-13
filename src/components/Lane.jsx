@@ -330,7 +330,9 @@ export default function Lane({
     if (changingProbability !== null && delimiterProbabilities.current) {
       probabilityEls[changingProbability].classList.add('open')
     } else {
-      probabilityEls.forEach((p) => p.classList.remove('open'))
+      for (const p of probabilityEls) {
+        p.classList.remove('open')
+      }
     }
   }, [changingProbability])
 

@@ -95,9 +95,9 @@ export default function useNoteDrag(
 
   const batchUpdateNotes = useCallback((notes, updateNotes) => {
     const notesCopy = []
-    notes.forEach((note) => {
+    for (const note of notes) {
       notesCopy.push(updateNotes[note.id] ? updateNotes[note.id] : note)
-    })
+    }
     // add new notes
     return notesCopy.concat(Object.values(updateNotes).filter((note) => !notesCopy.find((nc) => nc.id === note.id)))
   }, [])

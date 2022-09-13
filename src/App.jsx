@@ -317,7 +317,7 @@ export default function App() {
           // gather notes that intersect with selection bounds
           mainContainerRef.current?.querySelectorAll('.lane-container').forEach((lane, i) => {
             const laneData = uiState.lanes[i]
-            laneData.notes.forEach((note) => {
+            for (const note of laneData.notes) {
               const noteX = 34 + note.x + KEYS_WIDTH
               const noteY =
                 lane.offsetTop + lane.parentElement.offsetTop + (laneData.viewRange.max - note.midiNote) * NOTE_HEIGHT
@@ -339,7 +339,7 @@ export default function App() {
                   selectedNotes[laneData.id].push(note.id)
                 }
               }
-            })
+            }
           })
           setSelectNotes(selectedNotes)
           dragSelecting.current = false
@@ -564,7 +564,7 @@ export default function App() {
       }
       // add solo or remove mute
       function addAudible(delimiters) {
-        delimiters.forEach((delimiter) => {
+        for (const delimiter of delimiters) {
           const totalMuted = getTotalMuted(delimiter)
           delimiter.lanes[id] /= 1 - totalMuted
           for (const laneID in delimiter.lanes) {
@@ -573,7 +573,7 @@ export default function App() {
               delimiter.lanes[laneID] *= 1 - delimiter.lanes[id]
             }
           }
-        })
+        }
       }
       // remove solo or add mute
       function removeAudible(delimiters, delimiterTotalMuted, forceUseSolo) {
@@ -601,7 +601,7 @@ export default function App() {
       }
       function handleSoloLanes(delimiters, add) {
         if (!anyLaneSoloedRef) {
-          delimiters.forEach((delimiter) => {
+          for (const delimiter of delimiters) {
             const totalMuted = getTotalMuted(delimiter)
             for (const laneID in delimiter.lanes) {
               const lane = uiStateCopy.lanes.find((l) => l.id === laneID)
@@ -613,7 +613,7 @@ export default function App() {
                 }
               }
             }
-          })
+          }
         }
       }
       // pass if changing mute, but lane is already muted by a solo from another lane
