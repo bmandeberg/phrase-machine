@@ -46,7 +46,7 @@ export default function App() {
   const [noteDrag, setNoteDrag] = useState({})
   const [startNoteDrag, setStartNoteDrag] = useState(null)
   const [changingProbability, setChangingProbability] = useState(null)
-  const [anyLaneSolod, setAnyLaneSolod] = useState(uiState.lanes.some((l) => l.solo))
+  const [anyLaneSoloed, setAnyLaneSoloed] = useState(uiState.lanes.some((l) => l.solo))
   const shiftPressed = useRef(false)
   const altPressed = useRef(false)
   const metaPressed = useRef(false)
@@ -549,21 +549,109 @@ export default function App() {
     [addLane, addLaneHover, uiState.lanes.length]
   )
 
-  const setMuteSolo = useCallback((id, update) => {
-    // handle lane mute and solo probabilities
-    function addAudible() {
-      // add solo or remove mute
-    }
-    function removeAudible() {
-      // remove solo or add mute
-    }
-    setUIState((uiState) => {
+  // handle lane mute and solo probabilities at each delimiter
+  const setMuteSolo = useCallback(
+    (id, update) => {
+      let anyLaneSoloedRef = anyLaneSoloed
       const uiStateCopy = deepStateCopy(uiState)
       const laneIndex = uiStateCopy.lanes.findIndex((l) => l.id === id)
-      uiStateCopy.lanes[laneIndex] = { ...uiStateCopy.lanes[laneIndex], ...update }
-      return uiStateCopy
-    })
-  }, [])
+      // total % of lanes that are muted
+      function getTotalMuted(delimiter) {
+        return Object.keys(delimiter.lanes).reduce((prev, curr) => {
+          const lane = uiStateCopy.lanes.find((l) => l.id === curr)
+          return (anyLaneSoloedRef && !lane.solo) || lane.mute ? prev + delimiter.lanes[curr] : prev
+        }, 0)
+      }
+      // add solo or remove mute
+      function addAudible(delimiters) {
+        delimiters.forEach((delimiter) => {
+          const totalMuted = getTotalMuted(delimiter)
+          delimiter.lanes[id] /= 1 - totalMuted
+          for (const laneID in delimiter.lanes) {
+            const lane = uiStateCopy.lanes.find((l) => l.id === laneID)
+            if (laneID !== id && !lane.mute && (lane.solo || !anyLaneSoloedRef)) {
+              delimiter.lanes[laneID] *= 1 - delimiter.lanes[id]
+            }
+          }
+        })
+      }
+      // remove solo or add mute
+      function removeAudible(delimiters, delimiterTotalMuted, forceUseSolo) {
+        delimiters.forEach((delimiter, i) => {
+          const totalMuted = delimiterTotalMuted ? delimiterTotalMuted[i] : getTotalMuted(delimiter)
+          for (const laneID in delimiter.lanes) {
+            const lane = uiStateCopy.lanes.find((l) => l.id === laneID)
+            if (laneID !== id && !lane.mute && (lane.solo || (!anyLaneSoloedRef && !forceUseSolo))) {
+              delimiter.lanes[laneID] /= 1 - delimiter.lanes[id]
+            }
+          }
+          delimiter.lanes[id] *= 1 - totalMuted
+        })
+      }
+      function updateLane() {
+        uiStateCopy.lanes[laneIndex] = { ...uiStateCopy.lanes[laneIndex], ...update }
+        setUIState(uiStateCopy)
+        if (uiStateCopy.lanes.some((l) => l.solo)) {
+          anyLaneSoloedRef = true
+          setAnyLaneSoloed(true)
+        } else {
+          anyLaneSoloedRef = false
+          setAnyLaneSoloed(false)
+        }
+      }
+      function handleSoloLanes(delimiters, add) {
+        if (!anyLaneSoloedRef) {
+          delimiters.forEach((delimiter) => {
+            const totalMuted = getTotalMuted(delimiter)
+            for (const laneID in delimiter.lanes) {
+              const lane = uiStateCopy.lanes.find((l) => l.id === laneID)
+              if (!lane.solo && !lane.mute && laneID !== id) {
+                if (add) {
+                  delimiter.lanes[laneID] *= 1 - totalMuted
+                } else {
+                  delimiter.lanes[laneID] /= 1 - totalMuted
+                }
+              }
+            }
+          })
+        }
+      }
+      // pass if changing mute, but lane is already muted by a solo from another lane
+      if (update.mute !== undefined && !update.solo && anyLaneSoloedRef && !uiStateCopy.lanes[laneIndex].solo) {
+        return
+      }
+      // should only does one at a time, mune/unmute, solo/unsolo
+      // adding a solo is similar to removing a mute, and vice versa
+      const delimitersCopy = delimiters.slice()
+      if (update.solo === true || update.mute === false) {
+        // adding solo or removing mute
+        if (update.solo === true) {
+          // if no lanes already soloed, mute lanes that are not soloed and aren't already muted
+          handleSoloLanes(delimitersCopy, true)
+        }
+        updateLane()
+        // remove mute, or add solo if not muted
+        if (update.mute === false || !uiStateCopy.lanes[laneIndex].mute) {
+          addAudible(delimitersCopy)
+        }
+      } else if (update.solo === false || update.mute === true) {
+        // removing solo or adding mute
+        // get total previously muted before this change
+        const delimiterTotalMuted = delimitersCopy.map((d) => getTotalMuted(d))
+        updateLane()
+        if (update.solo === false) {
+          // if no lanes are now soloed, un-mute lanes that are not muted
+          handleSoloLanes(delimitersCopy, false)
+        }
+        // add mute, or remove solo if not muted
+        if (update.mute === true || !uiStateCopy.lanes[laneIndex].mute) {
+          removeAudible(delimitersCopy, delimiterTotalMuted, update.solo === false)
+        }
+      }
+      setDelimiters(delimitersCopy)
+    },
+    [anyLaneSoloed, delimiters, uiState]
+  )
 
   // elements
 
