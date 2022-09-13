@@ -349,4 +349,54 @@
       margin-top: 1px;
     }
   }
+
+  &.mute {
+    .keys::before {
+      background-color: #bbbbbb;
+    }
+
+    .key.black-key {
+      background-color: $darkGray;
+    }
+
+    .note-lane.black-key {
+      background: #f2f2f2;
+    }
+
+    .delimiter-probability {
+      background: $lightAlternateGray;
+
+      .delimiter-probability-bar {
+        background: #a9a9a9;
+
+        .delimiter-probability-number {
+          color: $darkGray;
+        }
+        
+        .delimiter-probability-bar-drag {
+          pointer-events: none;
+        }
+      }
+    }
+
+    .note {
+      $muteNoteColor: #a2a2a2;
+      background: $muteNoteColor;
+      box-shadow: 0px 0px 2px $mediumGray;
+      border: 1px solid $lightMediumGray;
+
+      &:hover {
+        background: #b0b0b0;
+      }
+
+      &.selected {
+        border: 2px solid $muteNoteColor;
+        background: $lightMediumGray;
+
+        &:hover {
+          background: #d4d4d4;
+        }
+      }
+    }
+  }
 }

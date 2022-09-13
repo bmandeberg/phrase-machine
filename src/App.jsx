@@ -688,10 +688,12 @@ export default function App() {
           deleteLane={deleteLane}
           changingProbability={changingProbability}
           setMuteSolo={setMuteSolo}
+          anyLaneSoloed={anyLaneSoloed}
         />
       )),
     [
       addLane,
+      anyLaneSoloed,
       beatValue,
       beatsPerBar,
       changingProbability,

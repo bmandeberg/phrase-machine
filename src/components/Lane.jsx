@@ -39,6 +39,7 @@ export default function Lane({
   deleteLane,
   changingProbability,
   setMuteSolo,
+  anyLaneSoloed,
 }) {
   const [laneLength, setLaneLength] = useState(lanePreset.laneLength)
   const [notes, updateNotes] = useState(lanePreset.notes)
@@ -77,9 +78,11 @@ export default function Lane({
         notes,
         viewRange: { min: minNote, max: maxNote },
         colorIndex,
+        mute,
+        solo,
       })
     })
-  }, [setLaneState, id, laneLength, notes, minNote, maxNote, colorIndex])
+  }, [setLaneState, id, laneLength, notes, minNote, maxNote, colorIndex, mute, solo])
   useEffect(() => {
     updateLaneStateRef.current = updateLaneState
   }, [updateLaneState])
@@ -339,7 +342,7 @@ export default function Lane({
   return (
     <div
       id={'lane-' + id}
-      className={classNames('lane-container', { first: laneNum === 0 })}
+      className={classNames('lane-container', { first: laneNum === 0, mute: mute || (anyLaneSoloed && !solo) })}
       style={{
         '--lane-color': LANE_COLORS[colorIndex].base,
         '--lane-color-hover': LANE_COLORS[colorIndex].hover,
@@ -390,6 +393,7 @@ Lane.propTypes = {
   deleteLane: PropTypes.func,
   changingProbability: PropTypes.number,
   setMuteSolo: PropTypes.func,
+  anyLaneSoloed: PropTypes.bool,
 }
 
 const blackKeys = [false, true, false, true, false, false, true, false, true, false, true, false]
