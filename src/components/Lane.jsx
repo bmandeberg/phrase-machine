@@ -140,6 +140,19 @@ export default function Lane({
     }
   }, [id, selectNotes, shiftPressed])
 
+  const updateMuteSolo = useCallback(
+    (id, update) => {
+      if ('mute' in update) {
+        setMute(update.mute)
+      }
+      if ('solo' in update) {
+        setSolo(update.solo)
+      }
+      setMuteSolo(id, update)
+    },
+    [setMuteSolo]
+  )
+
   // init and attach events
 
   useEffect(() => {
@@ -268,16 +281,16 @@ export default function Lane({
         <div
           title="Mute lane"
           className={classNames('lane-action mute', { active: mute })}
-          onClick={() => setMuteSolo(id, { mute: !mute })}></div>
+          onClick={() => updateMuteSolo(id, { mute: !mute })}></div>
         <div
           title="Solo lane"
           className={classNames('lane-action solo', { active: solo })}
-          onClick={() => setMuteSolo(id, { solo: !solo })}></div>
+          onClick={() => updateMuteSolo(id, { solo: !solo })}></div>
         <div title="Delete lane" className="lane-action trash" onClick={() => deleteLane(id)}></div>
         <div title="Duplicate lane" className="lane-action duplicate" onClick={() => addLane(id)}></div>
       </div>
     ),
-    [addLane, deleteLane, id, mute, setMuteSolo, solo]
+    [addLane, deleteLane, id, mute, updateMuteSolo, solo]
   )
 
   const noteEls = useMemo(() => {
