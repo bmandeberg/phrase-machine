@@ -1,6 +1,7 @@
-import React, { useState, useCallback, useMemo, useEffect } from 'react'
+import React, { useState, useCallback, useMemo, useEffect, useRef } from 'react'
 import PropTypes from 'prop-types'
 import Switch from 'react-switch'
+import * as Tone from 'tone'
 import NumInput from './ui/NumInput'
 import Dropdown from './ui/Dropdown'
 import { RATES } from '../globals'
@@ -32,8 +33,20 @@ export default function Header({
 }) {
   const [hoverPlayStop, setHoverPlayStop] = useState(false)
 
-  const playStop = useCallback(() => {
+  const playingRef = useRef()
+  const initialized = useRef()
+  const playStop = useCallback(async () => {
+    if (!playingRef.current) {
+      if (!initialized.current) {
+        await Tone.start()
+        initialized.current = true
+      }
+      Tone.Transport.start()
+    } else {
+      Tone.Transport.pause()
+    }
     setPlaying((playing) => !playing)
+    playingRef.current = !playingRef.current
   }, [setPlaying])
 
   useEffect(() => {

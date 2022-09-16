@@ -20,7 +20,7 @@ import Lane from './components/Lane'
 import Header from './components/Header'
 import Delimiter from './components/Delimiter'
 import Ticks from './components/Ticks'
-import { boxesIntersect, timeToPixels, snapPixels, constrain } from './util'
+import { boxesIntersect, timeToPixels, positionToPixels, snapPixels, constrain } from './util'
 import addIcon from './assets/add-icon.svg'
 import addIconHover from './assets/add-icon-hover.svg'
 import './App.scss'
@@ -99,6 +99,21 @@ export default function App() {
   }, [])
 
   // transport
+
+  const playhead = useRef()
+
+  useEffect(() => {
+    Tone.Transport.loop = true
+    Tone.Transport.loopStart = 0
+    // animation callback
+    Tone.Transport.scheduleRepeat((time) => {
+      Tone.Draw.schedule(() => {
+        if (playhead.current) {
+          playhead.current.style.left = 43 + positionToPixels(Tone.Transport.position) + 'px'
+        }
+      }, time)
+    }, 1 / 60)
+  }, [])
 
   const [playing, setPlaying] = useState(false)
   const [tempo, setTempo] = useState(uiState.tempo)
@@ -463,12 +478,24 @@ export default function App() {
 
   const windowLaneLength = useMemo(() => Math.max(calcLaneLength(window.innerWidth - 30), longestLane), [longestLane])
 
+  // update Tone Transport loop length
+  useEffect(() => {
+    Tone.Transport.loopEnd = { '8n': windowLaneLength }
+  }, [windowLaneLength])
+
   // lane management
 
   const nextAvailableColor = useMemo(
     () => LANE_COLORS.findIndex((_c, i) => !uiState.lanes.find((lane) => lane.colorIndex === i)) || 0,
     [uiState.lanes]
   )
+
+  const lanesHeight = useMemo(() => {
+    return Math.min(
+      uiState.lanes.reduce((prev, curr) => prev + (curr.viewRange.max - curr.viewRange.min + 1) * 12 + 8, 0) + 1,
+      window.innerHeight - 72
+    )
+  }, [uiState.lanes])
 
   const addLane = useCallback(
     (duplicateID) => {
@@ -729,17 +756,18 @@ export default function App() {
               dragging={draggingDelimiter === i + 1}
               wasDragging={wasDraggingDelimiter}
               dragHover={delimiterDragHover}
-              height={Math.min(
-                uiState.lanes.reduce((prev, curr) => prev + (curr.viewRange.max - curr.viewRange.min + 1) * 12 + 8, 0) +
-                  1,
-                window.innerHeight - 72
-              )}
+              height={lanesHeight}
             />
           ))}
         </div>
       </div>
     ),
-    [deleteDelimiter, delimiters, draggingDelimiter, uiState.lanes]
+    [deleteDelimiter, delimiters, draggingDelimiter, lanesHeight]
+  )
+
+  const playheadEl = useMemo(
+    () => <div id="playhead" ref={playhead} style={{ height: lanesHeight }}></div>,
+    [lanesHeight]
   )
 
   return (
@@ -815,6 +843,7 @@ export default function App() {
           }}></div>
       )}
       <div id="lane-overflow"></div>
+      {playheadEl}
     </div>
   )
 }

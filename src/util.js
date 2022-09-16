@@ -1,3 +1,4 @@
+import * as Tone from 'tone'
 import { RATE_MULTS, EIGHTH_WIDTH } from './globals'
 
 export function noteString(noteNumber) {
@@ -38,8 +39,14 @@ export function pixelsToTime(px, snap) {
 
 export function timeToPixels(time) {
   let px = 0
-  for (const t of Object.keys(time)) {
+  for (const t in time) {
     px += RATE_MULTS[t] * EIGHTH_WIDTH * time[t]
   }
   return px
+}
+
+export function positionToPixels(position) {
+  const eighthSeconds = new Tone.Time('8n').toSeconds()
+  const positionSeconds = new Tone.Time(position).toSeconds()
+  return (positionSeconds / eighthSeconds) * EIGHTH_WIDTH
 }

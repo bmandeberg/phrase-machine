@@ -2,6 +2,7 @@ import React, { useState, useMemo, useRef, useEffect, useCallback } from 'react'
 import PropTypes from 'prop-types'
 import { v4 as uuid } from 'uuid'
 import classNames from 'classnames'
+import * as Tone from 'tone'
 import { NOTE_HEIGHT, EIGHTH_WIDTH, calcLaneLength, LANE_COLORS, RATE_MULTS, mapLaneLength } from '../globals'
 import { timeToPixels } from '../util'
 import Ticks from './Ticks'
@@ -55,6 +56,14 @@ export default function Lane({
   const createdNote = useRef(false)
   const dragChanged = useRef(false)
   const delimiterProbabilities = useRef()
+
+  const part = useRef()
+  useEffect(() => {
+    // create the part
+    part.current = new Tone.Part((time, note) => {
+      console.log(time, note)
+    }).start(0)
+  }, [])
 
   useEffect(() => {
     updateSelectedNotes(id, selectedNotes)
