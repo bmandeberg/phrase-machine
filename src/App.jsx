@@ -219,8 +219,6 @@ export default function App() {
     selectingDimensions,
     delimiterDragHover,
     setUIState,
-    chosenLane,
-    setChosenLane,
     updateChosenLane
   )
 

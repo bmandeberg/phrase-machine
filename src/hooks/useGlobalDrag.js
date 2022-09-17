@@ -2,16 +2,7 @@ import { useRef } from 'react'
 import * as Tone from 'tone'
 import { useGesture } from 'react-use-gesture'
 import { NOTE_HEIGHT, EIGHTH_WIDTH, RATE_MULTS, MIN_DELIMITER_WIDTH, KEYS_WIDTH } from '../globals'
-import {
-  boxesIntersect,
-  timeToPixels,
-  pixelsToTime,
-  positionToPixels,
-  snapPixels,
-  constrain,
-  getDelimiterIndex,
-  chooseLane,
-} from '../util'
+import { boxesIntersect, timeToPixels, pixelsToTime, positionToPixels, snapPixels, constrain } from '../util'
 
 export default function useGlobalDrag(
   delimiters,
@@ -38,8 +29,6 @@ export default function useGlobalDrag(
   selectingDimensions,
   delimiterDragHover,
   setUIState,
-  chosenLane,
-  setChosenLane,
   updateChosenLane
 ) {
   const dragSelecting = useRef(false)
