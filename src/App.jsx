@@ -48,6 +48,7 @@ export default function App() {
   const [startNoteDrag, setStartNoteDrag] = useState(null)
   const [changingProbability, setChangingProbability] = useState(null)
   const [anyLaneSoloed, setAnyLaneSoloed] = useState(uiState.lanes.some((l) => l.solo))
+  const [chosenLane, setChosenLane] = useState()
   const shiftPressed = useRef(false)
   const altPressed = useRef(false)
   const metaPressed = useRef(false)
@@ -202,7 +203,9 @@ export default function App() {
     setPlayheadPosition,
     selectingDimensions,
     delimiterDragHover,
-    setUIState
+    setUIState,
+    chosenLane,
+    setChosenLane
   )
 
   // delimiters
@@ -212,7 +215,6 @@ export default function App() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  const [chosenLane, setChosenLane] = useState()
   const delimiterEvents = useMemo(
     () =>
       new Tone.Part((time, d) => {

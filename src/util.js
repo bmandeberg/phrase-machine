@@ -62,8 +62,8 @@ export function chooseLane(lanes) {
   }
 }
 
-export function delimiterIndex(delimiters) {
-  const position = positionToPixels(Tone.Transport.position)
+export function getDelimiterIndex(delimiters, x) {
+  const position = x ?? positionToPixels(Tone.Transport.position)
   for (const [i, delimiter] of delimiters.entries()) {
     if (position >= delimiter.x && (i === delimiters.length - 1 || position < delimiters[i + 1].x)) {
       return i

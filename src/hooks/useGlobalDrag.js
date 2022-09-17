@@ -2,7 +2,16 @@ import { useRef } from 'react'
 import * as Tone from 'tone'
 import { useGesture } from 'react-use-gesture'
 import { NOTE_HEIGHT, EIGHTH_WIDTH, RATE_MULTS, MIN_DELIMITER_WIDTH, KEYS_WIDTH } from '../globals'
-import { boxesIntersect, timeToPixels, pixelsToTime, positionToPixels, snapPixels, constrain } from '../util'
+import {
+  boxesIntersect,
+  timeToPixels,
+  pixelsToTime,
+  positionToPixels,
+  snapPixels,
+  constrain,
+  getDelimiterIndex,
+  chooseLane,
+} from '../util'
 
 export default function useGlobalDrag(
   delimiters,
@@ -28,7 +37,9 @@ export default function useGlobalDrag(
   setPlayheadPosition,
   selectingDimensions,
   delimiterDragHover,
-  setUIState
+  setUIState,
+  chosenLane,
+  setChosenLane
 ) {
   const dragSelecting = useRef(false)
   const draggingNote = useRef(false)
@@ -75,10 +86,10 @@ export default function useGlobalDrag(
           setNoPointerEvents(true)
           setEwResizing(true)
           setSelectNotes({})
-          const delimiterIndex = +event.target.closest('.delimiter').getAttribute('index')
-          setDraggingDelimiter(delimiterIndex)
-          wasDraggingDelimiter.current = delimiterIndex
-          const delimiter = delimiters[delimiterIndex]
+          const di = +event.target.closest('.delimiter').getAttribute('index')
+          setDraggingDelimiter(di)
+          wasDraggingDelimiter.current = di
+          const delimiter = delimiters[di]
           dragStart.current = delimiter.snap ? timeToPixels({ [delimiter.snap]: delimiter.snapNumber }) : delimiter.x
           snapStart.current = delimiter.snap
         } else if (event.target.classList.contains('delimiter-probability-bar-drag')) {
@@ -246,6 +257,14 @@ export default function useGlobalDrag(
             // set playhead
             Tone.Transport.position = new Tone.Time(pixelsToTime(x, snap)).toBarsBeatsSixteenths()
             setPlayheadPosition(x)
+            // update chosen lane if we're in a new delimiter
+            const newDelimiterIndex = getDelimiterIndex(delimiters, x)
+            if (newDelimiterIndex !== chosenLane.delimiterIndex) {
+              setChosenLane({
+                lane: chooseLane(delimiters[newDelimiterIndex].lanes),
+                delimiterIndex: newDelimiterIndex,
+              })
+            }
           }
         }
       }

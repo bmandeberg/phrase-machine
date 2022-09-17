@@ -8,7 +8,7 @@ import { timeToPixels } from '../util'
 import Ticks from './Ticks'
 import useNoteDrag from '../hooks/useNoteDrag'
 import useLaneDrag from '../hooks/useLaneDrag'
-import { noteString, delimiterIndex } from '../util'
+import { noteString, getDelimiterIndex } from '../util'
 import './Lane.scss'
 
 export default function Lane({
@@ -371,7 +371,7 @@ export default function Lane({
         </div>
       )
     } else {
-      const currentDelimiterIndex = delimiterIndex(delimiters)
+      const currentDelimiterIndex = getDelimiterIndex(delimiters)
       const leftCurtain =
         currentDelimiterIndex > 0 ? (
           <div className="delimiter-highlight" style={{ left: 0, width: delimiters[currentDelimiterIndex].x }}></div>
