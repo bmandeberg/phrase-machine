@@ -20,7 +20,7 @@ import Lane from './components/Lane'
 import Header from './components/Header'
 import Delimiter from './components/Delimiter'
 import Ticks from './components/Ticks'
-import { boxesIntersect, timeToPixels, positionToPixels, snapPixels, constrain } from './util'
+import { boxesIntersect, timeToPixels, pixelsToTime, positionToPixels, snapPixels, constrain } from './util'
 import addIcon from './assets/add-icon.svg'
 import addIconHover from './assets/add-icon-hover.svg'
 import playheadGraphic from './assets/playhead.svg'
@@ -103,18 +103,26 @@ export default function App() {
 
   const playhead = useRef()
 
+  const setPlayheadPosition = useCallback((position) => {
+    if (playhead.current) {
+      playhead.current.style.left = 43 + position + 'px'
+    }
+  }, [])
+
   useEffect(() => {
     Tone.Transport.loop = true
     Tone.Transport.loopStart = 0
     // animation callback
-    Tone.Transport.scheduleRepeat((time) => {
+    const animationRepeat = Tone.Transport.scheduleRepeat((time) => {
       Tone.Draw.schedule(() => {
-        if (playhead.current) {
-          playhead.current.style.left = 43 + positionToPixels(Tone.Transport.position) + 'px'
-        }
+        setPlayheadPosition(positionToPixels(Tone.Transport.position))
       }, time)
     }, 1 / 60)
-  }, [])
+    // cleanup
+    return () => {
+      Tone.Transport.clear(animationRepeat)
+    }
+  }, [setPlayheadPosition])
 
   const [playing, setPlaying] = useState(false)
   const [tempo, setTempo] = useState(uiState.tempo)
@@ -391,12 +399,14 @@ export default function App() {
     },
   })
 
-  // create delimiter
+  // set playhead or create delimiter
 
   const topbarMousedown = useCallback(
     (e) => {
+      const realX = e.pageX - lanesRef.current?.getBoundingClientRect().left - 14
+      const { px, snapNumber } = snapPixels(realX, snap)
       if (metaPressed.current) {
-        const realX = e.pageX - lanesRef.current?.getBoundingClientRect().left - 14
+        // create delimiter
         let closest
         for (let i = 0; i < delimiters.length; i++) {
           const distanceToDelimiter = Math.abs(delimiters[i].x - realX)
@@ -413,7 +423,6 @@ export default function App() {
         }
         wasDraggingDelimiter.current = null
         const delimitersCopy = delimiters.slice()
-        const { px, snapNumber } = snapPixels(realX, snap)
         delimitersCopy.splice(closest, 0, {
           lanes: Object.assign({}, delimiters[closest - 1].lanes),
           snap,
@@ -422,9 +431,13 @@ export default function App() {
         })
         setDelimiters(delimitersCopy)
         setUIState((uiState) => Object.assign({}, uiState, { delimiters: delimitersCopy }))
+      } else {
+        // set playhead
+        Tone.Transport.position = new Tone.Time(pixelsToTime(px, snap)).toBarsBeatsSixteenths()
+        setPlayheadPosition(px)
       }
     },
-    [delimiters, snap]
+    [delimiters, setPlayheadPosition, snap]
   )
 
   const deleteDelimiter = useCallback(
