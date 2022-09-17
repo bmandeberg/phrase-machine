@@ -8,7 +8,7 @@ import { timeToPixels } from '../util'
 import Ticks from './Ticks'
 import useNoteDrag from '../hooks/useNoteDrag'
 import useLaneDrag from '../hooks/useLaneDrag'
-import { noteString } from '../util'
+import { noteString, delimiterIndex } from '../util'
 import './Lane.scss'
 
 export default function Lane({
@@ -41,6 +41,8 @@ export default function Lane({
   changingProbability,
   setMuteSolo,
   anyLaneSoloed,
+  chosen,
+  playing,
 }) {
   const [laneLength, setLaneLength] = useState(lanePreset.laneLength)
   const [notes, updateNotes] = useState(lanePreset.notes)
@@ -361,6 +363,37 @@ export default function Lane({
     }
   }, [changingProbability])
 
+  const highlightDelimiter = useMemo(() => {
+    if (chosen?.lane !== id) {
+      return (
+        <div className="delimiter-highlight-container">
+          <div className="delimiter-highlight" style={{ left: 0, right: 14 }}></div>
+        </div>
+      )
+    } else {
+      const currentDelimiterIndex = delimiterIndex(delimiters)
+      const leftCurtain =
+        currentDelimiterIndex > 0 ? (
+          <div className="delimiter-highlight" style={{ left: 0, width: delimiters[currentDelimiterIndex].x }}></div>
+        ) : null
+      const rightCurtain =
+        currentDelimiterIndex < delimiters.length - 1 ? (
+          <div
+            className="delimiter-highlight"
+            style={{
+              left: delimiters[currentDelimiterIndex + 1].x,
+              width: longestLane * EIGHTH_WIDTH - delimiters[currentDelimiterIndex + 1].x,
+            }}></div>
+        ) : null
+      return (
+        <div className="delimiter-highlight-container">
+          {leftCurtain}
+          {rightCurtain}
+        </div>
+      )
+    }
+  }, [chosen, delimiters, id, longestLane])
+
   return (
     <div
       id={'lane-' + id}
@@ -372,6 +405,8 @@ export default function Lane({
         '--lane-color-light': LANE_COLORS[colorIndex].light,
         '--lane-color-lightest': LANE_COLORS[colorIndex].lightest,
         '--lane-color-dark': LANE_COLORS[colorIndex].dark,
+        '--lane-color-white': LANE_COLORS[colorIndex].white,
+        '--lane-color-gray': LANE_COLORS[colorIndex].gray,
       }}>
       <div className={classNames('keys', { grabbing })} {...dragLane()}>
         {keyEls}
@@ -383,6 +418,7 @@ export default function Lane({
       </div>
       <div className={classNames('lane-expander', { active: !grabbing })} {...dragLaneStart()}></div>
       {laneControls}
+      {playing && highlightDelimiter}
     </div>
   )
 }
@@ -416,6 +452,8 @@ Lane.propTypes = {
   changingProbability: PropTypes.number,
   setMuteSolo: PropTypes.func,
   anyLaneSoloed: PropTypes.bool,
+  chosen: PropTypes.object,
+  playing: PropTypes.bool,
 }
 
 const blackKeys = [false, true, false, true, false, false, true, false, true, false, true, false]

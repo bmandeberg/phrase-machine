@@ -20,7 +20,7 @@ import Header from './components/Header'
 import Delimiter from './components/Delimiter'
 import Ticks from './components/Ticks'
 import useGlobalDrag from './hooks/useGlobalDrag'
-import { pixelsToTime, positionToPixels, snapPixels } from './util'
+import { pixelsToTime, positionToPixels, snapPixels, chooseLane } from './util'
 import addIcon from './assets/add-icon.svg'
 import addIconHover from './assets/add-icon-hover.svg'
 import playheadGraphic from './assets/playhead.svg'
@@ -207,26 +207,33 @@ export default function App() {
 
   // delimiters
 
+  useEffect(() => {
+    setChosenLane({ lane: chooseLane(delimiters[0].lanes), delimiterIndex: 0 })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  const [chosenLane, setChosenLane] = useState()
   const delimiterEvents = useMemo(
     () =>
-      new Tone.Part((time, value) => {
-        console.log(value)
+      new Tone.Part((time, d) => {
+        setChosenLane({ lane: chooseLane(d.delimiter.lanes), delimiterIndex: d.i })
       }).start(0),
     []
   )
   useEffect(() => {
     delimiterEvents.clear()
-    for (const delimiter of delimiters) {
-      delimiterEvents.add(
-        delimiter.snap ? { [delimiter.snap]: delimiter.snapNumber } : pixelsToTime(delimiter.x),
-        delimiter
-      )
+    for (const [i, delimiter] of delimiters.entries()) {
+      delimiterEvents.add(delimiter.snap ? { [delimiter.snap]: delimiter.snapNumber } : pixelsToTime(delimiter.x), {
+        delimiter,
+        i,
+      })
     }
   }, [delimiterEvents, delimiters])
 
   // set playhead or create delimiter
   const topbarMousedown = useCallback(
     (e) => {
+      e.stopPropagation()
       const realX = e.pageX - lanesRef.current?.getBoundingClientRect().left - 14
       const { px, snapNumber } = snapPixels(realX, snap)
       if (metaPressed.current) {
@@ -520,6 +527,8 @@ export default function App() {
           changingProbability={changingProbability}
           setMuteSolo={setMuteSolo}
           anyLaneSoloed={anyLaneSoloed}
+          chosen={chosenLane}
+          playing={playing}
         />
       )),
     [
@@ -528,6 +537,7 @@ export default function App() {
       beatValue,
       beatsPerBar,
       changingProbability,
+      chosenLane,
       deleteLane,
       delimiters,
       draggingDelimiter,
@@ -535,6 +545,7 @@ export default function App() {
       grid,
       noPointerEvents,
       noteDrag,
+      playing,
       selectNotes,
       setLaneState,
       setMuteSolo,

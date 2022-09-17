@@ -105,13 +105,17 @@
     width: var(--eighth-width);
   }
 
-  .notes {
+  .full-lane-container {
     position: absolute;
     top: 0;
     left: calc(var(--keys-width) + 4px);
     height: 100%;
     width: 100%;
     pointer-events: none;
+  }
+
+  .notes {
+    @extend .full-lane-container;
 
     .note {
       position: absolute;
@@ -197,12 +201,7 @@
   }
 
   .delimiter-probabilities {
-    position: absolute;
-    top: 0;
-    left: calc(var(--keys-width) + 4px);
-    height: 100%;
-    width: 100%;
-    pointer-events: none;
+    @extend .full-lane-container;
 
     .delimiter-probability {
       position: absolute;
@@ -278,6 +277,18 @@
             top $fastTransitionTime ease $fastTransitionTime * 0.5;
         }
       }
+    }
+  }
+
+  .delimiter-highlight-container {
+    @extend .full-lane-container;
+
+    .delimiter-highlight {
+      position: absolute;
+      top: 0;
+      height: 100%;
+      background: var(--lane-color-gray);
+      opacity: 0.35;
     }
   }
 
@@ -372,7 +383,7 @@
         .delimiter-probability-number {
           color: $darkGray;
         }
-        
+
         .delimiter-probability-bar-drag {
           pointer-events: none;
         }

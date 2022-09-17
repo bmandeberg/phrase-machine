@@ -50,3 +50,23 @@ export function positionToPixels(position) {
   const positionSeconds = new Tone.Time(position).toSeconds()
   return (positionSeconds / eighthSeconds) * EIGHTH_WIDTH
 }
+
+export function chooseLane(lanes) {
+  const rand = Math.random()
+  let probability = 0
+  for (const lane in lanes) {
+    if (rand >= probability && rand < probability + lanes[lane]) {
+      return lane
+    }
+    probability += lanes[lane]
+  }
+}
+
+export function delimiterIndex(delimiters) {
+  const position = positionToPixels(Tone.Transport.position)
+  for (const [i, delimiter] of delimiters.entries()) {
+    if (position >= delimiter.x && (i === delimiters.length - 1 || position < delimiters[i + 1].x)) {
+      return i
+    }
+  }
+}
