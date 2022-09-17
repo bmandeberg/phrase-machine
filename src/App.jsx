@@ -205,8 +205,26 @@ export default function App() {
     setUIState
   )
 
-  // set playhead or create delimiter
+  // delimiters
 
+  const delimiterEvents = useMemo(
+    () =>
+      new Tone.Part((time, value) => {
+        console.log(value)
+      }).start(0),
+    []
+  )
+  useEffect(() => {
+    delimiterEvents.clear()
+    for (const delimiter of delimiters) {
+      delimiterEvents.add(
+        delimiter.snap ? { [delimiter.snap]: delimiter.snapNumber } : pixelsToTime(delimiter.x),
+        delimiter
+      )
+    }
+  }, [delimiterEvents, delimiters])
+
+  // set playhead or create delimiter
   const topbarMousedown = useCallback(
     (e) => {
       const realX = e.pageX - lanesRef.current?.getBoundingClientRect().left - 14
