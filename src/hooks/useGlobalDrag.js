@@ -39,7 +39,8 @@ export default function useGlobalDrag(
   delimiterDragHover,
   setUIState,
   chosenLane,
-  setChosenLane
+  setChosenLane,
+  updateChosenLane
 ) {
   const dragSelecting = useRef(false)
   const draggingNote = useRef(false)
@@ -188,14 +189,7 @@ export default function useGlobalDrag(
               }
               setDelimiters(delimitersCopy)
             }
-            // update chosen lane if we're in a new delimiter
-            const newDelimiterIndex = getDelimiterIndex(delimiters)
-            if (newDelimiterIndex !== chosenLane.delimiterIndex) {
-              setChosenLane({
-                lane: chooseLane(delimiters[newDelimiterIndex].lanes),
-                delimiterIndex: newDelimiterIndex,
-              })
-            }
+            updateChosenLane()
           }
         } else if (changingProbability !== null) {
           // dragging probability bar
@@ -265,14 +259,7 @@ export default function useGlobalDrag(
             // set playhead
             Tone.Transport.position = new Tone.Time(pixelsToTime(x, snap)).toBarsBeatsSixteenths()
             setPlayheadPosition(x)
-            // update chosen lane if we're in a new delimiter
-            const newDelimiterIndex = getDelimiterIndex(delimiters, x)
-            if (newDelimiterIndex !== chosenLane.delimiterIndex) {
-              setChosenLane({
-                lane: chooseLane(delimiters[newDelimiterIndex].lanes),
-                delimiterIndex: newDelimiterIndex,
-              })
-            }
+            updateChosenLane(x)
           }
         }
       }

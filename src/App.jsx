@@ -20,7 +20,7 @@ import Header from './components/Header'
 import Delimiter from './components/Delimiter'
 import Ticks from './components/Ticks'
 import useGlobalDrag from './hooks/useGlobalDrag'
-import { pixelsToTime, positionToPixels, snapPixels, chooseLane } from './util'
+import { pixelsToTime, positionToPixels, snapPixels, chooseLane, getDelimiterIndex } from './util'
 import addIcon from './assets/add-icon.svg'
 import addIconHover from './assets/add-icon-hover.svg'
 import playheadGraphic from './assets/playhead.svg'
@@ -173,6 +173,21 @@ export default function App() {
     Tone.Transport.loopEnd = { '8n': windowLaneLength }
   }, [windowLaneLength])
 
+  // check current delimiter and update chosen lane if we're in a new delimiter
+  const updateChosenLane = useCallback(
+    (x, newDelimiters) => {
+      const d = newDelimiters ?? delimiters
+      const newDelimiterIndex = getDelimiterIndex(d, x)
+      if (newDelimiterIndex !== chosenLane.delimiterIndex) {
+        setChosenLane({
+          lane: chooseLane(d[newDelimiterIndex].lanes),
+          delimiterIndex: newDelimiterIndex,
+        })
+      }
+    },
+    [chosenLane, delimiters]
+  )
+
   // global dragging
 
   const [selectingDimensions, setSelectingDimensions] = useState(null)
@@ -205,7 +220,8 @@ export default function App() {
     delimiterDragHover,
     setUIState,
     chosenLane,
-    setChosenLane
+    setChosenLane,
+    updateChosenLane
   )
 
   // delimiters
@@ -269,8 +285,9 @@ export default function App() {
         Tone.Transport.position = new Tone.Time(pixelsToTime(px, snap)).toBarsBeatsSixteenths()
         setPlayheadPosition(px)
       }
+      updateChosenLane()
     },
-    [delimiters, setPlayheadPosition, snap]
+    [delimiters, setPlayheadPosition, snap, updateChosenLane]
   )
 
   const deleteDelimiter = useCallback(
@@ -280,8 +297,9 @@ export default function App() {
       wasDraggingDelimiter.current = null
       setDelimiters(delimitersCopy)
       setUIState((uiState) => Object.assign({}, uiState, { delimiters: delimitersCopy }))
+      updateChosenLane(null, delimitersCopy)
     },
-    [delimiters]
+    [delimiters, updateChosenLane]
   )
 
   const setLaneState = useCallback((state) => {
