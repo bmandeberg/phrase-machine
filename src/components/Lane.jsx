@@ -4,7 +4,7 @@ import { v4 as uuid } from 'uuid'
 import classNames from 'classnames'
 import * as Tone from 'tone'
 import { NOTE_HEIGHT, EIGHTH_WIDTH, calcLaneLength, LANE_COLORS, RATE_MULTS, mapLaneLength } from '../globals'
-import { timeToPixels } from '../util'
+import { timeToPixels, pixelsToTime } from '../util'
 import Ticks from './Ticks'
 import useNoteDrag from '../hooks/useNoteDrag'
 import useLaneDrag from '../hooks/useLaneDrag'
@@ -59,13 +59,32 @@ export default function Lane({
   const dragChanged = useRef(false)
   const delimiterProbabilities = useRef()
 
-  const part = useRef()
+  const chosenRef = useRef(chosen)
   useEffect(() => {
-    // create the part
-    part.current = new Tone.Part((time, note) => {
-      console.log(time, note)
-    }).start(0)
-  }, [])
+    chosenRef.current = chosen
+  }, [chosen])
+
+  // notes loop
+
+  // create the part
+  const part = useMemo(
+    () =>
+      new Tone.Part((_time, note) => {
+        // play note if lane is chosen
+        if (chosenRef.current?.lane === id) {
+          console.log(note)
+        }
+      }).start(0),
+    [id]
+  )
+
+  // update the part events when notes change
+  useEffect(() => {
+    part.clear()
+    for (const note of notes) {
+      part.add(note.xSnap ? { [note.xSnap]: note.xSnapNumber } : pixelsToTime(note.x), note)
+    }
+  }, [notes, part])
 
   useEffect(() => {
     updateSelectedNotes(id, selectedNotes)
