@@ -162,25 +162,30 @@
   }
 
   #playhead {
-    position: absolute;
+    position: fixed;
     top: 72px;
     left: 43px;
     width: 2px;
     height: 100%;
     background-color: $orange;
-    z-index: 2;
+    z-index: 3;
+    box-shadow: 0 0 3px $orange;
+    cursor: ew-resize;
 
     &::before {
-      $tipWidth: 10px;
       content: '';
       position: absolute;
-      top: 0;
+      width: 10px;
+      height: 100%;
+      left: -4px;
+    }
+
+    .playhead-head {
+      $tipWidth: 20px;
+      width: $tipWidth;
+      position: absolute;
+      top: -5px;
       left: $tipWidth * -0.5 + 1px;
-      width: 0;
-      height: 0;
-      border-style: solid;
-      border-width: $tipWidth + 2px $tipWidth * 0.5 0 $tipWidth * 0.5;
-      border-color: $orange transparent transparent transparent;
     }
   }
 }

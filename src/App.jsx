@@ -23,6 +23,7 @@ import Ticks from './components/Ticks'
 import { boxesIntersect, timeToPixels, positionToPixels, snapPixels, constrain } from './util'
 import addIcon from './assets/add-icon.svg'
 import addIconHover from './assets/add-icon-hover.svg'
+import playheadGraphic from './assets/playhead.svg'
 import './App.scss'
 
 // load/set presets
@@ -766,7 +767,11 @@ export default function App() {
   )
 
   const playheadEl = useMemo(
-    () => <div id="playhead" ref={playhead} style={{ height: lanesHeight }}></div>,
+    () => (
+      <div id="playhead" ref={playhead} style={{ height: lanesHeight }}>
+        <img className="playhead-head" src={playheadGraphic} alt="" draggable="false" />
+      </div>
+    ),
     [lanesHeight]
   )
 
