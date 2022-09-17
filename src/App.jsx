@@ -156,6 +156,7 @@ export default function App() {
   const laneID = useRef()
   const fullHeight = useRef()
   const percentage = useRef()
+  const draggingPlayhead = useRef(false)
   const dragNotes = useGesture({
     onDragStart: ({ initial: [x, y], metaKey, event }) => {
       if (!metaKey && event.button === 0) {
@@ -203,6 +204,13 @@ export default function App() {
           fullHeight.current = +event.target.getAttribute('full-height')
           percentage.current = { ...delimiters[delimiterIndex.current].lanes }
           setChangingProbability(delimiterIndex.current)
+        } else if (event.target.closest('#playhead')) {
+          // dragging playhead
+          setNoPointerEvents(true)
+          setEwResizing(true)
+          draggingPlayhead.current = true
+          dragStart.current = positionToPixels(Tone.Transport.position)
+          snapStart.current = snap
         } else {
           // drag selecting
           dragSelecting.current = true
@@ -330,6 +338,28 @@ export default function App() {
               compensationAmount -= delta
             })
           }
+        } else if (draggingPlayhead.current) {
+          // dragging playhead
+          dragChanged.current = mx
+          if (dragStart.current !== undefined) {
+            if (dx) {
+              dragDirection.current = dx
+            }
+            const lowerSnapBound = snap && snapPixels(dragStart.current, snap, -1).px
+            const upperSnapBound = snap && lowerSnapBound + EIGHTH_WIDTH * RATE_MULTS[snap]
+            const realX = dragStart.current + mx
+            if (snap && !snapStart.current && (realX < lowerSnapBound || realX > upperSnapBound)) {
+              snapStart.current = snap
+            }
+            const direction = !snapStart.current ? dragDirection.current : 0
+            const { px } = snapPixels(realX, snap, direction)
+            const minX = 0
+            const maxX = windowLaneLength * EIGHTH_WIDTH
+            const x = constrain(px, minX, maxX)
+            // set playhead
+            Tone.Transport.position = new Tone.Time(pixelsToTime(x, snap)).toBarsBeatsSixteenths()
+            setPlayheadPosition(x)
+          }
         }
       }
     },
@@ -394,6 +424,12 @@ export default function App() {
           setDelimiters(delimitersRef.current)
           setUIState((uiState) => Object.assign({}, uiState, { delimiters }))
           setChangingProbability(null)
+        } else if (draggingPlayhead) {
+          setNoPointerEvents(false)
+          setEwResizing(false)
+          draggingPlayhead.current = false
+          dragChanged.current = false
+          dragDirection.current = 0
         }
       }
     },
@@ -782,7 +818,7 @@ export default function App() {
   const playheadEl = useMemo(
     () => (
       <div id="playhead" ref={playhead} style={{ height: lanesHeight }}>
-        <img className="playhead-head" src={playheadGraphic} alt="" draggable="false" />
+        <img id="playhead-head" src={playheadGraphic} alt="" draggable="false" />
       </div>
     ),
     [lanesHeight]
