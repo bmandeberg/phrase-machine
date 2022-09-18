@@ -8,7 +8,7 @@ import { NOTE_HEIGHT, EIGHTH_WIDTH, calcLaneLength, LANE_COLORS, RATE_MULTS, map
 import Ticks from './Ticks'
 import useNoteDrag from '../hooks/useNoteDrag'
 import useLaneDrag from '../hooks/useLaneDrag'
-import { noteString, getDelimiterIndex, timeToPixels, pixelsToTime } from '../util'
+import { noteString, getDelimiterIndex, timeToPixels, pixelsToTime, scaleToRange } from '../util'
 import './Lane.scss'
 
 export default function Lane({
@@ -362,7 +362,12 @@ export default function Lane({
             playing,
             highlight: highlightNotes.includes(note.id),
           })}
-          style={{ left: note.x, bottom: (note.midiNote - minNote) * NOTE_HEIGHT + 1, width: note.width }}>
+          style={{
+            left: note.x,
+            bottom: (note.midiNote - minNote) * NOTE_HEIGHT + 1,
+            width: note.width,
+            opacity: scaleToRange(note.velocity, 0, 1, 0.5, 1),
+          }}>
           <div className={classNames('note-drag-left', { outside: note.width < minNoteWidth })}></div>
           <div className={classNames('note-drag-right', { outside: note.width < minNoteWidth })}></div>
         </div>

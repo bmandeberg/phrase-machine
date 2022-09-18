@@ -20,6 +20,7 @@ import Header from './components/Header'
 import Delimiter from './components/Delimiter'
 import Ticks from './components/Ticks'
 import Tooltip from './components/ui/Tooltip'
+import Slider from './components/ui/Slider'
 import useGlobalDrag from './hooks/useGlobalDrag'
 import useMIDI from './hooks/useMIDI'
 import { pixelsToTime, positionToPixels, snapPixels, chooseLane, getDelimiterIndex } from './util'
@@ -85,14 +86,20 @@ export default function App() {
         setTooltip({
           x: e.pageX,
           y: e.pageY,
-          content: null,
+          content: {
+            type: 'note',
+            noteID: e.target.closest('.note').id,
+            laneID: e.target.closest('.lane-container').id.slice(5),
+          },
         })
       } else if (e.target.closest('.key')) {
         e.preventDefault()
         setTooltip({
           x: e.pageX,
           y: e.pageY,
-          content: null,
+          content: {
+            type: 'key',
+          },
         })
       }
     }
@@ -635,6 +642,38 @@ export default function App() {
     [lanesHeight]
   )
 
+  const tooltipEl = useMemo(() => {
+    if (tooltip) {
+      if (tooltip.content.type === 'note') {
+        return (
+          <Tooltip x={tooltip.x} y={tooltip.y} setTooltip={setTooltip}>
+            <Slider
+              value={
+                uiState.lanes
+                  .find((l) => l.id === tooltip.content.laneID)
+                  .notes.find((n) => n.id === tooltip.content.noteID).velocity
+              }
+              setValue={(value) => {
+                setUIState((uiState) => {
+                  const uiStateCopy = deepStateCopy(uiState)
+                  uiStateCopy.lanes
+                    .find((l) => l.id === tooltip.content.laneID)
+                    .notes.find((n) => n.id === tooltip.content.noteID).velocity = value
+                  return uiStateCopy
+                })
+              }}
+              setNsResizing={setNsResizing}
+            />
+            <p className="slider-label">VELOCITY</p>
+          </Tooltip>
+        )
+      } else if (tooltip.content.type === 'key') {
+        return <Tooltip x={tooltip.x} y={tooltip.y} setTooltip={setTooltip}></Tooltip>
+      }
+    }
+    return null
+  }, [tooltip, uiState.lanes])
+
   return (
     <div
       id="main-container"
@@ -715,11 +754,7 @@ export default function App() {
             height: selectingDimensions.height,
           }}></div>
       )}
-      {tooltip && (
-        <Tooltip x={tooltip.x} y={tooltip.y} setTooltip={setTooltip}>
-          {tooltip.content}
-        </Tooltip>
-      )}
+      {tooltipEl}
       <div id="lane-overflow"></div>
       {playheadEl}
     </div>

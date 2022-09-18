@@ -188,4 +188,18 @@
       left: $tipWidth * -0.5 + 1px;
     }
   }
+
+  .tooltip {
+    .slider {
+      margin: 0 auto;
+    }
+
+    .slider-label {
+      @extend .no-select;
+      margin-top: 6px;
+      text-align: center;
+      height: 12px;
+      pointer-events: none;
+    }
+  }
 }
