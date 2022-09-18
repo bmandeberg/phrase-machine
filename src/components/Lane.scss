@@ -120,19 +120,34 @@
     .note {
       position: absolute;
       height: var(--note-height);
-      background: var(--lane-color);
+      background-color: var(--lane-color);
       pointer-events: all;
       box-shadow: 0px 0px 2px var(--lane-color-light);
       box-sizing: border-box;
       border: 1px solid var(--lane-color-lightest);
       cursor: grab;
+      $backgroundTransitionTime: 0.05s;
+      transition: none;
+
+      &.playing {
+        transition: background-color 0.4s ease-out;
+      }
 
       &.grabbing {
         cursor: grabbing;
       }
 
       &:hover {
-        background: var(--lane-color-hover);
+        background-color: var(--lane-color-hover);
+
+        &.playing {
+          transition: background-color $backgroundTransitionTime ease-in;
+        }
+      }
+
+      &.highlight {
+        transition: background-color $backgroundTransitionTime ease-in;
+        background-color: var(--lane-color-light);
       }
 
       &.no-pointer {
@@ -146,7 +161,7 @@
         top: -1px;
         right: $noteDragWidth * -0.5;
         height: var(--note-height);
-        background: transparent;
+        background-color: transparent;
         cursor: ew-resize;
 
         &.outside {
@@ -160,7 +175,7 @@
         top: -1px;
         left: $noteDragWidth * -0.5;
         height: var(--note-height);
-        background: transparent;
+        background-color: transparent;
         cursor: ew-resize;
 
         &.outside {
@@ -170,10 +185,19 @@
 
       &.selected {
         border: 2px solid var(--lane-color);
-        background: var(--lane-color-lightest);
+        background-color: var(--lane-color-lightest);
 
         &:hover {
-          background: var(--lane-color-light);
+          background-color: var(--lane-color-light);
+
+          &.playing {
+            transition: background-color $backgroundTransitionTime ease-in;
+          }
+        }
+
+        &.highlight {
+          transition: background-color $backgroundTransitionTime ease;
+          background-color: var(--lane-color-lightest);
         }
 
         .note-drag-left,

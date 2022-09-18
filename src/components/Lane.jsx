@@ -52,6 +52,7 @@ export default function Lane({
   const [solo, setSolo] = useState(lanePreset.solo)
   const lane = useRef()
   const [selectedNotes, setSelectedNotes] = useState([]) // list of note IDs
+  const [highlightNotes, setHighlightNotes] = useState([])
   const selectedNotesRef = useRef(selectedNotes)
   const noPointerEventsRef = useRef(noPointerEvents)
   const mouseMoved = useRef(false)
@@ -73,6 +74,11 @@ export default function Lane({
         // play note if lane is chosen
         if (chosenRef.current?.lane === id) {
           console.log(note)
+          // highlight playing note
+          setHighlightNotes((highlightNotes) => highlightNotes.concat([note.id]))
+          setTimeout(() => {
+            setHighlightNotes((highlightNotes) => highlightNotes.filter((noteID) => noteID !== note.id))
+          }, 100)
         }
       }).start(0),
     [id]
@@ -335,13 +341,15 @@ export default function Lane({
             selected: selectedNotes.includes(note.id),
             'no-pointer': noPointerEvents,
             grabbing,
+            playing,
+            highlight: highlightNotes.includes(note.id),
           })}
           style={{ left: note.x, bottom: (note.midiNote - minNote) * NOTE_HEIGHT + 1, width: note.width }}>
           <div className={classNames('note-drag-left', { outside: note.width < minNoteWidth })}></div>
           <div className={classNames('note-drag-right', { outside: note.width < minNoteWidth })}></div>
         </div>
       ))
-  }, [notes, minNote, maxNote, selectedNotes, noPointerEvents, grabbing])
+  }, [notes, minNote, maxNote, selectedNotes, noPointerEvents, grabbing, playing, highlightNotes])
 
   const delimiterProbabilityEls = useMemo(() => {
     const laneHeight = (maxNote - minNote + 1) * NOTE_HEIGHT

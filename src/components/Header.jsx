@@ -56,6 +56,7 @@ export default function Header({
         document.activeElement?.nodeName !== 'TEXTAREA' &&
         document.activeElement?.nodeName !== 'INPUT'
       ) {
+        e.preventDefault()
         playStop()
       }
     }
