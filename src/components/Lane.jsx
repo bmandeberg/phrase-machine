@@ -297,7 +297,8 @@ export default function Lane({
         className={classNames('key', {
           'black-key': isBlackKey(maxNote - minNote - i + minNote),
           'e-key': !isBlackKey(maxNote - minNote - i + minNote) && nextKeyIsWhite(maxNote - minNote - i + minNote),
-        })}>
+        })}
+        note={maxNote - minNote - i + minNote}>
         {!noC && i >= 7 && numNotes - 1 - i + minNote >= 24 && (numNotes - 1 - i + minNote) % 12 === 0 && (
           <p className="note-name">C{(numNotes - 1 - i + minNote - 24) / 12 + 1}</p>
         )}

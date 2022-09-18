@@ -19,6 +19,7 @@ import Lane from './components/Lane'
 import Header from './components/Header'
 import Delimiter from './components/Delimiter'
 import Ticks from './components/Ticks'
+import Tooltip from './components/ui/Tooltip'
 import useGlobalDrag from './hooks/useGlobalDrag'
 import useMIDI from './hooks/useMIDI'
 import { pixelsToTime, positionToPixels, snapPixels, chooseLane, getDelimiterIndex } from './util'
@@ -50,6 +51,7 @@ export default function App() {
   const [changingProbability, setChangingProbability] = useState(null)
   const [anyLaneSoloed, setAnyLaneSoloed] = useState(uiState.lanes.some((l) => l.solo))
   const [chosenLane, setChosenLane] = useState()
+  const [tooltip, setTooltip] = useState()
   const shiftPressed = useRef(false)
   const altPressed = useRef(false)
   const metaPressed = useRef(false)
@@ -77,11 +79,30 @@ export default function App() {
         metaPressed.current = false
       }
     }
+    function contextmenu(e) {
+      if (e.target.closest('.note')) {
+        e.preventDefault()
+        setTooltip({
+          x: e.pageX,
+          y: e.pageY,
+          content: null,
+        })
+      } else if (e.target.closest('.key')) {
+        e.preventDefault()
+        setTooltip({
+          x: e.pageX,
+          y: e.pageY,
+          content: null,
+        })
+      }
+    }
     window.addEventListener('keyup', keyup)
     window.addEventListener('keydown', keydown)
+    document.addEventListener('contextmenu', contextmenu)
     return () => {
       window.removeEventListener('keyup', keyup)
       window.removeEventListener('keydown', keydown)
+      document.removeEventListener('contextmenu', contextmenu)
     }
   }, [])
 
@@ -693,6 +714,11 @@ export default function App() {
             width: selectingDimensions.width,
             height: selectingDimensions.height,
           }}></div>
+      )}
+      {tooltip && (
+        <Tooltip x={tooltip.x} y={tooltip.y} setTooltip={setTooltip}>
+          {tooltip.content}
+        </Tooltip>
       )}
       <div id="lane-overflow"></div>
       {playheadEl}

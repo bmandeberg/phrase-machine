@@ -1,0 +1,27 @@
+@import '../../sass-globals.scss';
+
+.tooltip {
+  position: absolute;
+  padding: $padding * 2;
+  border-radius: 6px;
+  background-color: #ffffff;
+  box-shadow: 0 2px 5px $mediumGray;
+  z-index: 4;
+
+  .hi-times {
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
+
+    g {
+      stroke: $darkGray;
+    }
+
+    &:hover g {
+      stroke: $red;
+    }
+  }
+}
