@@ -2,13 +2,13 @@ import React, { useState, useMemo, useRef, useEffect, useCallback } from 'react'
 import PropTypes from 'prop-types'
 import { v4 as uuid } from 'uuid'
 import classNames from 'classnames'
+import WebMidi from 'webmidi'
 import * as Tone from 'tone'
 import { NOTE_HEIGHT, EIGHTH_WIDTH, calcLaneLength, LANE_COLORS, RATE_MULTS, mapLaneLength } from '../globals'
-import { timeToPixels, pixelsToTime } from '../util'
 import Ticks from './Ticks'
 import useNoteDrag from '../hooks/useNoteDrag'
 import useLaneDrag from '../hooks/useLaneDrag'
-import { noteString, getDelimiterIndex } from '../util'
+import { noteString, getDelimiterIndex, timeToPixels, pixelsToTime } from '../util'
 import './Lane.scss'
 
 export default function Lane({
@@ -43,6 +43,7 @@ export default function Lane({
   anyLaneSoloed,
   chosen,
   playing,
+  midiOutRef,
 }) {
   const [laneLength, setLaneLength] = useState(lanePreset.laneLength)
   const [notes, updateNotes] = useState(lanePreset.notes)
@@ -70,10 +71,26 @@ export default function Lane({
   // create the part
   const part = useMemo(
     () =>
-      new Tone.Part((_time, note) => {
+      new Tone.Part((time, note) => {
         // play note if lane is chosen
         if (chosenRef.current?.lane === id) {
           console.log(note)
+          // note data
+          const channel = 'all'
+          const noteName = noteString(note.midiNote)
+          const midiOutObj = midiOutRef.current ? WebMidi.getOutputByName(midiOutRef.current) : null
+          const clockOffset = WebMidi.time - Tone.immediate() * 1000
+          // note length
+          const noteDuration = note.widthSnap ? { [note.widthSnap]: note.widthSnapNumber } : pixelsToTime(note.width)
+          const noteDurationSeconds = new Tone.Time(noteDuration).toSeconds()
+          // play MIDI note
+          if (midiOutObj) {
+            midiOutObj.playNote(noteName, channel, {
+              time: time * 1000 + clockOffset,
+              velocity: note.velocity,
+              duration: noteDurationSeconds,
+            })
+          }
           // highlight playing note
           setHighlightNotes((highlightNotes) => highlightNotes.concat([note.id]))
           setTimeout(() => {
@@ -81,7 +98,7 @@ export default function Lane({
           }, 100)
         }
       }).start(0),
-    [id]
+    [id, midiOutRef]
   )
 
   // update the part events when notes change
@@ -481,6 +498,7 @@ Lane.propTypes = {
   anyLaneSoloed: PropTypes.bool,
   chosen: PropTypes.object,
   playing: PropTypes.bool,
+  midiOutRef: PropTypes.object,
 }
 
 const blackKeys = [false, true, false, true, false, false, true, false, true, false, true, false]

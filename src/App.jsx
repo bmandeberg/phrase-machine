@@ -552,6 +552,7 @@ export default function App() {
           anyLaneSoloed={anyLaneSoloed}
           chosen={chosenLane}
           playing={playing}
+          midiOutRef={midiOutRef}
         />
       )),
     [
@@ -566,6 +567,7 @@ export default function App() {
       draggingDelimiter,
       grabbing,
       grid,
+      midiOutRef,
       noPointerEvents,
       noteDrag,
       playing,
