@@ -20,6 +20,7 @@ import Header from './components/Header'
 import Delimiter from './components/Delimiter'
 import Ticks from './components/Ticks'
 import useGlobalDrag from './hooks/useGlobalDrag'
+import useMIDI from './hooks/useMIDI'
 import { pixelsToTime, positionToPixels, snapPixels, chooseLane, getDelimiterIndex } from './util'
 import addIcon from './assets/add-icon.svg'
 import addIconHover from './assets/add-icon-hover.svg'
@@ -138,6 +139,10 @@ export default function App() {
     Tone.Transport.timeSignature = [beatsPerBar, beatValue]
     setUIState((uiState) => Object.assign({}, uiState, { beatsPerBar, beatValue }))
   }, [beatValue, beatsPerBar])
+
+  // MIDI
+
+  const { midiOutRef, midiInRef, midiOuts, midiOut, setMidiOut, midiIns, midiIn, setMidiIn } = useMIDI(setPlaying)
 
   // lane length
 
@@ -632,6 +637,14 @@ export default function App() {
         setBeatsPerBar={setBeatsPerBar}
         beatValue={beatValue}
         setBeatValue={setBeatValue}
+        midiOutRef={midiOutRef}
+        midiInRef={midiInRef}
+        midiOuts={midiOuts}
+        midiOut={midiOut}
+        setMidiOut={setMidiOut}
+        midiIns={midiIns}
+        midiIn={midiIn}
+        setMidiIn={setMidiIn}
       />
       <div
         id="transport-topbar"

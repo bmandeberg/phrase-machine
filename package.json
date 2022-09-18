@@ -44,7 +44,7 @@
     "regenerator-runtime": "^0.13.9",
     "tone": "^14.7.77",
     "uuid": "^8.3.2",
-    "webmidi": "^3.0.20"
+    "webmidi": "^2.5.2"
   },
   "scripts": {
     "start": "./node_modules/.bin/webpack serve --open --mode development",

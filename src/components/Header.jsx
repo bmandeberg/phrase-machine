@@ -5,6 +5,7 @@ import * as Tone from 'tone'
 import NumInput from './ui/NumInput'
 import Dropdown from './ui/Dropdown'
 import { RATES } from '../globals'
+import { midiStartContinue, midiStop } from '../hooks/useMIDI'
 import logo from '../assets/logo.png'
 import play from '../assets/play.svg'
 import playHover from '../assets/play-hover.svg'
@@ -30,10 +31,22 @@ export default function Header({
   setBeatsPerBar,
   beatValue,
   setBeatValue,
+  midiOutRef,
+  midiInRef,
+  midiOuts,
+  midiOut,
+  setMidiOut,
+  midiIns,
+  midiIn,
+  setMidiIn,
 }) {
   const [hoverPlayStop, setHoverPlayStop] = useState(false)
 
-  const playingRef = useRef()
+  const playingRef = useRef(playing)
+  useEffect(() => {
+    playingRef.current = playing
+  }, [playing])
+
   const initialized = useRef()
   const playStop = useCallback(async () => {
     if (!playingRef.current) {
@@ -42,12 +55,16 @@ export default function Header({
         initialized.current = true
       }
       Tone.Transport.start()
+      // MIDI out
+      midiStartContinue(midiOutRef.current, midiInRef.current)
     } else {
       Tone.Transport.pause()
+      // MIDI out
+      midiStop(midiOutRef.current, midiInRef.current)
     }
     setPlaying((playing) => !playing)
     playingRef.current = !playingRef.current
-  }, [setPlaying])
+  }, [midiInRef, midiOutRef, setPlaying])
 
   useEffect(() => {
     function keydown(e) {
@@ -128,6 +145,26 @@ export default function Header({
         options={snapOptions}
         small
       />
+      <Dropdown
+        className="header-item midi-dropdown"
+        label="MIDI Out"
+        options={midiOuts}
+        setValue={setMidiOut}
+        value={midiOut}
+        placeholder="No MIDI Out"
+        noOptions="MIDI only works in Google Chrome"
+        small
+      />
+      <Dropdown
+        className="header-item midi-dropdown"
+        label="MIDI In"
+        options={midiIns}
+        setValue={setMidiIn}
+        value={midiIn}
+        placeholder="No MIDI In"
+        noOptions="MIDI only works in Google Chrome"
+        small
+      />
     </div>
   )
 }
@@ -144,4 +181,12 @@ Header.propTypes = {
   setBeatsPerBar: PropTypes.func,
   beatValue: PropTypes.number,
   setBeatValue: PropTypes.func,
+  midiOutRef: PropTypes.object,
+  midiInRef: PropTypes.object,
+  midiOuts: PropTypes.array,
+  midiOut: PropTypes.string,
+  midiIns: PropTypes.array,
+  midiIn: PropTypes.string,
+  setMidiOut: PropTypes.func,
+  setMidiIn: PropTypes.func,
 }
