@@ -660,6 +660,7 @@ export default function App() {
           instrument={instrument}
           instrumentOn={instrumentOn}
           instrumentType={instrumentType}
+          cancelClick={cancelClick}
         />
       )),
     [

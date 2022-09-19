@@ -13,7 +13,8 @@ export default function useLaneDrag(
   setGrabbing,
   updateLaneState,
   dragChanged,
-  setChangingProbability
+  setChangingProbability,
+  cancelClick
 ) {
   const minNoteStart = useRef()
   const dragLaneStart = useGesture({
@@ -50,6 +51,7 @@ export default function useLaneDrag(
       minNoteStart.current = minNote
       maxNoteStart.current = maxNote
       dragChanged.current = false
+      cancelClick.current = true
     },
     onDrag: ({ movement: [mx, my], event }) => {
       event.stopPropagation()

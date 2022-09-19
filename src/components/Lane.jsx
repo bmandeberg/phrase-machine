@@ -47,6 +47,7 @@ export default function Lane({
   instrumentOn,
   instrument,
   instrumentType,
+  cancelClick,
 }) {
   const [laneLength, setLaneLength] = useState(lanePreset.laneLength)
   const [notes, updateNotes] = useState(lanePreset.notes)
@@ -145,6 +146,34 @@ export default function Lane({
   useEffect(() => {
     noPointerEventsRef.current = noPointerEvents
   }, [noPointerEvents])
+
+  // play note instantaneously
+
+  const playNote = useCallback(
+    (note) => {
+      // note data
+      const channel = midiChannelsRef.current[note.midiNote] || 'all'
+      const noteName = noteString(note.midiNote)
+      const midiOutObj = midiOutRef.current ? WebMidi.getOutputByName(midiOutRef.current) : null
+      const noteDurationSeconds = 0.2
+      // play instrument
+      if (
+        instrumentOnRef.current &&
+        instrument.current &&
+        (instrumentTypeRef.current === 'synth' || instrument.current.loaded)
+      ) {
+        instrument.current.triggerAttackRelease(noteName, noteDurationSeconds, undefined, note.velocity)
+      }
+      // play MIDI note
+      if (midiOutObj) {
+        midiOutObj.playNote(noteName, channel, {
+          velocity: note.velocity,
+          duration: noteDurationSeconds,
+        })
+      }
+    },
+    [instrument, midiOutRef]
+  )
 
   // lane state management
 
@@ -310,7 +339,8 @@ export default function Lane({
     setNoPointerEvents,
     setGrabbing,
     updateLaneState,
-    dragChanged
+    dragChanged,
+    cancelClick
   )
 
   // elements
@@ -326,14 +356,21 @@ export default function Lane({
           'black-key': isBlackKey(maxNote - minNote - i + minNote),
           'e-key': !isBlackKey(maxNote - minNote - i + minNote) && nextKeyIsWhite(maxNote - minNote - i + minNote),
         })}
-        note={maxNote - minNote - i + minNote}>
+        note={maxNote - minNote - i + minNote}
+        onClick={() => {
+          if (!cancelClick.current) {
+            playNote({ midiNote: maxNote - minNote - i + minNote, velocity: 1 })
+          } else {
+            cancelClick.current = false
+          }
+        }}>
         {!noC && i >= 7 && numNotes - 1 - i + minNote >= 24 && (numNotes - 1 - i + minNote) % 12 === 0 && (
           <p className="note-name">C{(numNotes - 1 - i + minNote - 24) / 12 + 1}</p>
         )}
         {(noC || cOccluded) && i === numNotes - 1 && <p className="note-name">{noteString(minNote)}</p>}
       </div>
     ))
-  }, [maxNote, minNote])
+  }, [cancelClick, maxNote, minNote, playNote])
 
   const laneEl = useMemo(
     () => (
@@ -536,6 +573,7 @@ Lane.propTypes = {
   instrument: PropTypes.object,
   instrumentOn: PropTypes.bool,
   instrumentType: PropTypes.string,
+  cancelClick: PropTypes.object,
 }
 
 const blackKeys = [false, true, false, true, false, false, true, false, true, false, true, false]
