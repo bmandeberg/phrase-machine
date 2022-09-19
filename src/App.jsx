@@ -83,7 +83,10 @@ export default function App() {
 
   const snap = useMemo(() => (snapToGrid ? grid : null), [grid, snapToGrid])
 
+  // event handlers
+
   useEffect(() => {
+    // event functions
     function keydown(e) {
       if (e.key === 'Shift') {
         shiftPressed.current = true
@@ -127,13 +130,21 @@ export default function App() {
         })
       }
     }
+    function focus() {
+      shiftPressed.current = false
+      altPressed.current = false
+      metaPressed.current = false
+    }
+    // attach / clean up events
     window.addEventListener('keyup', keyup)
     window.addEventListener('keydown', keydown)
     document.addEventListener('contextmenu', contextmenu)
+    window.onfocus = focus
     return () => {
       window.removeEventListener('keyup', keyup)
       window.removeEventListener('keydown', keydown)
       document.removeEventListener('contextmenu', contextmenu)
+      window.onfocus = null
     }
   }, [])
 
