@@ -105,6 +105,7 @@ export const DEFAULT_LANE = (id = laneID, laneLength = calcLaneLength(window.inn
   colorIndex,
   mute: false,
   solo: false,
+  midiChannels: {},
 })
 
 export const DEFAULT_PRESET = JSON.stringify({

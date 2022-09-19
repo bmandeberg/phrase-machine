@@ -14,7 +14,7 @@ function longestText(options, graphicOptions) {
   if (options.length) {
     let longestOption = ''
     for (let i = 0; i < options.length; i++) {
-      const option = typeof options[i] === 'object' ? options[i].label.trim() : options[i].trim()
+      const option = typeof options[i] === 'object' ? (options[i].label + '').trim() : (options[i] + '').trim()
       if (option.length > longestOption.length) {
         longestOption = option
       }

@@ -2,7 +2,7 @@ import React, { useCallback, useEffect } from 'react'
 import PropTypes from 'prop-types'
 import './Tooltip.scss'
 
-export default function Tooltip({ x, y, setTooltip, children }) {
+export default function Tooltip({ x, y, setTooltip, children, minWidth }) {
   const cancelTooltip = useCallback(() => {
     setTooltip(null)
   }, [setTooltip])
@@ -27,7 +27,7 @@ export default function Tooltip({ x, y, setTooltip, children }) {
   }, [cancelTooltip])
 
   return (
-    <div className="tooltip" style={{ left: x, top: y }}>
+    <div className="tooltip" style={{ left: x, top: y, minWidth }}>
       <svg
         xmlns="http://www.w3.org/2000/svg"
         fill="none"
@@ -47,4 +47,5 @@ Tooltip.propTypes = {
   x: PropTypes.number,
   y: PropTypes.number,
   setTooltip: PropTypes.func,
+  minWidth: PropTypes.number,
 }

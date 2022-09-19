@@ -51,6 +51,7 @@ export default function Lane({
   const [maxNote, setMaxNote] = useState(lanePreset.viewRange.max)
   const [mute, setMute] = useState(lanePreset.mute)
   const [solo, setSolo] = useState(lanePreset.solo)
+  const [midiChannels, setMidiChannels] = useState()
   const lane = useRef()
   const [selectedNotes, setSelectedNotes] = useState([]) // list of note IDs
   const [highlightNotes, setHighlightNotes] = useState([])
@@ -66,6 +67,11 @@ export default function Lane({
     chosenRef.current = chosen
   }, [chosen])
 
+  const midiChannelsRef = useRef(midiChannels)
+  useEffect(() => {
+    midiChannelsRef.current = midiChannels
+  }, [midiChannels])
+
   // notes loop
 
   // create the part
@@ -76,7 +82,7 @@ export default function Lane({
         if (chosenRef.current?.lane === id) {
           console.log(note)
           // note data
-          const channel = 'all'
+          const channel = midiChannelsRef.current[note.midiNote] || 'all'
           const noteName = noteString(note.midiNote)
           const midiOutObj = midiOutRef.current ? WebMidi.getOutputByName(midiOutRef.current) : null
           const clockOffset = WebMidi.time - Tone.immediate() * 1000
@@ -133,9 +139,10 @@ export default function Lane({
         colorIndex,
         mute,
         solo,
+        midiChannels,
       })
     })
-  }, [setLaneState, id, laneLength, notes, minNote, maxNote, colorIndex, mute, solo])
+  }, [setLaneState, id, laneLength, notes, minNote, maxNote, colorIndex, mute, solo, midiChannels])
   useEffect(() => {
     updateLaneStateRef.current = updateLaneState
   }, [updateLaneState])
@@ -171,6 +178,7 @@ export default function Lane({
       setMaxNote(lanePreset.viewRange.max)
       setMute(lanePreset.mute)
       setSolo(lanePreset.solo)
+      setMidiChannels(lanePreset.midiChannels)
     }
   }, [lanePreset, setNotes])
 

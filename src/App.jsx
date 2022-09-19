@@ -21,6 +21,7 @@ import Delimiter from './components/Delimiter'
 import Ticks from './components/Ticks'
 import Tooltip from './components/ui/Tooltip'
 import Slider from './components/ui/Slider'
+import Dropdown from './components/ui/Dropdown'
 import useGlobalDrag from './hooks/useGlobalDrag'
 import useMIDI from './hooks/useMIDI'
 import { pixelsToTime, positionToPixels, snapPixels, chooseLane, getDelimiterIndex } from './util'
@@ -92,13 +93,15 @@ export default function App() {
             laneID: e.target.closest('.lane-container').id.slice(5),
           },
         })
-      } else if (e.target.closest('.key')) {
+      } else if (e.target.classList.contains('key')) {
         e.preventDefault()
         setTooltip({
           x: e.pageX,
           y: e.pageY,
           content: {
             type: 'key',
+            note: +e.target.getAttribute('note'),
+            laneID: e.target.closest('.lane-container').id.slice(5),
           },
         })
       }
@@ -645,6 +648,7 @@ export default function App() {
   const tooltipEl = useMemo(() => {
     if (tooltip) {
       if (tooltip.content.type === 'note') {
+        // note velocity slider
         return (
           <Tooltip x={tooltip.x} y={tooltip.y} setTooltip={setTooltip}>
             <Slider
@@ -668,7 +672,26 @@ export default function App() {
           </Tooltip>
         )
       } else if (tooltip.content.type === 'key') {
-        return <Tooltip x={tooltip.x} y={tooltip.y} setTooltip={setTooltip}></Tooltip>
+        // note lane MIDI channel out
+        const lane = uiState.lanes.find((l) => l.id === tooltip.content.laneID)
+        return (
+          <Tooltip x={tooltip.x} y={tooltip.y} setTooltip={setTooltip} minWidth={100}>
+            <Dropdown
+              label="MIDI channel out"
+              value={lane.midiChannels[tooltip.content.note] || 'all'}
+              setValue={(value) => {
+                setUIState((uiState) => {
+                  const uiStateCopy = deepStateCopy(uiState)
+                  uiStateCopy.lanes.find((l) => l.id === tooltip.content.laneID).midiChannels[tooltip.content.note] =
+                    value
+                  return uiStateCopy
+                })
+              }}
+              options={['all'].concat([...Array(16).keys()].map((n) => n + 1))}
+              small
+            />
+          </Tooltip>
+        )
       }
     }
     return null
@@ -765,7 +788,8 @@ function laneCopy(lane, id, updateNoteIDs) {
   return Object.assign({}, lane, {
     id: id || lane.id,
     notes: lane.notes.map((n) => Object.assign({}, n, { id: updateNoteIDs ? uuid() : n.id })),
-    viewRange: Object.assign({}, lane.viewRange),
+    viewRange: { ...lane.viewRange },
+    midiChannels: { ...lane.midiChannels },
   })
 }
 
