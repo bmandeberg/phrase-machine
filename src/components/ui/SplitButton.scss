@@ -23,7 +23,7 @@
       background-color: $lightBlue;
     }
     &:active {
-      background-color: darken($lightBlue, 4%);
+      background-color: $lightBlueActive;
     }
   }
 

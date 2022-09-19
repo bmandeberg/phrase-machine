@@ -23,7 +23,8 @@ $modalHeaderHeight: 50px;
     }
   }
   .modal-window {
-    background-color: #ffffff;
+    color: $darkGray;
+    background-color: $lightestBlue;
     box-shadow: 0px 0px 6px #111111;
     box-sizing: border-box;
     max-width: 98vw;

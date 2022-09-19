@@ -120,7 +120,7 @@ export default function RotaryKnob({
   const knobColor = useMemo(() => {
     switch (theme) {
       case 'light':
-        return mute ? 'D8D8D8' : 'E6E6E6'
+        return mute ? 'D8D8D8' : 'a8d6ff'
       case 'dark':
         return mute ? '39393f' : '45454c'
       case 'contrast':
@@ -146,7 +146,7 @@ export default function RotaryKnob({
   const knobOuterStroke = useMemo(() => {
     switch (theme) {
       case 'light':
-        return 'CCCCCC'
+        return '33a4ff'
       case 'dark':
         return '23232b'
       case 'contrast':
@@ -159,7 +159,7 @@ export default function RotaryKnob({
   const knobIndicator = useMemo(() => {
     switch (theme) {
       case 'light':
-        return '666666'
+        return '0247aa'
       case 'dark':
         return 'a0a0b4'
       case 'contrast':

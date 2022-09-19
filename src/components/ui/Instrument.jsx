@@ -46,11 +46,6 @@ export default function Instrument({
     [theme]
   )
 
-  const offColor = useMemo(() => themedSwitch('offColor', theme), [theme])
-  const onColor = useMemo(() => themedSwitch('onColor', theme), [theme])
-  const offHandleColor = useMemo(() => themedSwitch('offHandleColor', theme, mute), [mute, theme])
-  const onHandleColor = useMemo(() => themedSwitch('onHandleColor', theme), [theme])
-
   const splitButtonContent = useMemo(() => INSTRUMENT_TYPES[instrumentType](theme), [instrumentType, theme])
   const splitButtonRight = useCallback(() => incrementInstrument(true), [incrementInstrument])
   const splitButtonLeft = useCallback(() => incrementInstrument(false), [incrementInstrument])
@@ -107,10 +102,10 @@ export default function Instrument({
               checked={instrumentOn}
               uncheckedIcon={false}
               checkedIcon={false}
-              offColor={offColor}
-              onColor={onColor}
-              offHandleColor={offHandleColor}
-              onHandleColor={onHandleColor}
+              offColor={'#a8d6ff'}
+              onColor={'#a8d6ff'}
+              offHandleColor={'#008dff'}
+              onHandleColor={'#ff88e3'}
               width={48}
               height={24}
             />
