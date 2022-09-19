@@ -1,0 +1,115 @@
+@import '../../sass-globals.scss';
+
+.instrument-modal {
+  width: 637px;
+  height: 490px;
+  &.short {
+    height: 260px;
+  }
+  .instrument-controls {
+    margin-top: 20px;
+  }
+  .instrument-label {
+    display: none;
+  }
+  .split-button-content {
+    pointer-events: none;
+    cursor: auto;
+  }
+  .controls-row {
+    border-top: 1px solid $lightMediumGray;
+  }
+  .controls-module {
+    padding-top: 25px;
+    padding-left: 10px;
+    padding-bottom: 10px;
+    position: relative;
+    display: inline-block;
+    vertical-align: top;
+    border-right: 1px solid $lightMediumGray;
+    &:first-of-type {
+      padding-left: 0;
+      padding-right: 5px;
+      .controls-label {
+        left: 0;
+      }
+    }
+    &:last-of-type {
+      border-right: none;
+    }
+  }
+  .controls-aux {
+    display: inline-block;
+    vertical-align: top;
+    .effect-disabled {
+      margin-top: 13px;
+      font-size: 19px;
+      line-height: 34px;
+      color: $darkRed;
+      text-transform: uppercase;
+    }
+  }
+  .instrument-item {
+    margin-right: 10px;
+    display: inline-block;
+    vertical-align: top;
+    &.fat-count {
+      margin-right: 11px;
+    }
+  }
+  .controls-label {
+    @extend .no-select;
+    position: absolute;
+    top: 5px;
+    left: 5px;
+    font-size: 16px;
+    text-transform: uppercase;
+    color: $lightTextGray;
+  }
+  .effects-controls {
+    position: relative;
+  }
+  .knob-container {
+    margin-top: 0;
+  }
+  .dropdown-container {
+    margin-top: 13px;
+    min-width: 66px;
+  }
+  .instrument {
+    margin-top: 0;
+    margin-right: 10px;
+    height: 28px;
+    display: inline-block;
+    vertical-align: top;
+    .dropdown-container {
+      margin-top: 0;
+    }
+  }
+  .num-input {
+    margin-top: 13px !important;
+    .num-input-label {
+      display: block !important;
+      margin-top: 13px;
+    }
+  }
+  .switch-container {
+    margin-top: 12px;
+  }
+  .envelope-controls {
+    .knob-container {
+      width: 66px;
+    }
+  }
+  .effects-controls {
+    padding-bottom: 0;
+    .knob-container {
+      min-width: 62px;
+    }
+  }
+  .instrument-type {
+    .knob-container {
+      margin-top: -5px;
+    }
+  }
+}

@@ -1,0 +1,144 @@
+@import '../../sass-globals.scss';
+
+.split-button {
+  border: 2px solid $mediumBlue;
+  background-color: $lightestBlue;
+  border-radius: 8px;
+  box-sizing: border-box;
+  font-size: 19px;
+  line-height: 19px;
+  text-align: center;
+  display: flex;
+  height: 42px;
+
+  .split-button-content {
+    width: 50px;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px 0 0 8px;
+    cursor: pointer;
+    &:hover {
+      background-color: $lightBlue;
+    }
+    &:active {
+      background-color: darken($lightBlue, 4%);
+    }
+  }
+
+  .split-button-actions {
+    width: 24px;
+    height: 100%;
+    border-left: 2px solid $mediumBlue;
+    border-radius: 0 8px 8px 0;
+    box-sizing: border-box;
+
+    .split-button-action {
+      height: calc(50% - 1px);
+      box-sizing: border-box;
+      cursor: pointer;
+      position: relative;
+
+      &.split-button-arrow-up::before,
+      &.split-button-arrow-down::before {
+        content: '';
+        position: absolute;
+        height: 6px;
+        width: 6px;
+        border-width: 0px 2.5px 2.5px 0;
+        border-color: $mediumBlue;
+        border-style: solid;
+        top: 6px;
+        left: 7px;
+        transform: scaleY(0.7) rotate(-135deg);
+      }
+
+      &.split-button-arrow-down::before {
+        top: 4px;
+        transform: scaleY(0.7) rotate(45deg);
+      }
+
+      &:hover {
+        &.split-button-arrow-up::before,
+        &.split-button-arrow-down::before {
+          border-color: $blue;
+        }
+      }
+
+      &:first-of-type {
+        height: calc(50% + 1px);
+        border-bottom: 2px solid $mediumBlue;
+      }
+    }
+  }
+}
+
+.split-button-container {
+  position: relative;
+  text-transform: uppercase;
+  display: inline-block;
+  vertical-align: top;
+  .split-button-label {
+    height: 14px;
+    position: absolute;
+    bottom: -2px;
+  }
+  &.small-split-button {
+    height: auto;
+    .split-button {
+      height: 21px;
+      border: 1px solid $orange;
+      background-color: $lightOrange;
+      color: $orange;
+      font-size: 15px;
+      line-height: 18px;
+      .split-button-action {
+        display: inline-block;
+        vertical-align: top;
+        height: 100%;
+        border-right: 1px solid $orange;
+        &:last-of-type {
+          border-right: none;
+        }
+        &:hover {
+          background-color: $darkLightOrange;
+        }
+        &:active {
+          background-color: $darkerLightOrange;
+        }
+      }
+      .split-button-content {
+        padding: 3px 4px;
+        min-width: 0;
+      }
+      .split-button-arrow {
+        background-color: $lightOrange;
+        &::before {
+          content: '';
+          position: absolute;
+          top: 4px;
+          width: 0;
+          height: 0;
+          border-style: solid;
+        }
+        &.split-button-arrow-up {
+          width: 16px;
+          &::before {
+            border-color: transparent $orange transparent transparent;
+            border-width: 6px 5px 6px 0;
+            left: 4px;
+          }
+        }
+        &.split-button-arrow-down {
+          width: 16px;
+          &::before {
+            border-color: transparent transparent transparent $orange;
+            border-width: 6px 0 6px 5px;
+            left: 6px;
+          }
+        }
+      }
+    }
+  }
+}

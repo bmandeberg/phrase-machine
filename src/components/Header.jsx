@@ -4,6 +4,7 @@ import Switch from 'react-switch'
 import * as Tone from 'tone'
 import NumInput from './ui/NumInput'
 import Dropdown from './ui/Dropdown'
+import Instrument from './ui/Instrument'
 import { RATES } from '../globals'
 import { midiStartContinue, midiStop } from '../hooks/useMIDI'
 import logo from '../assets/logo.png'
@@ -39,6 +40,12 @@ export default function Header({
   midiIns,
   midiIn,
   setMidiIn,
+  instrumentOn,
+  setInstrumentOn,
+  instrumentType,
+  setInstrumentType,
+  theme,
+  openInstrumentModal,
 }) {
   const [hoverPlayStop, setHoverPlayStop] = useState(false)
 
@@ -145,6 +152,16 @@ export default function Header({
         options={snapOptions}
         small
       />
+      <Instrument
+        className="header-item channel-module"
+        instrumentOn={instrumentOn}
+        setInstrumentOn={setInstrumentOn}
+        instrumentType={instrumentType}
+        setInstrumentType={setInstrumentType}
+        theme={theme}
+        openInstrumentModal={openInstrumentModal}
+        inModal={false}
+      />
       <Dropdown
         className="header-item midi-dropdown"
         label="MIDI Out"
@@ -189,4 +206,10 @@ Header.propTypes = {
   midiIn: PropTypes.string,
   setMidiOut: PropTypes.func,
   setMidiIn: PropTypes.func,
+  instrumentOn: PropTypes.bool,
+  setInstrumentOn: PropTypes.func,
+  instrumentType: PropTypes.string,
+  setInstrumentType: PropTypes.func,
+  theme: PropTypes.string,
+  openInstrumentModal: PropTypes.func,
 }

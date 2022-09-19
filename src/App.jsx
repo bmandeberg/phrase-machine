@@ -1,6 +1,7 @@
 import React, { useState, useCallback, useMemo, useEffect, useRef } from 'react'
 import * as Tone from 'tone'
 import classNames from 'classnames'
+import { CSSTransition } from 'react-transition-group'
 import { v4 as uuid } from 'uuid'
 import {
   DEFAULT_PRESET,
@@ -22,7 +23,9 @@ import Ticks from './components/Ticks'
 import Tooltip from './components/ui/Tooltip'
 import Slider from './components/ui/Slider'
 import Dropdown from './components/ui/Dropdown'
+import Modal from './components/ui/Modal'
 import useGlobalDrag from './hooks/useGlobalDrag'
+import useInstruments from './hooks/useInstruments'
 import useMIDI from './hooks/useMIDI'
 import { pixelsToTime, positionToPixels, snapPixels, chooseLane, getDelimiterIndex } from './util'
 import addIcon from './assets/add-icon.svg'
@@ -59,6 +62,24 @@ export default function App() {
   const metaPressed = useRef(false)
   const mainContainerRef = useRef()
   const lanesRef = useRef()
+
+  const [instrumentOn, setInstrumentOn] = useState(uiState.instrumentOn)
+  const [instrumentType, setInstrumentType] = useState(uiState.instrumentType)
+  const [instrumentParams, setInstrumentParams] = useState(uiState.instrumentParams)
+
+  // settings
+
+  const [linearKnobs, setLinearKnobs] = useState(JSON.parse(window.localStorage.getItem('linearKnobs')) ?? true)
+
+  useEffect(() => {
+    window.localStorage.setItem('linearKnobs', linearKnobs)
+  }, [linearKnobs])
+
+  const [theme, setTheme] = useState(window.localStorage.getItem('theme') ?? 'light')
+
+  useEffect(() => {
+    window.localStorage.setItem('theme', theme)
+  }, [theme])
 
   const snap = useMemo(() => (snapToGrid ? grid : null), [grid, snapToGrid])
 
@@ -128,6 +149,18 @@ export default function App() {
     setUIState((uiState) => Object.assign({}, uiState, { snapToGrid }))
   }, [snapToGrid])
 
+  useEffect(() => {
+    setUIState((uiState) => Object.assign({}, uiState, { instrumentParams }))
+  }, [instrumentParams])
+
+  useEffect(() => {
+    setUIState((uiState) => Object.assign({}, uiState, { instrumentType }))
+  }, [instrumentType])
+
+  useEffect(() => {
+    setUIState((uiState) => Object.assign({}, uiState, { instrumentOn }))
+  }, [instrumentOn])
+
   const updateSelectedNotes = useCallback((id, notes) => {
     setSelectedNotes((selectedNotes) => Object.assign({}, selectedNotes, { [id]: notes }))
   }, [])
@@ -174,6 +207,45 @@ export default function App() {
   // MIDI
 
   const { midiOutRef, midiInRef, midiOuts, midiOut, setMidiOut, midiIns, midiIn, setMidiIn } = useMIDI(setPlaying)
+
+  // modal window
+
+  const [modalType, setModalType] = useState('')
+  const [modalContent, setModalContent] = useState(false)
+  const showModal = useCallback(() => {
+    setModalContent(true)
+  }, [])
+  const hideModal = useCallback(() => {
+    setModalContent(false)
+  }, [])
+
+  // instruments
+
+  const instrument = useRef()
+
+  const cleanupInstruments = useCallback(() => {}, [])
+
+  const {
+    gainNode,
+    synthInstrument,
+    pianoInstrument,
+    marimbaInstrument,
+    drumsInstrument,
+    drumMachineInstrument,
+    bassInstrument,
+    vibesInstrument,
+    harpInstrument,
+    choralInstrument,
+    chorusEffect,
+    distortionEffect,
+    delayEffect,
+    reverbEffect,
+    vibratoEffect,
+    getCurrentEffect,
+    openInstrumentModal,
+    instruments,
+    effects,
+  } = useInstruments(instrument, instrumentParams, instrumentType, cleanupInstruments, setModalType)
 
   // lane length
 
@@ -730,6 +802,12 @@ export default function App() {
         midiIns={midiIns}
         midiIn={midiIn}
         setMidiIn={setMidiIn}
+        instrumentOn={instrumentOn}
+        setInstrumentOn={setInstrumentOn}
+        instrumentType={instrumentType}
+        setInstrumentType={setInstrumentType}
+        theme={theme}
+        openInstrumentModal={openInstrumentModal}
       />
       <div
         id="transport-topbar"
@@ -780,6 +858,26 @@ export default function App() {
       {tooltipEl}
       <div id="lane-overflow"></div>
       {playheadEl}
+      <CSSTransition in={!!modalType} timeout={300} classNames="show" onEnter={showModal} onExited={hideModal}>
+        <Modal
+          modalContent={modalContent}
+          modalType={modalType}
+          setModalType={setModalType}
+          theme={theme}
+          instrumentOn={instrumentOn}
+          setInstrumentOn={setInstrumentOn}
+          instrumentType={instrumentType}
+          setInstrumentType={setInstrumentType}
+          instrumentParams={instrumentParams}
+          setInstrumentParams={setInstrumentParams}
+          instruments={instruments}
+          gainNode={gainNode}
+          effects={effects}
+          grabbing={grabbing}
+          setGrabbing={setGrabbing}
+          linearKnobs={linearKnobs}
+        />
+      </CSSTransition>
     </div>
   )
 }
@@ -794,5 +892,9 @@ function laneCopy(lane, id, updateNoteIDs) {
 }
 
 function deepStateCopy(state) {
-  return Object.assign({}, state, { lanes: state.lanes.map((l) => laneCopy(l)) })
+  return Object.assign({}, state, {
+    lanes: state.lanes.map((l) => laneCopy(l)),
+    delimiters: state.delimiters.slice(),
+    instrumentParams: { ...state.instrumentParams },
+  })
 }

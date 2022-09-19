@@ -1,4 +1,55 @@
+import React from 'react'
 import { v4 as uuid } from 'uuid'
+import UAParser from 'ua-parser-js'
+import sine from './assets/sine_wave.svg'
+import lightSine from './assets/sine_wave_light.svg'
+import darkSine from './assets/sine_wave_dark.svg'
+import square from './assets/square_wave.svg'
+import lightSquare from './assets/square_wave_light.svg'
+import darkSquare from './assets/square_wave_dark.svg'
+import triangle from './assets/triangle_wave.svg'
+import lightTriangle from './assets/triangle_wave_light.svg'
+import darkTriangle from './assets/triangle_wave_dark.svg'
+import sawtooth from './assets/sawtooth_wave.svg'
+import lightSawtooth from './assets/sawtooth_wave_light.svg'
+import darkSawtooth from './assets/sawtooth_wave_dark.svg'
+import pulse from './assets/pulse_wave.svg'
+import lightPulse from './assets/pulse_wave_light.svg'
+import darkPulse from './assets/pulse_wave_dark.svg'
+import drums from './assets/samples-drums.svg'
+import lightDrums from './assets/samples-drums-light.svg'
+import darkDrums from './assets/samples-drums-dark.svg'
+import drumMachine from './assets/samples-drum-machine.svg'
+import lightDrumMachine from './assets/samples-drum-machine-light.svg'
+import darkDrumMachine from './assets/samples-drum-machine-dark.svg'
+import marimba from './assets/samples-marimba.svg'
+import lightMarimba from './assets/samples-marimba-light.svg'
+import darkMarimba from './assets/samples-marimba-dark.svg'
+import piano from './assets/samples-piano.svg'
+import lightPiano from './assets/samples-piano-light.svg'
+import darkPiano from './assets/samples-piano-dark.svg'
+import synth from './assets/samples-synth.svg'
+import lightSynth from './assets/samples-synth-light.svg'
+import darkSynth from './assets/samples-synth-dark.svg'
+import bass from './assets/samples-bass.svg'
+import lightBass from './assets/samples-bass-light.svg'
+import darkBass from './assets/samples-bass-dark.svg'
+import vibes from './assets/samples-vibes.svg'
+import lightVibes from './assets/samples-vibes-light.svg'
+import darkVibes from './assets/samples-vibes-dark.svg'
+import harp from './assets/samples-harp.svg'
+import lightHarp from './assets/samples-harp-light.svg'
+import darkHarp from './assets/samples-harp-dark.svg'
+import choral from './assets/samples-choral.svg'
+import lightChoral from './assets/samples-choral-light.svg'
+import darkChoral from './assets/samples-choral-dark.svg'
+
+const uaParser = new UAParser()
+export const BROWSER = uaParser.getBrowser()
+const device = uaParser.getDevice()
+if (device.type === 'mobile' || BROWSER.name.includes('Mobile')) {
+  alert('🗣 sounds can only play if your device is not on silent')
+}
 
 export const LANE_COLORS = [
   {
@@ -91,6 +142,11 @@ export const MAX_LANES = 8
 export const MIN_MIDI_NOTE = 21
 export const MAX_MIDI_NOTE = 127
 
+export const KNOB_MAX = 1
+
+export const EFFECTS = ['none', 'chorus', 'distortion', 'delay', 'reverb', 'vibrato']
+export const CHORUS_ENABLED = !BROWSER.name.includes('Safari')
+
 export function calcLaneLength(width, direction = -1) {
   const measures = width / (EIGHTH_WIDTH * 8)
   return (direction < 0 ? Math.floor(measures) : Math.ceil(measures)) * 8
@@ -122,6 +178,47 @@ export const DEFAULT_PRESET = JSON.stringify({
       x: 0,
     },
   ],
+  instrumentOn: true,
+  instrumentType: 'synth',
+  instrumentParams: {
+    gain: 1,
+    synthType: 'triangle',
+    portamento: 0,
+    modulationType: 'square',
+    harmonicity: 1,
+    fatSpread: 20,
+    fatCount: 3,
+    pulseWidth: 0.2,
+    pwmFreq: 0.4,
+    envAttack: 0.05,
+    envDecay: 0.1,
+    envSustain: 0.9,
+    envRelease: 1,
+    cutoff: 3000,
+    resonance: 1,
+    rolloff: -24,
+    filterAttack: 0.05,
+    filterDecay: 0.2,
+    filterSustain: 0.5,
+    filterRelease: 2,
+    filterAmount: 3,
+    samplerAttack: 0,
+    samplerRelease: 1,
+    effectType: EFFECTS[0],
+    effectWet: 1,
+    chorusDepth: 0.5,
+    chorusDelayTime: 2.5,
+    chorusFreq: 4,
+    chorusSpread: 0,
+    distortion: 1,
+    syncDelayTime: false,
+    delayTime: 0.25,
+    delayFeedback: 0.5,
+    reverbDecay: 1.5,
+    reverbPreDelay: 0.01,
+    vibratoDepth: 0.1,
+    vibratoFreq: 5,
+  },
 })
 
 // rates, relative to an eighth note
@@ -173,3 +270,246 @@ export const RATE_TICKS = {
 }
 
 export const RATES = Object.keys(RATE_MULTS)
+
+export const THEMES = ['dark', 'light', 'contrast']
+
+function themedIcon(icon, theme) {
+  switch (icon) {
+    case 'sine':
+      switch (theme) {
+        case 'light':
+          return sine
+        case 'dark':
+          return lightSine
+        case 'contrast':
+          return darkSine
+        default:
+          return sine
+      }
+    case 'square':
+      switch (theme) {
+        case 'light':
+          return square
+        case 'dark':
+          return lightSquare
+        case 'contrast':
+          return darkSquare
+        default:
+          return square
+      }
+    case 'triangle':
+      switch (theme) {
+        case 'light':
+          return triangle
+        case 'dark':
+          return lightTriangle
+        case 'contrast':
+          return darkTriangle
+        default:
+          return triangle
+      }
+    case 'sawtooth':
+      switch (theme) {
+        case 'light':
+          return sawtooth
+        case 'dark':
+          return lightSawtooth
+        case 'contrast':
+          return darkSawtooth
+        default:
+          return sawtooth
+      }
+    case 'pulse':
+      switch (theme) {
+        case 'light':
+          return pulse
+        case 'dark':
+          return lightPulse
+        case 'contrast':
+          return darkPulse
+        default:
+          return pulse
+      }
+    case 'drums':
+      switch (theme) {
+        case 'light':
+          return drums
+        case 'dark':
+          return lightDrums
+        case 'contrast':
+          return darkDrums
+        default:
+          return drums
+      }
+    case 'drum-machine':
+      switch (theme) {
+        case 'light':
+          return drumMachine
+        case 'dark':
+          return lightDrumMachine
+        case 'contrast':
+          return darkDrumMachine
+        default:
+          return drumMachine
+      }
+    case 'marimba':
+      switch (theme) {
+        case 'light':
+          return marimba
+        case 'dark':
+          return lightMarimba
+        case 'contrast':
+          return darkMarimba
+        default:
+          return marimba
+      }
+    case 'piano':
+      switch (theme) {
+        case 'light':
+          return piano
+        case 'dark':
+          return lightPiano
+        case 'contrast':
+          return darkPiano
+        default:
+          return piano
+      }
+    case 'synth':
+      switch (theme) {
+        case 'light':
+          return synth
+        case 'dark':
+          return lightSynth
+        case 'contrast':
+          return darkSynth
+        default:
+          return synth
+      }
+    case 'bass':
+      switch (theme) {
+        case 'light':
+          return bass
+        case 'dark':
+          return lightBass
+        case 'contrast':
+          return darkBass
+        default:
+          return bass
+      }
+    case 'vibes':
+      switch (theme) {
+        case 'light':
+          return vibes
+        case 'dark':
+          return lightVibes
+        case 'contrast':
+          return darkVibes
+        default:
+          return vibes
+      }
+    case 'harp':
+      switch (theme) {
+        case 'light':
+          return harp
+        case 'dark':
+          return lightHarp
+        case 'contrast':
+          return darkHarp
+        default:
+          return harp
+      }
+    case 'choral':
+      switch (theme) {
+        case 'light':
+          return choral
+        case 'dark':
+          return lightChoral
+        case 'contrast':
+          return darkChoral
+        default:
+          return choral
+      }
+    default:
+      return null
+  }
+}
+
+export function themedSwitch(component, theme, mute) {
+  switch (component) {
+    case 'offColor':
+      switch (theme) {
+        case 'light':
+          return '#e6e6e6'
+        case 'dark':
+          return '#45454c'
+        case 'contrast':
+          return '#45454C'
+        default:
+          return '#e6e6e6'
+      }
+    case 'onColor':
+      switch (theme) {
+        case 'light':
+          return '#e6e6e6'
+        case 'dark':
+          return '#45454c'
+        case 'contrast':
+          return '#45454C'
+        default:
+          return '#e6e6e6'
+      }
+    case 'offHandleColor':
+      switch (theme) {
+        case 'light':
+          return '#666666'
+        case 'dark':
+          return '#a0a0b4'
+        case 'contrast':
+          return mute ? '#aab1cc' : '#CCD0FF'
+        default:
+          return '#666666'
+      }
+    case 'onHandleColor':
+      switch (theme) {
+        case 'light':
+          return '#33ff00'
+        case 'dark':
+          return '#00c591'
+        case 'contrast':
+          return '#33ff00'
+        default:
+          return '#33ff00'
+      }
+    default:
+      return '#e6e6e6'
+  }
+}
+
+export const SIGNAL_TYPES = {
+  sine: (theme) => <img className="wave-icon" src={themedIcon('sine', theme)} alt="" />,
+  square: (theme) => <img className="wave-icon" src={themedIcon('square', theme)} alt="" />,
+  triangle: (theme) => <img className="wave-icon" src={themedIcon('triangle', theme)} alt="" />,
+  sawtooth: (theme) => <img className="wave-icon" src={themedIcon('sawtooth', theme)} alt="" />,
+}
+export const SYNTH_TYPES = Object.assign({}, SIGNAL_TYPES, {
+  pulse: (theme) => <img className="wave-icon" src={themedIcon('pulse', theme)} alt="" />,
+  pwm: () => (
+    <span className="wave-title" style={{ marginRight: 0 }}>
+      pwm
+    </span>
+  ),
+})
+
+export const INSTRUMENT_TYPES = {
+  synth: (theme) => <img className="wave-icon" style={{ height: 20 }} src={themedIcon('synth', theme)} alt="" />,
+  bass: (theme) => <img className="wave-icon" style={{ height: 28 }} src={themedIcon('bass', theme)} alt="" />,
+  piano: (theme) => <img className="wave-icon" style={{ height: 20 }} src={themedIcon('piano', theme)} alt="" />,
+  marimba: (theme) => <img className="wave-icon" style={{ height: 18 }} src={themedIcon('marimba', theme)} alt="" />,
+  vibes: (theme) => <img className="wave-icon" style={{ height: 20 }} src={themedIcon('vibes', theme)} alt="" />,
+  harp: (theme) => <img className="wave-icon" style={{ height: 20 }} src={themedIcon('harp', theme)} alt="" />,
+  choral: (theme) => <img className="wave-icon" style={{ height: 20 }} src={themedIcon('choral', theme)} alt="" />,
+  drums: (theme) => <img className="wave-icon" style={{ height: 20 }} src={themedIcon('drums', theme)} alt="" />,
+  'drum-machine': (theme) => (
+    <img className="wave-icon" style={{ height: 20 }} src={themedIcon('drum-machine', theme)} alt="" />
+  ),
+}

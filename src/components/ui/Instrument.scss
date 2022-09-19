@@ -1,0 +1,48 @@
+@import '../../sass-globals.scss';
+
+.instrument {
+  text-transform: uppercase;
+  .instrument-switch-container {
+    margin-right: 16px;
+    display: inline-block;
+    vertical-align: top;
+  }
+  .instrument-switch {
+    display: inline-block;
+    vertical-align: middle;
+  }
+  .switch-label {
+    display: inline-block;
+    vertical-align: bottom;
+    font-size: 18px;
+    line-height: 18px;
+    &:first-of-type {
+      margin-right: 5px;
+    }
+    &:last-of-type {
+      margin-left: 5px;
+    }
+  }
+  .instrument-label {
+    @extend .no-select;
+    position: absolute;
+    bottom: 16px;
+    font-size: 24px;
+    height: 24px;
+    line-height: 36px;
+  }
+  .wave-title {
+    @extend .no-select;
+    display: inline-block;
+    vertical-align: baseline;
+    font-size: 22px;
+    margin-right: 4px;
+    margin-top: 6px;
+  }
+  .wave-icon {
+    @extend .no-select;
+    height: 16px;
+    display: inline-block;
+    vertical-align: baseline;
+  }
+}

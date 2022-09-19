@@ -1,0 +1,115 @@
+@import '../../sass-globals.scss';
+
+.knob-container {
+  position: relative;
+  text-transform: uppercase;
+  text-align: center;
+  display: inline-block;
+  vertical-align: top;
+  margin-top: 7px;
+  touch-action: none;
+  .knob {
+    margin: 0 auto;
+    margin-bottom: -1px;
+    cursor: grab;
+    touch-action: none;
+    &.grabbing {
+      cursor: grabbing;
+    }
+  }
+  .knob-label {
+    margin-top: 5px;
+    font-size: 24px;
+    height: 24px;
+  }
+  &.axis-knob {
+    margin-top: 14px;
+    &::before {
+      content: '';
+      position: fixed;
+      left: 0;
+      top: 0;
+      width: 100vw;
+      height: 100vh;
+      z-index: -1;
+      background: #ffffff;
+      opacity: 0;
+      transition: opacity $transitionTime;
+    }
+    .knob {
+      margin-bottom: 0;
+    }
+    .knob-label {
+      transition: opacity $transitionTime;
+      opacity: 1;
+    }
+    .key {
+      z-index: -1;
+    }
+    .axis-knob-helper {
+      transition: opacity $transitionTime;
+      opacity: 0;
+    }
+    .axis-knob-supplemental {
+      position: absolute;
+      left: -93px;
+      top: -93px;
+      z-index: 3000;
+      transform: scale(0);
+      pointer-events: none;
+      transition: transform $transitionTime ease-in-out;
+    }
+    .axis-line {
+      position: absolute;
+      pointer-events: none;
+      z-index: -1;
+      rect {
+        stroke: lighten($pink, 22%);
+        stroke-width: 2;
+        stroke-dasharray: 6, 3;
+      }
+    }
+    &.knob-active {
+      z-index: 2002;
+      .axis-knob-helper {
+        opacity: 1;
+      }
+      &::before {
+        opacity: 0.9;
+      }
+      .axis-knob-supplemental {
+        transform: scale(0.82);
+      }
+      .knob-label {
+        opacity: 0.1;
+      }
+    }
+    &.axis-knob-large {
+      .key {
+        z-index: 0;
+      }
+      &::before,
+      .knob-label {
+        display: none;
+      }
+    }
+  }
+  &.inline-knob {
+    margin-top: 8px;
+    .knob {
+      display: inline-block;
+      vertical-align: middle;
+      margin-left: -4px;
+    }
+    .knob-label {
+      margin-top: 0;
+      display: inline-block;
+      vertical-align: middle;
+      line-height: 36px;
+      margin-left: 4px;
+    }
+  }
+  &.hidden-knob .knob {
+    display: none;
+  }
+}

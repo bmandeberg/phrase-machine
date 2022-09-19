@@ -1,0 +1,168 @@
+@import '../../sass-globals.scss';
+
+$modalTopMargin: 12vh;
+$modalHeaderHeight: 50px;
+
+.modal-container {
+  position: fixed;
+  display: none;
+  justify-content: center;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.75);
+  z-index: 3001;
+  opacity: 0;
+  pointer-events: none;
+  .modal-buffer {
+    height: 0%;
+    margin-top: $modalTopMargin;
+    &.small-buffer {
+      margin-top: 1vw;
+    }
+  }
+  .modal-window {
+    background-color: #ffffff;
+    box-shadow: 0px 0px 6px #111111;
+    box-sizing: border-box;
+    max-width: 98vw;
+    overflow-x: auto;
+    .modal-header {
+      width: 100%;
+      height: 50px;
+      padding: 20px;
+      padding-bottom: 0;
+      box-sizing: border-box;
+      font-size: 24px;
+      text-transform: uppercase;
+      letter-spacing: 0.01em;
+      p,
+      .modal-close {
+        @extend .no-select;
+        display: inline-block;
+        vertical-align: top;
+      }
+      .modal-close {
+        float: right;
+        height: 22px;
+        width: 22px;
+        cursor: pointer;
+        background: url('../../assets/x-icon.png');
+        background-size: 22px;
+        &:hover {
+          background: url('../../assets/x-icon-hover.png');
+          background-size: 22px;
+        }
+      }
+      p {
+        float: left;
+      }
+    }
+    .modal-content {
+      padding: 20px;
+      box-sizing: border-box;
+      font-size: 18px;
+      max-height: calc(98vh - #{$modalTopMargin} - #{$modalHeaderHeight});
+      overflow-y: auto;
+      &.full-modal {
+        max-height: calc(100vh - 2vw - #{$modalHeaderHeight});
+      }
+      .modal-item {
+        margin-top: 10px;
+        &:first-of-type {
+          margin-top: 0;
+        }
+        .modal-label {
+          @extend .no-select;
+          display: inline-block;
+          vertical-align: middle;
+          height: 24px;
+        }
+        .modal-param {
+          float: right;
+        }
+      }
+    }
+  }
+  &.show-enter {
+    display: flex;
+    opacity: 0;
+    pointer-events: none;
+    .modal-buffer {
+      margin-top: 120px;
+      &.small-buffer {
+        margin-top: 40px;
+      }
+    }
+  }
+  &.show-enter-active {
+    display: flex;
+    opacity: 1;
+    transition: opacity $transitionTime;
+    .modal-buffer {
+      transition: margin-top $transitionTime;
+      margin-top: $modalTopMargin;
+      &.small-buffer {
+        margin-top: 1vw;
+      }
+    }
+  }
+  &.show-enter-done {
+    display: flex;
+    opacity: 1;
+    pointer-events: auto;
+    .modal-buffer {
+      margin-top: $modalTopMargin;
+      &.small-buffer {
+        margin-top: 1vw;
+      }
+    }
+  }
+  &.show-exit {
+    display: flex;
+    opacity: 1;
+    pointer-events: none;
+    .modal-buffer {
+      margin-top: $modalTopMargin;
+      &.small-buffer {
+        margin-top: 1vw;
+      }
+    }
+  }
+  &.show-exit-active {
+    display: flex;
+    opacity: 0;
+    transition: opacity $transitionTime;
+    pointer-events: none;
+    .modal-buffer {
+      transition: margin-top $transitionTime;
+      margin-top: 120px;
+      &.small-buffer {
+        margin-top: 40px;
+      }
+    }
+  }
+  &.show-exit-done {
+    opacity: 0;
+    pointer-events: none;
+    .modal-buffer {
+      margin-top: 120px;
+      &.small-buffer {
+        margin-top: 40px;
+      }
+    }
+  }
+  .modal-num-input {
+    height: 34px;
+    .modal-label {
+      line-height: 35px;
+    }
+  }
+  .num-input {
+    margin-top: 0;
+    .num-input-label {
+      display: none;
+    }
+  }
+}
