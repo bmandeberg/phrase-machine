@@ -225,27 +225,13 @@ export default function App() {
 
   const cleanupInstruments = useCallback(() => {}, [])
 
-  const {
-    gainNode,
-    synthInstrument,
-    pianoInstrument,
-    marimbaInstrument,
-    drumsInstrument,
-    drumMachineInstrument,
-    bassInstrument,
-    vibesInstrument,
-    harpInstrument,
-    choralInstrument,
-    chorusEffect,
-    distortionEffect,
-    delayEffect,
-    reverbEffect,
-    vibratoEffect,
-    getCurrentEffect,
-    openInstrumentModal,
-    instruments,
-    effects,
-  } = useInstruments(instrument, instrumentParams, instrumentType, cleanupInstruments, setModalType)
+  const { gainNode, openInstrumentModal, instruments, effects } = useInstruments(
+    instrument,
+    instrumentParams,
+    instrumentType,
+    cleanupInstruments,
+    setModalType
+  )
 
   // lane length
 
@@ -656,6 +642,9 @@ export default function App() {
           chosen={chosenLane}
           playing={playing}
           midiOutRef={midiOutRef}
+          instrument={instrument}
+          instrumentOn={instrumentOn}
+          instrumentType={instrumentType}
         />
       )),
     [
@@ -670,6 +659,8 @@ export default function App() {
       draggingDelimiter,
       grabbing,
       grid,
+      instrumentOn,
+      instrumentType,
       midiOutRef,
       noPointerEvents,
       noteDrag,

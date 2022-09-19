@@ -44,6 +44,9 @@ export default function Lane({
   chosen,
   playing,
   midiOutRef,
+  instrumentOn,
+  instrument,
+  instrumentType,
 }) {
   const [laneLength, setLaneLength] = useState(lanePreset.laneLength)
   const [notes, updateNotes] = useState(lanePreset.notes)
@@ -72,6 +75,16 @@ export default function Lane({
     midiChannelsRef.current = midiChannels
   }, [midiChannels])
 
+  const instrumentOnRef = useRef(instrumentOn)
+  useEffect(() => {
+    instrumentOnRef.current = instrumentOn
+  }, [instrumentOn])
+
+  const instrumentTypeRef = useRef(instrumentType)
+  useEffect(() => {
+    instrumentTypeRef.current = instrumentType
+  }, [instrumentType])
+
   // notes loop
 
   // create the part
@@ -89,6 +102,14 @@ export default function Lane({
           // note length
           const noteDuration = note.widthSnap ? { [note.widthSnap]: note.widthSnapNumber } : pixelsToTime(note.width)
           const noteDurationSeconds = new Tone.Time(noteDuration).toSeconds()
+          // play instrument
+          if (
+            instrumentOnRef.current &&
+            instrument.current &&
+            (instrumentTypeRef.current === 'synth' || instrument.current.loaded)
+          ) {
+            instrument.current.triggerAttackRelease(noteName, noteDurationSeconds, time, note.velocity)
+          }
           // play MIDI note
           if (midiOutObj) {
             midiOutObj.playNote(noteName, channel, {
@@ -104,7 +125,7 @@ export default function Lane({
           }, 100)
         }
       }).start(0),
-    [id, midiOutRef]
+    [id, instrument, midiOutRef]
   )
 
   // update the part events when notes change
@@ -513,6 +534,9 @@ Lane.propTypes = {
   chosen: PropTypes.object,
   playing: PropTypes.bool,
   midiOutRef: PropTypes.object,
+  instrument: PropTypes.object,
+  instrumentOn: PropTypes.bool,
+  instrumentType: PropTypes.string,
 }
 
 const blackKeys = [false, true, false, true, false, false, true, false, true, false, true, false]

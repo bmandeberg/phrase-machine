@@ -4,7 +4,7 @@ import classNames from 'classnames'
 import Switch from 'react-switch'
 import SplitButton from './SplitButton'
 import Dropdown from './Dropdown'
-import { INSTRUMENT_TYPES, themedSwitch } from '../../globals'
+import { INSTRUMENT_TYPES } from '../../globals'
 import './Instrument.scss'
 
 const instrumentTypes = Object.keys(INSTRUMENT_TYPES)

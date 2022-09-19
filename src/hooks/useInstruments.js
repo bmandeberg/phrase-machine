@@ -508,7 +508,6 @@ export default function useInstruments(instrument, instrumentParams, instrumentT
 
     // cleanup instruments
     return () => {
-      console.log('hmmm')
       cleanupRef.current()
       if (synthInstrument.current) {
         synthInstrument.current.dispose()
