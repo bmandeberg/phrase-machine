@@ -13,7 +13,6 @@ export default function useLaneDrag(
   setGrabbing,
   updateLaneState,
   dragChanged,
-  setChangingProbability,
   cancelClick
 ) {
   const minNoteStart = useRef()
@@ -51,7 +50,6 @@ export default function useLaneDrag(
       minNoteStart.current = minNote
       maxNoteStart.current = maxNote
       dragChanged.current = false
-      cancelClick.current = true
     },
     onDrag: ({ movement: [mx, my], event }) => {
       event.stopPropagation()
@@ -67,6 +65,7 @@ export default function useLaneDrag(
         setMinNote(newMinNote)
         setMaxNote(newMaxNote)
         dragChanged.current = true
+        cancelClick.current = true
       }
     },
     onDragEnd: ({ event }) => {
@@ -80,26 +79,5 @@ export default function useLaneDrag(
     },
   })
 
-  // probability bar drag
-  const delimiterIndex = useRef()
-  const laneID = useRef()
-  const fullHeight = useRef()
-  const dragProbability = useGesture({
-    onDragStart: ({ event }) => {
-      event.stopPropagation()
-      delimiterIndex.current = +event.target.getAttribute('delimiter-index')
-      laneID.current = event.target.getAttribute('lane-id')
-      fullHeight.current = +event.target.getAttribute('full-height')
-      setChangingProbability(delimiterIndex.current)
-    },
-    onDrag: ({ movement: [mx, my], event }) => {
-      event.stopPropagation()
-    },
-    onDragEnd: ({ event }) => {
-      event.stopPropagation()
-      setChangingProbability(null)
-    },
-  })
-
-  return { dragLaneStart, dragLane, dragProbability }
+  return { dragLaneStart, dragLane }
 }
