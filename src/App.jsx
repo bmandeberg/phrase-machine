@@ -299,6 +299,7 @@ export default function App() {
   const [draggingDelimiter, setDraggingDelimiter] = useState(null)
   const wasDraggingDelimiter = useRef(null)
   const delimiterDragHover = useRef(null)
+  const cancelClick = useRef(false)
   const { globalDrag } = useGlobalDrag(
     delimiters,
     setNoPointerEvents,
@@ -324,7 +325,8 @@ export default function App() {
     selectingDimensions,
     delimiterDragHover,
     setUIState,
-    updateChosenLane
+    updateChosenLane,
+    cancelClick
   )
 
   // delimiters
@@ -383,10 +385,12 @@ export default function App() {
         })
         setDelimiters(delimitersCopy)
         setUIState((uiState) => Object.assign({}, uiState, { delimiters: delimitersCopy }))
-      } else {
+      } else if (!cancelClick.current) {
         // set playhead
         Tone.Transport.position = new Tone.Time(pixelsToTime(px, snap)).toBarsBeatsSixteenths()
         setPlayheadPosition(px)
+      } else {
+        cancelClick.current = false
       }
       updateChosenLane()
     },

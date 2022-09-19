@@ -29,7 +29,8 @@ export default function useGlobalDrag(
   selectingDimensions,
   delimiterDragHover,
   setUIState,
-  updateChosenLane
+  updateChosenLane,
+  cancelClick
 ) {
   const dragSelecting = useRef(false)
   const draggingNote = useRef(false)
@@ -92,13 +93,23 @@ export default function useGlobalDrag(
           fullHeight.current = +event.target.getAttribute('full-height')
           percentage.current = { ...delimiters[delimiterIndex.current].lanes }
           setChangingProbability(delimiterIndex.current)
-        } else if (event.target.closest('#playhead')) {
+        } else if (event.target.closest('#playhead') || event.target.closest('#transport-topbar')) {
+          const topbarDrag = event.target.closest('#transport-topbar')
           // dragging playhead
           setNoPointerEvents(true)
           setEwResizing(true)
           draggingPlayhead.current = true
-          dragStart.current = positionToPixels(Tone.Transport.position)
+          const leftOffset = document.querySelector('#lanes-container').getBoundingClientRect().left + 14
+          const startX = snapPixels(x - leftOffset, snap).px
+          dragStart.current = topbarDrag ? startX : positionToPixels(Tone.Transport.position)
           snapStart.current = snap
+          if (topbarDrag) {
+            cancelClick.current = true
+            // set playhead if dragging from topbar
+            Tone.Transport.position = new Tone.Time(pixelsToTime(startX, snap)).toBarsBeatsSixteenths()
+            setPlayheadPosition(startX)
+            updateChosenLane(startX)
+          }
         } else {
           // drag selecting
           dragSelecting.current = true
