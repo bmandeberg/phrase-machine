@@ -122,137 +122,137 @@ export default function InstrumentModal({
 
   useEffect(() => {
     updateInstrumentParams('synthType', synthType)
-  }, [instruments.synthInstrument, synthType, updateInstrumentParams])
+  }, [synthType, updateInstrumentParams])
 
   useEffect(() => {
     if (instruments.synthInstrument.current) {
-      instruments.synthInstrument.current.portamento = portamento
+      instruments.synthInstrument.current.set({ portamento })
     }
     updateInstrumentParams('portamento', portamento)
   }, [instruments.synthInstrument, portamento, updateInstrumentParams])
 
   useEffect(() => {
     if (instruments.synthInstrument.current) {
-      instruments.synthInstrument.current.oscillator.modulationType = modulationType
+      instruments.synthInstrument.current.set({ oscillator: { modulationType } })
     }
     updateInstrumentParams('modulationType', modulationType)
   }, [instruments.synthInstrument, modulationType, updateInstrumentParams])
 
   useEffect(() => {
     if (instruments.synthInstrument.current) {
-      instruments.synthInstrument.current.oscillator.set({ harmonicity })
+      instruments.synthInstrument.current.set({ oscillator: { harmonicity } })
     }
     updateInstrumentParams('harmonicity', harmonicity)
   }, [harmonicity, instruments.synthInstrument, updateInstrumentParams])
 
   useEffect(() => {
     if (instruments.synthInstrument.current) {
-      instruments.synthInstrument.current.oscillator.spread = fatSpread
+      instruments.synthInstrument.current.set({ oscillator: { spread: fatSpread } })
     }
     updateInstrumentParams('fatSpread', fatSpread)
   }, [fatSpread, instruments.synthInstrument, updateInstrumentParams])
 
   useEffect(() => {
     if (instruments.synthInstrument.current) {
-      instruments.synthInstrument.current.oscillator.count = fatCount
+      instruments.synthInstrument.current.set({ oscillator: { count: fatCount } })
     }
     updateInstrumentParams('fatCount', fatCount)
   }, [fatCount, instruments.synthInstrument, updateInstrumentParams])
 
   useEffect(() => {
     if (instruments.synthInstrument.current) {
-      instruments.synthInstrument.current.oscillator.set({ width: pulseWidth })
+      instruments.synthInstrument.current.set({ oscillator: { width: pulseWidth } })
     }
     updateInstrumentParams('pulseWidth', pulseWidth)
   }, [instruments.synthInstrument, pulseWidth, updateInstrumentParams])
 
   useEffect(() => {
     if (instruments.synthInstrument.current) {
-      instruments.synthInstrument.current.oscillator.set({ modulationFrequency: pwmFreq })
+      instruments.synthInstrument.current.set({ oscillator: { modulationFrequency: pwmFreq } })
     }
     updateInstrumentParams('pwmFreq', pwmFreq)
   }, [instruments.synthInstrument, pwmFreq, updateInstrumentParams])
 
   useEffect(() => {
     if (instruments.synthInstrument.current) {
-      instruments.synthInstrument.current.envelope.attack = envAttack
+      instruments.synthInstrument.current.set({ envelope: { attack: envAttack } })
     }
     updateInstrumentParams('envAttack', envAttack)
   }, [envAttack, instruments.synthInstrument, updateInstrumentParams])
 
   useEffect(() => {
     if (instruments.synthInstrument.current) {
-      instruments.synthInstrument.current.envelope.decay = envDecay
+      instruments.synthInstrument.current.set({ envelope: { decay: envDecay } })
     }
     updateInstrumentParams('envDecay', envDecay)
   }, [envDecay, instruments.synthInstrument, updateInstrumentParams])
 
   useEffect(() => {
     if (instruments.synthInstrument.current) {
-      instruments.synthInstrument.current.envelope.sustain = envSustain
+      instruments.synthInstrument.current.set({ envelope: { sustain: envSustain } })
     }
     updateInstrumentParams('envSustain', envSustain)
   }, [envSustain, instruments.synthInstrument, updateInstrumentParams])
 
   useEffect(() => {
     if (instruments.synthInstrument.current) {
-      instruments.synthInstrument.current.envelope.release = envRelease
+      instruments.synthInstrument.current.set({ envelope: { release: envRelease } })
     }
     updateInstrumentParams('envRelease', envRelease)
   }, [envRelease, instruments.synthInstrument, updateInstrumentParams])
 
   useEffect(() => {
     if (instruments.synthInstrument.current) {
-      instruments.synthInstrument.current.filter.set({ Q: resonance })
+      instruments.synthInstrument.current.set({ filter: { Q: resonance } })
     }
     updateInstrumentParams('resonance', resonance)
   }, [instruments.synthInstrument, resonance, updateInstrumentParams])
 
   useEffect(() => {
     if (instruments.synthInstrument.current) {
-      instruments.synthInstrument.current.filter.rolloff = rolloff
+      instruments.synthInstrument.current.set({ filter: { rolloff } })
     }
     updateInstrumentParams('rolloff', rolloff)
   }, [instruments.synthInstrument, rolloff, updateInstrumentParams])
 
   useEffect(() => {
     if (instruments.synthInstrument.current) {
-      instruments.synthInstrument.current.filterEnvelope.baseFrequency = cutoff
+      instruments.synthInstrument.current.set({ filterEnvelope: { baseFrequency: cutoff } })
     }
     updateInstrumentParams('cutoff', cutoff)
   }, [cutoff, instruments.synthInstrument, updateInstrumentParams])
 
   useEffect(() => {
     if (instruments.synthInstrument.current) {
-      instruments.synthInstrument.current.filterEnvelope.attack = filterAttack
+      instruments.synthInstrument.current.set({ filterEnvelope: { attack: filterAttack } })
     }
     updateInstrumentParams('filterAttack', filterAttack)
   }, [filterAttack, instruments.synthInstrument, updateInstrumentParams])
 
   useEffect(() => {
     if (instruments.synthInstrument.current) {
-      instruments.synthInstrument.current.filterEnvelope.decay = filterDecay
+      instruments.synthInstrument.current.set({ filterEnvelope: { decay: filterDecay } })
     }
     updateInstrumentParams('filterDecay', filterDecay)
   }, [filterDecay, instruments.synthInstrument, updateInstrumentParams])
 
   useEffect(() => {
     if (instruments.synthInstrument.current) {
-      instruments.synthInstrument.current.filterEnvelope.sustain = filterSustain
+      instruments.synthInstrument.current.set({ filterEnvelope: { sustain: filterSustain } })
     }
     updateInstrumentParams('filterSustain', filterSustain)
   }, [filterSustain, instruments.synthInstrument, updateInstrumentParams])
 
   useEffect(() => {
     if (instruments.synthInstrument.current) {
-      instruments.synthInstrument.current.filterEnvelope.release = filterRelease
+      instruments.synthInstrument.current.set({ filterEnvelope: { release: filterRelease } })
     }
     updateInstrumentParams('filterRelease', filterRelease)
   }, [filterRelease, instruments.synthInstrument, updateInstrumentParams])
 
   useEffect(() => {
     if (instruments.synthInstrument.current) {
-      instruments.synthInstrument.current.filterEnvelope.octaves = filterAmount
+      instruments.synthInstrument.current.set({ filterEnvelope: { octaves: filterAmount } })
     }
     updateInstrumentParams('filterAmount', filterAmount)
   }, [filterAmount, instruments.synthInstrument, updateInstrumentParams])
@@ -462,7 +462,7 @@ export default function InstrumentModal({
       const updatedType =
         oscModifier !== oscModifiers[0] && Object.keys(SIGNAL_TYPES).includes(newType) ? oscModifier + newType : newType
       setSynthType(updatedType)
-      instruments.synthInstrument.current.oscillator.set({ harmonicity, type: updatedType })
+      instruments.synthInstrument.current.set({ oscillator: { harmonicity, type: updatedType } })
     },
     [harmonicity, instruments.synthInstrument, oscModifier]
   )
@@ -470,7 +470,7 @@ export default function InstrumentModal({
     (modifier) => {
       const updatedModifier = modifier === oscModifiers[0] ? '' : modifier
       setSynthType(updatedModifier + synthBase)
-      instruments.synthInstrument.current.oscillator.set({ harmonicity, type: updatedModifier + synthBase })
+      instruments.synthInstrument.current.set({ oscillator: { harmonicity, type: updatedModifier + synthBase } })
       setOscModifier(modifier)
     },
     [harmonicity, instruments.synthInstrument, synthBase]

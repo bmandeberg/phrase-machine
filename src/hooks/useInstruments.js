@@ -58,7 +58,7 @@ export default function useInstruments(instrument, instrumentParams, instrumentT
 
   const initSynthInstrument = useCallback(() => {
     if (!synthInstrument.current) {
-      synthInstrument.current = new Tone.MonoSynth({
+      synthInstrument.current = new Tone.PolySynth(Tone.MonoSynth, {
         portamento: instrumentParamsRef.current.portamento,
         volume: -8,
         oscillator: {

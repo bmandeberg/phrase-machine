@@ -93,7 +93,6 @@ export default function Lane({
       new Tone.Part((time, note) => {
         // play note if lane is chosen
         if (chosenRef.current?.lane === id) {
-          console.log(note)
           // note data
           const channel = midiChannelsRef.current[note.midiNote] || 'all'
           const noteName = noteString(note.midiNote)
