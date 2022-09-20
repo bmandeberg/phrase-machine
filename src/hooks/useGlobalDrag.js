@@ -30,7 +30,8 @@ export default function useGlobalDrag(
   delimiterDragHover,
   setUIState,
   updateChosenLane,
-  cancelClick
+  cancelClick,
+  setEndPosition
 ) {
   const dragSelecting = useRef(false)
   const draggingNote = useRef(false)
@@ -45,6 +46,7 @@ export default function useGlobalDrag(
   const fullHeight = useRef()
   const percentage = useRef()
   const draggingPlayhead = useRef(false)
+  const draggingEnd = useRef(false)
 
   const globalDrag = useGesture({
     onDragStart: ({ initial: [x, y], metaKey, event }) => {
@@ -93,6 +95,13 @@ export default function useGlobalDrag(
           fullHeight.current = +event.target.getAttribute('full-height')
           percentage.current = { ...delimiters[delimiterIndex.current].lanes }
           setChangingProbability(delimiterIndex.current)
+        } else if (event.target.closest('#end')) {
+          // dragging transport end
+          setNoPointerEvents(true)
+          setEwResizing(true)
+          draggingEnd.current = uiState.end
+          dragStart.current = uiState.end.x
+          snapStart.current = uiState.end.snap
         } else if (event.target.closest('#playhead') || event.target.closest('#transport-topbar')) {
           const topbarDrag = event.target.closest('#transport-topbar')
           // dragging playhead
@@ -261,6 +270,34 @@ export default function useGlobalDrag(
             setPlayheadPosition(x)
             updateChosenLane(x)
           }
+        } else if (draggingEnd.current) {
+          // dragging transport end
+          dragChanged.current = mx
+          if (dragStart.current !== undefined) {
+            if (dx) {
+              dragDirection.current = dx
+            }
+            const lowerSnapBound = snap && snapPixels(dragStart.current, snap, -1).px
+            const upperSnapBound = snap && lowerSnapBound + EIGHTH_WIDTH * RATE_MULTS[snap]
+            const realX = dragStart.current + mx
+            if (snap && !snapStart.current && (realX < lowerSnapBound || realX > upperSnapBound)) {
+              snapStart.current = snap
+            }
+            const direction = !snapStart.current ? dragDirection.current : 0
+            const { px } = snapPixels(realX, snap, direction)
+            const minX = 0
+            const maxX = windowLaneLength * EIGHTH_WIDTH
+            const x = constrain(px, minX, maxX)
+            const snapNumber = snapPixels(x, snap).snapNumber
+            // set end
+            draggingEnd.current = {
+              x,
+              snap,
+              snapNumber,
+            }
+            setEndPosition(x)
+            Tone.Transport.loopEnd = snap ? { [snap]: snapNumber } : pixelsToTime(x)
+          }
         }
       }
     },
@@ -325,12 +362,20 @@ export default function useGlobalDrag(
           setDelimiters(delimitersRef.current)
           setUIState((uiState) => Object.assign({}, uiState, { delimiters }))
           setChangingProbability(null)
-        } else if (draggingPlayhead) {
+        } else if (draggingPlayhead.current) {
           setNoPointerEvents(false)
           setEwResizing(false)
           draggingPlayhead.current = false
           dragChanged.current = false
           dragDirection.current = 0
+        } else if (draggingEnd.current) {
+          setNoPointerEvents(false)
+          setEwResizing(false)
+          dragChanged.current = false
+          dragDirection.current = 0
+          const end = { ...draggingEnd.current }
+          setUIState((uiState) => Object.assign({}, uiState, { end }))
+          draggingEnd.current = false
         }
       }
     },

@@ -27,10 +27,11 @@ import Modal from './components/ui/Modal'
 import useGlobalDrag from './hooks/useGlobalDrag'
 import useInstruments from './hooks/useInstruments'
 import useMIDI from './hooks/useMIDI'
-import { pixelsToTime, positionToPixels, snapPixels, chooseLane, getDelimiterIndex } from './util'
+import { pixelsToTime, positionToPixels, snapPixels, chooseLane, getDelimiterIndex, timeToPixels } from './util'
 import addIcon from './assets/add-icon.svg'
 import addIconHover from './assets/add-icon-hover.svg'
 import playheadGraphic from './assets/playhead.svg'
+import endGraphic from './assets/end-head.svg'
 import './App.scss'
 
 // load/set presets
@@ -179,6 +180,7 @@ export default function App() {
   // transport
 
   const playhead = useRef()
+  const end = useRef()
 
   const setPlayheadPosition = useCallback((position) => {
     if (playhead.current) {
@@ -186,6 +188,14 @@ export default function App() {
     }
   }, [])
 
+  const setEndPosition = useCallback((position) => {
+    if (end.current) {
+      end.current.style.left = 43 + position + 'px'
+    }
+  }, [])
+
+  // init
+  const endPos = useRef(uiState.end)
   useEffect(() => {
     Tone.Transport.loop = true
     Tone.Transport.loopStart = 0
@@ -195,11 +205,17 @@ export default function App() {
         setPlayheadPosition(positionToPixels(Tone.Transport.position))
       }, time)
     }, 1 / 60)
+    Tone.Transport.loopEnd = endPos.current.snap
+      ? { [endPos.current.snap]: endPos.current.snapNumber }
+      : pixelsToTime(endPos.current.x)
+    setEndPosition(
+      endPos.current.snap ? timeToPixels({ [endPos.current.snap]: endPos.current.snapNumber }) : endPos.current.x
+    )
     // cleanup
     return () => {
       Tone.Transport.clear(animationRepeat)
     }
-  }, [setPlayheadPosition])
+  }, [setEndPosition, setPlayheadPosition])
 
   const [playing, setPlaying] = useState(false)
   const [tempo, setTempo] = useState(uiState.tempo)
@@ -273,11 +289,6 @@ export default function App() {
 
   const windowLaneLength = useMemo(() => Math.max(calcLaneLength(window.innerWidth - 30), longestLane), [longestLane])
 
-  // update Tone Transport loop length
-  useEffect(() => {
-    Tone.Transport.loopEnd = { '8n': windowLaneLength }
-  }, [windowLaneLength])
-
   // check current delimiter and update chosen lane if we're in a new delimiter
   const updateChosenLane = useCallback(
     (x, newDelimiters) => {
@@ -326,7 +337,8 @@ export default function App() {
     delimiterDragHover,
     setUIState,
     updateChosenLane,
-    cancelClick
+    cancelClick,
+    setEndPosition
   )
 
   // delimiters
@@ -724,6 +736,15 @@ export default function App() {
     [lanesHeight]
   )
 
+  const endEl = useMemo(
+    () => (
+      <div id="end" ref={end} style={{ height: lanesHeight }}>
+        <img id="end-head" src={endGraphic} alt="" draggable="false" />
+      </div>
+    ),
+    [lanesHeight]
+  )
+
   const tooltipEl = useMemo(() => {
     if (tooltip) {
       if (tooltip.content.type === 'note') {
@@ -864,6 +885,7 @@ export default function App() {
       )}
       {tooltipEl}
       <div id="lane-overflow"></div>
+      {endEl}
       {playheadEl}
       <CSSTransition in={!!modalType} timeout={300} classNames="show" onEnter={showModal} onExited={hideModal}>
         <Modal
@@ -903,5 +925,6 @@ function deepStateCopy(state) {
     lanes: state.lanes.map((l) => laneCopy(l)),
     delimiters: state.delimiters.slice(),
     instrumentParams: { ...state.instrumentParams },
+    end: { ...state.end },
   })
 }

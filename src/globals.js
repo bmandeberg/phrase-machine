@@ -152,8 +152,10 @@ export function calcLaneLength(width, direction = -1) {
   return (direction < 0 ? Math.floor(measures) : Math.ceil(measures)) * 8
 }
 
+const defaultLaneLength = calcLaneLength(window.innerWidth - 30)
+
 const laneID = uuid()
-export const DEFAULT_LANE = (id = laneID, laneLength = calcLaneLength(window.innerWidth - 30), colorIndex = 0) => ({
+export const DEFAULT_LANE = (id = laneID, laneLength = defaultLaneLength, colorIndex = 0) => ({
   id,
   laneLength,
   notes: [],
@@ -178,6 +180,11 @@ export const DEFAULT_PRESET = JSON.stringify({
       x: 0,
     },
   ],
+  end: {
+    snap: '8n',
+    snapNumber: defaultLaneLength,
+    x: defaultLaneLength * EIGHTH_WIDTH,
+  },
   instrumentOn: true,
   instrumentType: 'synth',
   instrumentParams: {

@@ -26,9 +26,9 @@ export function boxesIntersect(x1min, x1max, y1min, y1max, x2min, x2max, y2min, 
 function snapNum(px, snap, direction) {
   const snapDimension = EIGHTH_WIDTH * RATE_MULTS[snap]
   if (direction) {
-    return Math.floor(px / snapDimension) + (direction > 0 ? 1 : 0)
+    return Math.max(Math.floor(px / snapDimension) + (direction > 0 ? 1 : 0), 0)
   }
-  return Math.round(px / snapDimension)
+  return Math.max(Math.round(px / snapDimension), 0)
 }
 
 export function snapPixels(px, snap, direction) {

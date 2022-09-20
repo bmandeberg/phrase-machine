@@ -189,6 +189,33 @@
     }
   }
 
+  #end {
+    position: fixed;
+    top: 72px;
+    width: 1px;
+    height: 100%;
+    background-color: $red;
+    z-index: 3;
+    box-shadow: 0 0 2px $red;
+    cursor: ew-resize;
+
+    &::before {
+      content: '';
+      position: absolute;
+      width: 10px;
+      height: 100%;
+      left: -5px;
+    }
+
+    #end-head {
+      $tipWidth: 26px;
+      width: $tipWidth;
+      position: absolute;
+      top: -10px;
+      left: -16px;
+    }
+  }
+
   .tooltip {
     .slider {
       margin: 0 auto;
