@@ -85,6 +85,18 @@ export default function App() {
 
   const snap = useMemo(() => (snapToGrid ? grid : null), [grid, snapToGrid])
 
+  const setPlayheadPosition = useCallback((position) => {
+    if (playhead.current) {
+      playhead.current.style.left = 43 + position + 'px'
+    }
+  }, [])
+
+  const setEndPosition = useCallback((position) => {
+    if (end.current) {
+      end.current.style.left = 43 + position + 'px'
+    }
+  }, [])
+
   // event handlers
 
   useEffect(() => {
@@ -96,6 +108,9 @@ export default function App() {
         altPressed.current = true
       } else if (e.key === 'Meta') {
         metaPressed.current = true
+      } else if (e.key === 'Enter') {
+        Tone.Transport.position = 0
+        setPlayheadPosition(0)
       }
     }
     function keyup(e) {
@@ -148,7 +163,7 @@ export default function App() {
       document.removeEventListener('contextmenu', contextmenu)
       window.onfocus = null
     }
-  }, [])
+  }, [setPlayheadPosition])
 
   useEffect(() => {
     window.localStorage.setItem('phrasePresets', JSON.stringify(uiState))
@@ -182,18 +197,6 @@ export default function App() {
 
   const playhead = useRef()
   const end = useRef()
-
-  const setPlayheadPosition = useCallback((position) => {
-    if (playhead.current) {
-      playhead.current.style.left = 43 + position + 'px'
-    }
-  }, [])
-
-  const setEndPosition = useCallback((position) => {
-    if (end.current) {
-      end.current.style.left = 43 + position + 'px'
-    }
-  }, [])
 
   // init
   const endPos = useRef(uiState.end)
