@@ -329,16 +329,18 @@ export default function useNoteDrag(
               snapStart.current[i] = snapRef.current
             }
             const direction = !snapStart.current[i] ? dragDirection.current : 0
-            const { px, snapNumber } = snapPixels(realX, snapRef.current, direction)
+            const { px } = snapPixels(realX, snapRef.current, direction)
             const newX = Math.max(px, MIN_NOTE_WIDTH)
             if (!snapRef.current || newX !== dragEnd.current[i]) {
               overrideDefault.current = true
             }
+            const widthSnap = snapRef.current && snapRef.current === note.xSnap ? snapRef.current : null
+            const newWidth = newX - dragStart.current[i]
             updateNotes[id] = Object.assign({}, note, {
-              width: newX - dragStart.current[i],
+              width: newWidth,
               endSnap: snapRef.current,
-              widthSnap: snapRef.current && snapRef.current === note.xSnap ? snapRef.current : null,
-              widthSnapNumber: snapNumber,
+              widthSnap,
+              widthSnapNumber: widthSnap ? Math.floor(newWidth / (EIGHTH_WIDTH * RATE_MULTS[snapRef.current])) : null,
             })
           }
         } else if (draggingLeft.current) {
