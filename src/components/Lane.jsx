@@ -326,7 +326,8 @@ export default function Lane({
     dragChanged,
     noteDrag,
     startNoteDrag,
-    setSelectNotes
+    setSelectNotes,
+    playNote
   )
 
   // lane dragging

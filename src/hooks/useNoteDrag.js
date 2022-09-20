@@ -24,7 +24,8 @@ export default function useNoteDrag(
   dragChanged,
   noteDrag,
   startNoteDrag,
-  setSelectNotes
+  setSelectNotes,
+  playNote
 ) {
   const tempNote = useRef(null)
 
@@ -60,9 +61,12 @@ export default function useNoteDrag(
             widthSnap: snap,
             endSnap: snap,
           }
+          playNote(newNote)
           notesCopy.push(newNote)
           // set as selected note
-          setSelectNotes({ [id]: [newNote.id] })
+          setTimeout(() => {
+            setSelectNotes({ [id]: [newNote.id] })
+          })
           return notesCopy
         })
         setNoPointerEvents(true)
@@ -118,6 +122,7 @@ export default function useNoteDrag(
   const dragStart = useRef()
   const dragEnd = useRef()
   const noteStart = useRef()
+  const currentNote = useRef()
   const dragDirection = useRef(0)
   const snapStart = useRef()
   const widthStart = useRef()
@@ -177,6 +182,9 @@ export default function useNoteDrag(
           noteStart.current = selectedNotesRef.current.map(
             (id) => notesRef.current.find((note) => note.id === id).midiNote
           )
+          currentNote.current = selectedNotesRef.current.map(
+            (id) => notesRef.current.find((note) => note.id === id).midiNote
+          )
         } else if (startNoteDrag.type === 'drag-right') {
           // drag-right
           draggingRight.current = true
@@ -190,6 +198,13 @@ export default function useNoteDrag(
         } else if (startNoteDrag.type === 'drag-left') {
           // drag-left
           draggingLeft.current = true
+        }
+      }
+      // play selected notes
+      for (const selectedNote of selectedNotesRef.current) {
+        const noteData = notesRef.current.find((note) => note.id === selectedNote)
+        if (noteData) {
+          playNote(noteData)
         }
       }
     } else {
@@ -220,7 +235,7 @@ export default function useNoteDrag(
       overrideDefault.current = false
       noteShiftSelected.current = false
     }
-  }, [altPressed, dragChanged, selectedNotesRef, setSelectedNotes, shiftPressed, startNoteDrag])
+  }, [altPressed, dragChanged, playNote, selectedNotesRef, setSelectedNotes, shiftPressed, startNoteDrag])
 
   // actual note dragging
   useEffect(() => {
@@ -284,6 +299,11 @@ export default function useNoteDrag(
           // midi note, y-axis
           if (noteStart.current[i] && (!shiftPressed.current || shiftDirectionX === false)) {
             newNote = constrain(noteStart.current[i] - Math.round(my / NOTE_HEIGHT), MIN_MIDI_NOTE, MAX_MIDI_NOTE)
+            // play notes when dragging to a new note lane
+            if (newNote !== currentNote.current[i]) {
+              playNote({ ...note, midiNote: newNote })
+              currentNote.current[i] = newNote
+            }
           }
           updateNotes[id] = Object.assign({}, note, {
             x: newX,
@@ -365,7 +385,7 @@ export default function useNoteDrag(
       })
       setNotes((notes) => batchUpdateNotes(notes, updateNotes))
     }
-  }, [batchUpdateNotes, dragChanged, noteDrag, selectedNotesRef, setNotes, setSelectedNotes, shiftPressed])
+  }, [batchUpdateNotes, dragChanged, noteDrag, playNote, selectedNotesRef, setNotes, setSelectedNotes, shiftPressed])
 
   return { createNote }
 }
