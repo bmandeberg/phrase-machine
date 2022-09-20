@@ -50,7 +50,7 @@ export default function useGlobalDrag(
 
   const globalDrag = useGesture({
     onDragStart: ({ initial: [x, y], metaKey, event }) => {
-      if (!metaKey && event.button === 0) {
+      if (!metaKey && event.button === 0 && !event.target.closest('.knob')) {
         if (
           event.target.classList.contains('note') ||
           event.target.classList.contains('note-drag-right') ||

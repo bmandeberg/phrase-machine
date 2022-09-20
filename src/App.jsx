@@ -46,6 +46,7 @@ export default function App() {
   const [grid, setGrid] = useState(uiState.grid)
   const [beatsPerBar, setBeatsPerBar] = useState(uiState.beatsPerBar)
   const [beatValue, setBeatValue] = useState(uiState.beatValue)
+  const [swing, setSwing] = useState(uiState.swing)
   const [noPointerEvents, setNoPointerEvents] = useState(false)
   const [grabbing, setGrabbing] = useState(false)
   const [ewResizing, setEwResizing] = useState(false)
@@ -230,6 +231,11 @@ export default function App() {
     Tone.Transport.timeSignature = [beatsPerBar, beatValue]
     setUIState((uiState) => Object.assign({}, uiState, { beatsPerBar, beatValue }))
   }, [beatValue, beatsPerBar])
+
+  useEffect(() => {
+    Tone.Transport.swing = swing
+    setUIState((uiState) => Object.assign({}, uiState, { swing }))
+  }, [swing])
 
   // MIDI
 
@@ -797,18 +803,8 @@ export default function App() {
     return null
   }, [tooltip, uiState.lanes])
 
-  return (
-    <div
-      id="main-container"
-      className={classNames({ grabbing, 'ew-resizing': ewResizing, 'ns-resizing': nsResizing })}
-      ref={mainContainerRef}
-      style={{
-        '--eighth-width': EIGHTH_WIDTH + 'px',
-        '--note-height': NOTE_HEIGHT + 'px',
-        '--keys-width': KEYS_WIDTH + 'px',
-      }}
-      {...globalDrag()}>
-      <div id="header-background"></div>
+  const header = useMemo(
+    () => (
       <Header
         playing={playing}
         setPlaying={setPlaying}
@@ -836,7 +832,51 @@ export default function App() {
         setInstrumentType={setInstrumentType}
         theme={theme}
         openInstrumentModal={openInstrumentModal}
+        swing={swing}
+        setSwing={setSwing}
+        grabbing={grabbing}
+        setGrabbing={setGrabbing}
+        linearKnobs={linearKnobs}
       />
+    ),
+    [
+      beatValue,
+      beatsPerBar,
+      grabbing,
+      grid,
+      instrumentOn,
+      instrumentType,
+      linearKnobs,
+      midiIn,
+      midiInRef,
+      midiIns,
+      midiOut,
+      midiOutRef,
+      midiOuts,
+      openInstrumentModal,
+      playing,
+      setMidiIn,
+      setMidiOut,
+      snapToGrid,
+      swing,
+      tempo,
+      theme,
+    ]
+  )
+
+  return (
+    <div
+      id="main-container"
+      className={classNames({ grabbing, 'ew-resizing': ewResizing, 'ns-resizing': nsResizing })}
+      ref={mainContainerRef}
+      style={{
+        '--eighth-width': EIGHTH_WIDTH + 'px',
+        '--note-height': NOTE_HEIGHT + 'px',
+        '--keys-width': KEYS_WIDTH + 'px',
+      }}
+      {...globalDrag()}>
+      <div id="header-background"></div>
+      {header}
       <div
         id="transport-topbar"
         style={{ width: mapLaneLength(windowLaneLength, grid) * RATE_MULTS[grid] * EIGHTH_WIDTH }}>

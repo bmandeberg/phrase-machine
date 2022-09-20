@@ -102,6 +102,7 @@ export default function Lane({
           // note length
           const noteDuration = note.widthSnap ? { [note.widthSnap]: note.widthSnapNumber } : pixelsToTime(note.width)
           const noteDurationSeconds = new Tone.Time(noteDuration).toSeconds()
+          console.log(note, noteDuration, noteDurationSeconds)
           // play instrument
           if (
             instrumentOnRef.current &&

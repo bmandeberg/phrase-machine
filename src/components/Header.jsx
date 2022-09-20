@@ -5,6 +5,7 @@ import * as Tone from 'tone'
 import NumInput from './ui/NumInput'
 import Dropdown from './ui/Dropdown'
 import Instrument from './ui/Instrument'
+import RotaryKnob from './ui/RotaryKnob'
 import { RATES } from '../globals'
 import { midiStartContinue, midiStop } from '../hooks/useMIDI'
 import logo from '../assets/logo.png'
@@ -46,6 +47,11 @@ export default function Header({
   setInstrumentType,
   theme,
   openInstrumentModal,
+  swing,
+  setSwing,
+  grabbing,
+  setGrabbing,
+  linearKnobs,
 }) {
   const [hoverPlayStop, setHoverPlayStop] = useState(false)
 
@@ -182,6 +188,19 @@ export default function Header({
         noOptions="MIDI only works in Google Chrome"
         small
       />
+      <RotaryKnob
+        min={0}
+        max={1}
+        value={swing}
+        setValue={setSwing}
+        label="Swing"
+        grabbing={grabbing}
+        setGrabbing={setGrabbing}
+        inline
+        mute={false}
+        linearKnobs={linearKnobs}
+        theme={theme}
+      />
     </div>
   )
 }
@@ -212,4 +231,9 @@ Header.propTypes = {
   setInstrumentType: PropTypes.func,
   theme: PropTypes.string,
   openInstrumentModal: PropTypes.func,
+  swing: PropTypes.number,
+  setSwing: PropTypes.func,
+  grabbing: PropTypes.bool,
+  setGrabbing: PropTypes.func,
+  linearKnobs: PropTypes.bool,
 }

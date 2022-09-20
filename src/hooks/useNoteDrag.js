@@ -47,43 +47,40 @@ export default function useNoteDrag(
         const laneNum = maxNote - minNote - +event.target?.getAttribute('lane-num')
         tempNote.current = uuid()
         const realX = ix + leftOffset
-        setNotes((notes) => {
-          const notesCopy = notes.slice()
-          const { px, snapNumber } = snapPixels(realX, snap, -1)
-          const newNote = {
-            id: tempNote.current,
-            midiNote: laneNum + minNote,
-            velocity: 1,
-            x: px,
-            xSnap: snap,
-            xSnapNumber: snapNumber,
-            width: snap ? EIGHTH_WIDTH * RATE_MULTS[snap] : MIN_NOTE_WIDTH,
-            widthSnap: snap,
-            endSnap: snap,
-          }
-          playNote(newNote)
-          notesCopy.push(newNote)
-          // set as selected note
-          setTimeout(() => {
-            setSelectNotes({ [id]: [newNote.id] })
-          })
-          return notesCopy
+        const notesCopy = notes.slice()
+        const { px, snapNumber } = snapPixels(realX, snap, -1)
+        const newNote = {
+          id: tempNote.current,
+          midiNote: laneNum + minNote,
+          velocity: 1,
+          x: px,
+          xSnap: snap,
+          xSnapNumber: snapNumber,
+          width: snap ? EIGHTH_WIDTH * RATE_MULTS[snap] : MIN_NOTE_WIDTH,
+          widthSnapNumber: snap ? 1 : null,
+          widthSnap: snap,
+          endSnap: snap,
+        }
+        playNote(newNote)
+        notesCopy.push(newNote)
+        // set as selected note
+        setTimeout(() => {
+          setSelectNotes({ [id]: [newNote.id] })
         })
+        setNotes(notesCopy)
         setNoPointerEvents(true)
         createdNote.current = true
       } else if (tempNote.current) {
         event.stopPropagation()
         // update note
-        setNotes((notes) => {
-          const notesCopy = notes.slice()
-          const note = notesCopy.find((note) => note.id === tempNote.current)
-          const { px, snapNumber } = snapPixels(x + leftOffset, snap)
-          note.width = snap ? Math.max(px - note.x, RATE_MULTS[snap] * EIGHTH_WIDTH) : Math.max(mx, MIN_NOTE_WIDTH)
-          note.widthSnap = snap
-          note.widthSnapNumber = snap && snapNumber - note.xSnapNumber
-          note.endSnap = snap
-          return notesCopy
-        })
+        const notesCopy = notes.slice()
+        const note = notesCopy.find((note) => note.id === tempNote.current)
+        const { px, snapNumber } = snapPixels(x + leftOffset, snap)
+        note.width = snap ? Math.max(px - note.x, RATE_MULTS[snap] * EIGHTH_WIDTH) : Math.max(mx, MIN_NOTE_WIDTH)
+        note.widthSnap = snap
+        note.widthSnapNumber = snap && Math.max(snapNumber - note.xSnapNumber, 1)
+        note.endSnap = snap
+        setNotes(notesCopy)
       }
     },
     onDragEnd: ({ event }) => {

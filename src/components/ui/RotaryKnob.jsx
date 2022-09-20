@@ -110,8 +110,8 @@ export default function RotaryKnob({
     }
     if (inline) {
       return {
-        width: '39px',
-        height: '35px',
+        width: '34px',
+        height: '30px',
       }
     }
     return {}

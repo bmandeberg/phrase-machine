@@ -185,6 +185,7 @@ export const DEFAULT_PRESET = JSON.stringify({
     snapNumber: defaultLaneLength,
     x: defaultLaneLength * EIGHTH_WIDTH,
   },
+  swing: 0,
   instrumentOn: true,
   instrumentType: 'synth',
   instrumentParams: {

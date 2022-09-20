@@ -60,4 +60,23 @@ $headerHeight: 40px;
     color: $pink;
     margin-top: -2px;
   }
+
+  .knob-container {
+    margin-top: -3px;
+    margin-left: 11px;
+
+    .knob {
+      margin-left: 0;
+      display: block;
+    }
+
+    .knob-label {
+      display: block;
+      font-size: 15px;
+      color: $pink;
+      text-align: center;
+      margin-left: 0;
+      margin-top: -5px;
+    }
+  }
 }
