@@ -99,6 +99,11 @@ export default function App() {
     }
   }, [])
 
+  const uiStateRef = useRef()
+  useEffect(() => {
+    uiStateRef.current = uiState
+  }, [uiState])
+
   // event handlers
 
   useEffect(() => {
@@ -113,6 +118,16 @@ export default function App() {
       } else if (e.key === 'Enter') {
         Tone.Transport.position = 0
         setPlayheadPosition(0)
+      } else if (e.key === 'a') {
+        // select all notes
+        if (metaPressed.current) {
+          e.preventDefault()
+          const allNotes = {}
+          for (const lane of uiStateRef.current.lanes) {
+            allNotes[lane.id] = lane.notes.map((note) => note.id)
+          }
+          setSelectNotes(allNotes)
+        }
       }
     }
     function keyup(e) {
@@ -191,8 +206,8 @@ export default function App() {
     setUIState((uiState) => Object.assign({}, uiState, { instrumentOn }))
   }, [instrumentOn])
 
-  const updateSelectedNotes = useCallback((id, notes) => {
-    setSelectedNotes((selectedNotes) => Object.assign({}, selectedNotes, { [id]: notes }))
+  const updateSelectedNotes = useCallback((laneID, notes) => {
+    setSelectedNotes((selectedNotes) => Object.assign({}, selectedNotes, { [laneID]: notes }))
   }, [])
 
   // transport
