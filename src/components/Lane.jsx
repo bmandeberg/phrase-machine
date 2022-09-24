@@ -437,7 +437,7 @@ export default function Lane({
           style={{
             left: note.x,
             bottom: (note.midiNote - minNote) * NOTE_HEIGHT + 1,
-            width: note.width,
+            width: note.width + 1,
             opacity: scaleToRange(note.velocity, 0, 1, 0.5, 1),
           }}>
           <div className={classNames('note-drag-left', { outside: note.width < minNoteWidth })}></div>
