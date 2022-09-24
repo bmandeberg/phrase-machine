@@ -60,6 +60,12 @@ export function positionToPixels(position) {
   return (positionSeconds / eighthSeconds) * EIGHTH_WIDTH
 }
 
+export function translateSnap(snap, snapNumber, targetSnap) {
+  const newSnapNumber = snapNumber * (RATE_MULTS[snap] / RATE_MULTS[targetSnap])
+  // return the old snap unless we can cleanly scale to an integer at the new snap
+  return newSnapNumber % 1 === 0 ? [targetSnap, newSnapNumber] : [snap, snapNumber]
+}
+
 export function chooseLane(lanes) {
   const rand = Math.random()
   let probability = 0

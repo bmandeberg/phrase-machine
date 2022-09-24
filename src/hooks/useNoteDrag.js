@@ -2,7 +2,7 @@ import { useRef, useCallback, useEffect } from 'react'
 import { useGesture } from 'react-use-gesture'
 import { v4 as uuid } from 'uuid'
 import { NOTE_HEIGHT, EIGHTH_WIDTH, MIN_MIDI_NOTE, MAX_MIDI_NOTE, RATE_MULTS } from '../globals'
-import { constrain, snapPixels } from '../util'
+import { constrain, snapPixels, translateSnap } from '../util'
 
 const MIN_NOTE_WIDTH = 5
 
@@ -25,7 +25,10 @@ export default function useNoteDrag(
   noteDrag,
   startNoteDrag,
   setSelectNotes,
-  playNote
+  playNote,
+  targetNoteStart,
+  targetNoteUpdate,
+  setTargetNoteUpdate
 ) {
   const tempNote = useRef(null)
 
@@ -95,9 +98,11 @@ export default function useNoteDrag(
   // note dragging
 
   const batchUpdateNotes = useCallback((notes, updateNotes) => {
-    const notesCopy = []
-    for (const note of notes) {
-      notesCopy.push(updateNotes[note.id] ? updateNotes[note.id] : note)
+    const notesCopy = notes.slice()
+    for (const note of notesCopy) {
+      if (updateNotes[note.id]) {
+        Object.assign(note, updateNotes[note.id])
+      }
     }
     // add new notes
     return notesCopy.concat(Object.values(updateNotes).filter((note) => !notesCopy.find((nc) => nc.id === note.id)))
@@ -122,6 +127,8 @@ export default function useNoteDrag(
   const currentNote = useRef()
   const dragDirection = useRef(0)
   const snapStart = useRef()
+  const targetSnapStart = useRef()
+  const noteDataStart = useRef()
   const widthStart = useRef()
   const overrideDefault = useRef()
   const draggingNotes = useRef(false)
@@ -135,7 +142,9 @@ export default function useNoteDrag(
   const noteShiftSelected = useRef(false)
   useEffect(() => {
     if (startNoteDrag && startNoteDrag.note) {
-      // drag start
+      /*
+        drag start
+      */
       currentDraggingNote.current = startNoteDrag.note
       draggingThisLane.current = !!notesRef.current.find((note) => note.id === currentDraggingNote.current)
       if (altPressed.current) {
@@ -145,6 +154,9 @@ export default function useNoteDrag(
         if (!startNoteDrag.preselected) {
           const newSelectedNotes = draggingThisLane.current ? [currentDraggingNote.current] : []
           selectedNotesRef.current = newSelectedNotes
+          noteDataStart.current = selectedNotesRef.current.map((id) => ({
+            ...notesRef.current.find((note) => note.id === id),
+          }))
           setSelectedNotes(newSelectedNotes)
         }
       } else {
@@ -162,11 +174,49 @@ export default function useNoteDrag(
           selectedNotesRef.current = []
           setSelectedNotes([])
         }
+
+        // try to translate the target note's snap to the current snap
+        if (snapRef.current && draggingThisLane.current) {
+          const targetNote = notesRef.current.find((note) => note.id === currentDraggingNote.current)
+          if (targetNoteStart.current.xSnap && targetNoteStart.current.xSnap !== snapRef.current) {
+            const [snap, snapNumber] = translateSnap(
+              targetNoteStart.current.xSnap,
+              targetNoteStart.current.xSnapNumber,
+              snapRef.current
+            )
+            targetNoteStart.current.xSnap = snap
+            targetNoteStart.current.xSnapNumber = snapNumber
+            targetNote.xSnap = snap
+            targetNote.xSnapNumber = snapNumber
+          }
+          if (targetNoteStart.current.widthSnap && targetNoteStart.current.widthSnap !== snapRef.current) {
+            const [snap, snapNumber] = translateSnap(
+              targetNoteStart.current.widthSnap,
+              targetNoteStart.current.widthSnapNumber,
+              snapRef.current
+            )
+            targetNoteStart.current.widthSnap = snap
+            targetNoteStart.current.widthSnapNumber = snapNumber
+            targetNote.widthSnap = snap
+            targetNote.widthSnapNumber = snapNumber
+          }
+          if (targetNoteStart.current.endSnap && targetNoteStart.current.endSnap !== snapRef.current) {
+            const [snap] = translateSnap(targetNoteStart.current.endSnap, 1, snapRef.current)
+            targetNoteStart.current.endSnap = snap
+            targetNote.endSnap = snap
+          }
+          setNotes(notesRef.current)
+        }
+
+        noteDataStart.current = selectedNotesRef.current.map((id) => ({
+          ...notesRef.current.find((note) => note.id === id),
+        }))
         dragStart.current = selectedNotesRef.current.map((id) => notesRef.current.find((note) => note.id === id).x)
         if (['drag', 'drag-left'].includes(startNoteDrag.type)) {
           snapStart.current = selectedNotesRef.current.map(
             (id) => notesRef.current.find((note) => note.id === id).xSnap
           )
+          targetSnapStart.current = targetNoteStart.current.xSnap
         }
         if (['drag-right', 'drag-left'].includes(startNoteDrag.type)) {
           widthStart.current = selectedNotesRef.current.map(
@@ -192,11 +242,13 @@ export default function useNoteDrag(
           snapStart.current = selectedNotesRef.current.map(
             (id) => notesRef.current.find((note) => note.id === id).endSnap
           )
+          targetSnapStart.current = targetNoteStart.current.endSnap
         } else if (startNoteDrag.type === 'drag-left') {
           // drag-left
           draggingLeft.current = true
         }
       }
+
       // play selected notes
       for (const selectedNote of selectedNotesRef.current) {
         const noteData = notesRef.current.find((note) => note.id === selectedNote)
@@ -205,7 +257,9 @@ export default function useNoteDrag(
         }
       }
     } else {
-      // drag end
+      /*
+        drag end
+      */
       if (dragChanged.current) {
         updateLaneStateRef.current()
       } else {
@@ -222,6 +276,7 @@ export default function useNoteDrag(
           }
         }
       }
+      setTargetNoteUpdate(null)
       draggingNotes.current = false
       draggingRight.current = false
       draggingLeft.current = false
@@ -232,7 +287,18 @@ export default function useNoteDrag(
       overrideDefault.current = false
       noteShiftSelected.current = false
     }
-  }, [altPressed, dragChanged, playNote, selectedNotesRef, setSelectedNotes, shiftPressed, startNoteDrag])
+  }, [
+    altPressed,
+    dragChanged,
+    playNote,
+    selectedNotesRef,
+    setNotes,
+    setSelectedNotes,
+    setTargetNoteUpdate,
+    shiftPressed,
+    startNoteDrag,
+    targetNoteStart,
+  ])
 
   // actual note dragging
   useEffect(() => {
@@ -241,14 +307,21 @@ export default function useNoteDrag(
       const [dx] = noteDrag.direction
       dragChanged.current = draggingNotes.current ? mx || my : mx
       const updateNotes = {}
+
       // create new notes if duplicating
       if (dragDuplicating.current && !newNotes.current) {
         newNotes.current = selectedNotesRef.current.map((id) => {
+          const newNoteID = uuid()
           const note = Object.assign(
             {},
             notesRef.current.find((note) => note.id === id),
-            { id: uuid() }
+            { id: newNoteID }
           )
+          // change the current drag target to the duplicated new note
+          if (currentDraggingNote.current === id) {
+            currentDraggingNote.current = newNoteID
+          }
+          // include the new notes in the notes that will be updated
           updateNotes[note.id] = note
           return note
         })
@@ -259,7 +332,11 @@ export default function useNoteDrag(
         setSelectedNotes(ids)
         selectedNotesRef.current = ids
       }
-      selectedNotesRef.current.forEach((id, i) => {
+
+      // update the note that is being dragged
+      if (draggingThisLane.current) {
+        const i = selectedNotesRef.current.findIndex((id) => id === currentDraggingNote.current)
+        const id = currentDraggingNote.current
         const note = notesRef.current.find((n) => n.id === id)
         if (!note) return false
         if (draggingNotes.current || dragDuplicating.current) {
@@ -309,6 +386,7 @@ export default function useNoteDrag(
             endSnap: snapRef.current && note.widthSnap === snapRef.current ? snapRef.current : null,
             midiNote: newNote,
           })
+          setTargetNoteUpdate(updateNotes[id])
         } else if (draggingRight.current) {
           /*
             drag-right
@@ -340,8 +418,9 @@ export default function useNoteDrag(
               width: newWidth,
               endSnap: snapRef.current,
               widthSnap,
-              widthSnapNumber: widthSnap ? Math.floor(newWidth / (EIGHTH_WIDTH * RATE_MULTS[snapRef.current])) : null,
+              widthSnapNumber: widthSnap ? Math.round(newWidth / (EIGHTH_WIDTH * RATE_MULTS[snapRef.current])) : null,
             })
+            setTargetNoteUpdate(updateNotes[id])
           }
         } else if (draggingLeft.current) {
           /*
@@ -376,15 +455,141 @@ export default function useNoteDrag(
               xSnapNumber: snapNumber,
               widthSnap: widthSnapping ? snapRef.current : null,
               widthSnapNumber: widthSnapping
-                ? Math.floor(newWidth / (EIGHTH_WIDTH * RATE_MULTS[snapRef.current]))
+                ? Math.round(newWidth / (EIGHTH_WIDTH * RATE_MULTS[snapRef.current]))
                 : null,
             })
+            setTargetNoteUpdate(updateNotes[id])
+          }
+        }
+      }
+
+      setNotes((notes) => batchUpdateNotes(notes, updateNotes))
+    }
+  }, [
+    batchUpdateNotes,
+    dragChanged,
+    noteDrag,
+    playNote,
+    selectedNotesRef,
+    setNotes,
+    setSelectedNotes,
+    setTargetNoteUpdate,
+    shiftPressed,
+  ])
+
+  // update the rest of the notes that are selected but aren't directly being dragged
+  useEffect(() => {
+    // try to convert this note's snap to the target note's snap
+    function updateSnap(thisNote, snapType, i, width) {
+      const notEndSnap = snapType !== 'endSnap'
+      const snapTypeNumberKey = snapType + 'Number'
+      if (snapRef.current === targetSnapStart.current && thisNote[snapType] !== snapRef.current) {
+        const initSnapNumber = snapType === 'endSnap' ? 1 : thisNote[snapTypeNumberKey]
+        const [snap, snapNumber] = translateSnap(thisNote[snapType], initSnapNumber, targetSnapStart.current)
+        thisNote[snapType] = snap
+        if (notEndSnap) {
+          thisNote[snapTypeNumberKey] = snapNumber
+        }
+      }
+      // update the snapNumber if this note's snap matches the target note's snap and the global snap
+      // otherwise nullify the snap and snapNumber
+      if (snapRef.current === targetSnapStart.current && thisNote[snapType] === snapRef.current) {
+        if (notEndSnap) {
+          if (draggingRight.current) {
+            thisNote[snapTypeNumberKey] = Math.round(width / (EIGHTH_WIDTH * RATE_MULTS[snapRef.current]))
+          } else {
+            const [_snap, snapNumber] = translateSnap(
+              noteDataStart.current[i][snapType],
+              noteDataStart.current[i][snapTypeNumberKey],
+              thisNote[snapType]
+            )
+            const xSnapDelta = targetNoteUpdate.xSnapNumber - targetNoteStart.current.xSnapNumber
+            thisNote[snapTypeNumberKey] = snapNumber + (snapType === 'widthSnap' ? -xSnapDelta : xSnapDelta)
+          }
+        }
+      } else {
+        thisNote[snapType] = null
+        if (notEndSnap) {
+          thisNote[snapTypeNumberKey] = null
+        }
+      }
+    }
+
+    // update the notes
+    if (targetNoteUpdate) {
+      const updateNotes = {}
+      selectedNotesRef.current.forEach((id, i) => {
+        if (id !== currentDraggingNote.current) {
+          const thisNote = { ...notesRef.current.find((n) => n.id === id) }
+          if (!thisNote) return false
+          const x = dragStart.current[i] + (targetNoteUpdate.x - targetNoteStart.current.x)
+          const width =
+            widthStart.current && widthStart.current[i] + (targetNoteUpdate.width - targetNoteStart.current.width)
+          if (draggingNotes.current || dragDuplicating.current) {
+            /*
+              dragging notes
+            */
+            if (snapRef.current) {
+              updateSnap(thisNote, 'xSnap', i)
+              // try to convert the note's width snap to the current snap
+              if (snapRef.current !== thisNote.widthSnap && snapRef.current === thisNote.xSnap) {
+                const [widthSnap, widthSnapNumber] = translateSnap(
+                  thisNote.widthSnap,
+                  thisNote.widthSnapNumber,
+                  snapRef.current
+                )
+                thisNote.widthSnap = widthSnap
+                thisNote.widthSnapNumber = widthSnapNumber
+              }
+            } else {
+              thisNote.xSnap = null
+              thisNote.xSnapNumber = null
+            }
+            updateNotes[id] = Object.assign({}, thisNote, {
+              x,
+              endSnap:
+                snapRef.current &&
+                targetSnapStart.current === snapRef.current &&
+                thisNote.widthSnap === snapRef.current &&
+                thisNote.xSnap === snapRef.current
+                  ? snapRef.current
+                  : null,
+              midiNote: noteStart.current[i] + (targetNoteUpdate.midiNote - targetNoteStart.current.midiNote),
+            })
+          } else if (draggingRight.current) {
+            /*
+              drag right
+            */
+            if (snapRef.current) {
+              updateSnap(thisNote, 'endSnap')
+              updateSnap(thisNote, 'widthSnap', i, width)
+            } else {
+              thisNote.endSnap = null
+              thisNote.widthSnap = null
+              thisNote.widthSnapNumber = null
+            }
+            updateNotes[id] = Object.assign({}, thisNote, { width })
+          } else if (draggingLeft.current) {
+            /*
+              drag left
+            */
+            if (snapRef.current) {
+              updateSnap(thisNote, 'xSnap', i)
+              updateSnap(thisNote, 'widthSnap', i)
+            } else {
+              thisNote.xSnap = null
+              thisNote.xSnapNumber = null
+              thisNote.widthSnap = null
+              thisNote.widthSnapNumber = null
+            }
+            updateNotes[id] = Object.assign({}, thisNote, { x, width })
           }
         }
       })
+
       setNotes((notes) => batchUpdateNotes(notes, updateNotes))
     }
-  }, [batchUpdateNotes, dragChanged, noteDrag, playNote, selectedNotesRef, setNotes, setSelectedNotes, shiftPressed])
+  }, [batchUpdateNotes, selectedNotesRef, setNotes, targetNoteStart, targetNoteUpdate])
 
   return { createNote }
 }

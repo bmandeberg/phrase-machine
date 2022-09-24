@@ -48,6 +48,9 @@ export default function Lane({
   instrument,
   instrumentType,
   cancelClick,
+  targetNoteStart,
+  targetNoteUpdate,
+  setTargetNoteUpdate,
 }) {
   const [laneLength, setLaneLength] = useState(lanePreset.laneLength)
   const [notes, updateNotes] = useState(lanePreset.notes)
@@ -327,7 +330,10 @@ export default function Lane({
     noteDrag,
     startNoteDrag,
     setSelectNotes,
-    playNote
+    playNote,
+    targetNoteStart,
+    targetNoteUpdate,
+    setTargetNoteUpdate
   )
 
   // lane dragging
@@ -575,6 +581,9 @@ Lane.propTypes = {
   instrumentOn: PropTypes.bool,
   instrumentType: PropTypes.string,
   cancelClick: PropTypes.object,
+  targetNoteStart: PropTypes.object,
+  targetNoteUpdate: PropTypes.object,
+  setTargetNoteUpdate: PropTypes.func,
 }
 
 const blackKeys = [false, true, false, true, false, false, true, false, true, false, true, false]

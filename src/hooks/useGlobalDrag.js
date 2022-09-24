@@ -31,7 +31,8 @@ export default function useGlobalDrag(
   setUIState,
   updateChosenLane,
   cancelClick,
-  setEndPosition
+  setEndPosition,
+  targetNoteStart
 ) {
   const dragSelecting = useRef(false)
   const draggingNote = useRef(false)
@@ -59,20 +60,34 @@ export default function useGlobalDrag(
           // dragging notes
           draggingNote.current = true
           setNoPointerEvents(true)
-          let note, type
+          let noteID, type
           if (event.target.classList.contains('note')) {
-            note = event.target.id
+            noteID = event.target.id
             type = 'drag'
             setGrabbing(true)
           } else {
-            note = event.target.parentElement.id
+            noteID = event.target.parentElement.id
             setEwResizing(true)
             type = event.target.classList.contains('note-drag-right') ? 'drag-right' : 'drag-left'
           }
+          // attach initial note data
+          let noteData
+          for (const lane of uiState.lanes) {
+            for (const note of lane.notes) {
+              if (note.id === noteID) {
+                noteData = note
+                break
+              }
+            }
+            if (noteData) {
+              break
+            }
+          }
+          targetNoteStart.current = { ...noteData }
           setStartNoteDrag({
-            note,
+            note: noteID,
             type,
-            preselected: Object.values(selectedNotes).flat().includes(note),
+            preselected: Object.values(selectedNotes).flat().includes(noteID),
           })
         } else if (event.target.closest('.delimiter') && !event.target.classList.contains('delimiter-x')) {
           // dragging delimiters

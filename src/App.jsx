@@ -55,6 +55,7 @@ export default function App() {
   const [selectedNotes, setSelectedNotes] = useState({})
   const [noteDrag, setNoteDrag] = useState({})
   const [startNoteDrag, setStartNoteDrag] = useState(null)
+  const [targetNoteUpdate, setTargetNoteUpdate] = useState(null)
   const [changingProbability, setChangingProbability] = useState(null)
   const [anyLaneSoloed, setAnyLaneSoloed] = useState(uiState.lanes.some((l) => l.solo))
   const [chosenLane, setChosenLane] = useState()
@@ -64,6 +65,7 @@ export default function App() {
   const metaPressed = useRef(false)
   const mainContainerRef = useRef()
   const lanesRef = useRef()
+  const targetNoteStart = useRef()
 
   const [instrumentOn, setInstrumentOn] = useState(uiState.instrumentOn)
   const [instrumentType, setInstrumentType] = useState(uiState.instrumentType)
@@ -347,7 +349,8 @@ export default function App() {
     setUIState,
     updateChosenLane,
     cancelClick,
-    setEndPosition
+    setEndPosition,
+    targetNoteStart
   )
 
   // delimiters
@@ -682,6 +685,9 @@ export default function App() {
           instrumentOn={instrumentOn}
           instrumentType={instrumentType}
           cancelClick={cancelClick}
+          targetNoteStart={targetNoteStart}
+          targetNoteUpdate={targetNoteUpdate}
+          setTargetNoteUpdate={setTargetNoteUpdate}
         />
       )),
     [
@@ -707,6 +713,7 @@ export default function App() {
       setMuteSolo,
       snap,
       startNoteDrag,
+      targetNoteUpdate,
       uiState.lanes,
       updateLongestLane,
       updateSelectedNotes,
