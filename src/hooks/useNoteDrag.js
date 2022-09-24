@@ -178,6 +178,18 @@ export default function useNoteDrag(
         // try to translate the target note's snap to the current snap
         if (snapRef.current && draggingThisLane.current) {
           const targetNote = notesRef.current.find((note) => note.id === currentDraggingNote.current)
+          // end snap
+          if (targetNoteStart.current.endSnap && targetNoteStart.current.endSnap !== snapRef.current) {
+            const initSnapNumber =
+              targetNoteStart.current.xSnap === targetNoteStart.current.widthSnap &&
+              targetNoteStart.current.xSnap === targetNoteStart.current.endSnap
+                ? targetNoteStart.current.xSnapNumber + targetNoteStart.current.widthSnapNumber
+                : 1
+            const [snap] = translateSnap(targetNoteStart.current.endSnap, initSnapNumber, snapRef.current)
+            targetNoteStart.current.endSnap = snap
+            targetNote.endSnap = snap
+          }
+          // x snap
           if (targetNoteStart.current.xSnap && targetNoteStart.current.xSnap !== snapRef.current) {
             const [snap, snapNumber] = translateSnap(
               targetNoteStart.current.xSnap,
@@ -189,6 +201,7 @@ export default function useNoteDrag(
             targetNote.xSnap = snap
             targetNote.xSnapNumber = snapNumber
           }
+          // width snap
           if (targetNoteStart.current.widthSnap && targetNoteStart.current.widthSnap !== snapRef.current) {
             const [snap, snapNumber] = translateSnap(
               targetNoteStart.current.widthSnap,
@@ -199,11 +212,6 @@ export default function useNoteDrag(
             targetNoteStart.current.widthSnapNumber = snapNumber
             targetNote.widthSnap = snap
             targetNote.widthSnapNumber = snapNumber
-          }
-          if (targetNoteStart.current.endSnap && targetNoteStart.current.endSnap !== snapRef.current) {
-            const [snap] = translateSnap(targetNoteStart.current.endSnap, 1, snapRef.current)
-            targetNoteStart.current.endSnap = snap
-            targetNote.endSnap = snap
           }
           setNotes(notesRef.current)
         }
@@ -484,7 +492,12 @@ export default function useNoteDrag(
       const notEndSnap = snapType !== 'endSnap'
       const snapTypeNumberKey = snapType + 'Number'
       if (snapRef.current === targetSnapStart.current && thisNote[snapType] !== snapRef.current) {
-        const initSnapNumber = snapType === 'endSnap' ? 1 : thisNote[snapTypeNumberKey]
+        const initSnapNumber =
+          snapType === 'endSnap'
+            ? thisNote.xSnap === thisNote.widthSnap && thisNote.xSnap === thisNote.endSnap
+              ? thisNote.xSnapNumber + thisNote.widthSnapNumber
+              : 1
+            : thisNote[snapTypeNumberKey]
         const [snap, snapNumber] = translateSnap(thisNote[snapType], initSnapNumber, targetSnapStart.current)
         thisNote[snapType] = snap
         if (notEndSnap) {
