@@ -302,12 +302,14 @@ export default function Lane({
     window.addEventListener('mousemove', moveMouse)
     window.addEventListener('mousedown', mouseDown)
     return () => {
+      part.clear()
+      part.dispose()
       window.removeEventListener('click', deselect)
       window.removeEventListener('keydown', keydown)
       window.removeEventListener('mousemove', moveMouse)
       window.removeEventListener('mousedown', mouseDown)
     }
-  }, [id, setNotes, shiftPressed])
+  }, [id, part, setNotes])
 
   // note creation + dragging
 
