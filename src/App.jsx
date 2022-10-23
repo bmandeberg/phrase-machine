@@ -622,6 +622,7 @@ export default function App() {
       }
       // pass if changing mute, but lane is already muted by a solo from another lane
       if (update.mute !== undefined && !update.solo && anyLaneSoloedRef && !uiStateCopy.lanes[laneIndex].solo) {
+        updateLane()
         return
       }
       // should only does one at a time, mune/unmute, solo/unsolo
