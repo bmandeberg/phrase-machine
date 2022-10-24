@@ -566,11 +566,24 @@ export default function App() {
           return (anyLaneSoloedRef && !lane.solo) || lane.mute ? prev + delimiter.lanes[curr] : prev
         }, 0)
       }
+      // total % of lanes that are audible
+      function getTotalAudible(delimiter, excludeID) {
+        return Object.keys(delimiter.lanes).reduce((prev, curr) => {
+          const lane = uiStateCopy.lanes.find((l) => l.id === curr)
+          return (!anyLaneSoloedRef || lane.solo) && !lane.mute && curr !== excludeID
+            ? prev + delimiter.lanes[curr]
+            : prev
+        }, 0)
+      }
       // add solo or remove mute
-      function addAudible(delimiters) {
+      function addAudible(delimiters, onlySoloLane) {
         for (const delimiter of delimiters) {
           const totalMuted = getTotalMuted(delimiter)
-          delimiter.lanes[id] /= 1 - totalMuted
+          if (onlySoloLane) {
+            delimiter.lanes[id] = 1
+          } else {
+            delimiter.lanes[id] /= 1 - totalMuted
+          }
           for (const laneID in delimiter.lanes) {
             const lane = uiStateCopy.lanes.find((l) => l.id === laneID)
             if (laneID !== id && !lane.mute && (lane.solo || !anyLaneSoloedRef)) {
@@ -580,7 +593,7 @@ export default function App() {
         }
       }
       // remove solo or add mute
-      function removeAudible(delimiters, delimiterTotalMuted, forceUseSolo) {
+      function removeAudible(delimiters, delimiterTotalMuted, forceUseSolo, onlySolo) {
         delimiters.forEach((delimiter, i) => {
           const totalMuted = delimiterTotalMuted ? delimiterTotalMuted[i] : getTotalMuted(delimiter)
           for (const laneID in delimiter.lanes) {
@@ -589,7 +602,11 @@ export default function App() {
               delimiter.lanes[laneID] /= 1 - delimiter.lanes[id]
             }
           }
-          delimiter.lanes[id] *= 1 - totalMuted
+          if (onlySolo) {
+            delimiter.lanes[id] = 1 - getTotalAudible(delimiter, id)
+          } else {
+            delimiter.lanes[id] *= 1 - totalMuted
+          }
         })
       }
       function updateLane() {
@@ -625,11 +642,12 @@ export default function App() {
         updateLane()
         return
       }
-      // should only does one at a time, mune/unmute, solo/unsolo
+      // should only do one at a time, mune/unmute, solo/unsolo
       // adding a solo is similar to removing a mute, and vice versa
       const delimitersCopy = delimiters.slice()
       if (update.solo === true || update.mute === false) {
         // adding solo or removing mute
+        let onlySoloLane = update.solo === true && !anyLaneSoloedRef && !uiStateCopy.lanes[laneIndex].mute
         if (update.solo === true) {
           // if no lanes already soloed, mute lanes that are not soloed and aren't already muted
           handleSoloLanes(delimitersCopy, true)
@@ -637,20 +655,24 @@ export default function App() {
         updateLane()
         // remove mute, or add solo if not muted
         if (update.mute === false || !uiStateCopy.lanes[laneIndex].mute) {
-          addAudible(delimitersCopy)
+          addAudible(delimitersCopy, onlySoloLane)
         }
       } else if (update.solo === false || update.mute === true) {
         // removing solo or adding mute
         // get total previously muted before this change
         const delimiterTotalMuted = delimitersCopy.map((d) => getTotalMuted(d))
+        let onlySoloLane = false
         updateLane()
         if (update.solo === false) {
+          if (!anyLaneSoloedRef && !uiStateCopy.lanes[laneIndex].mute) {
+            onlySoloLane = true
+          }
           // if no lanes are now soloed, un-mute lanes that are not muted
           handleSoloLanes(delimitersCopy, false)
         }
         // add mute, or remove solo if not muted
         if (update.mute === true || !uiStateCopy.lanes[laneIndex].mute) {
-          removeAudible(delimitersCopy, delimiterTotalMuted, update.solo === false)
+          removeAudible(delimitersCopy, delimiterTotalMuted, update.solo === false, onlySoloLane)
         }
       }
       setDelimiters(delimitersCopy)
