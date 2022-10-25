@@ -32,7 +32,8 @@ export default function useGlobalDrag(
   updateChosenLane,
   cancelClick,
   setEndPosition,
-  targetNoteStart
+  targetNoteStart,
+  anyLaneSoloed
 ) {
   const dragSelecting = useRef(false)
   const draggingNote = useRef(false)
@@ -149,19 +150,25 @@ export default function useGlobalDrag(
     onDrag: ({ movement: [mx, my], direction: [dx], initial: [ix, iy], metaKey }) => {
       if (!metaKey) {
         if (dragSelecting.current) {
+          //
           // drag selecting
+          //
           const newDimensions = { width: Math.abs(mx), height: Math.abs(my) }
           newDimensions.x = (mx > 0 ? ix : ix - newDimensions.width) + mainContainerRef?.current?.scrollLeft
           newDimensions.y = (my > 0 ? iy : iy - newDimensions.height) + mainContainerRef?.current?.scrollTop
           setSelectingDimensions(newDimensions)
         } else if (draggingNote.current) {
+          //
           // dragging notes
+          //
           setNoteDrag({
             movement: [mx, my],
             direction: [dx],
           })
         } else if (draggingDelimiter !== null) {
+          //
           // dragging delimiters
+          //
           dragChanged.current = mx
           if (dragStart.current !== undefined && (Math.abs(mx) > 2 || overrideDefault.current)) {
             if (dx) {
@@ -216,7 +223,9 @@ export default function useGlobalDrag(
             updateChosenLane()
           }
         } else if (changingProbability !== null) {
+          //
           // dragging probability bar
+          //
           const percentChange = constrain(
             my / -fullHeight.current,
             -percentage.current[laneID.current],
@@ -240,15 +249,20 @@ export default function useGlobalDrag(
                 probabilityNumber.classList.remove('number-below')
               }
             }
+
             let compensationAmount = -percentChange
-            delimitersRef.current[delimiterIndex.current].lanes[laneID.current] =
-              percentage.current[laneID.current] + percentChange
+            const delimiter = delimitersRef.current[delimiterIndex.current]
+            delimiter.lanes[laneID.current] = percentage.current[laneID.current] + percentChange
             updateDOMHeight(laneID.current, percentage.current[laneID.current] + percentChange)
-            const otherLanes = Object.keys(delimitersRef.current[delimiterIndex.current].lanes)
-              .filter((delimiterLaneID) => delimiterLaneID !== laneID.current)
+            // only affect unmuted lanes
+            const otherLanes = Object.keys(delimiter.lanes)
+              .filter((delimiterLaneID) => {
+                const lane = uiState.lanes.find((l) => l.id === delimiterLaneID)
+                return delimiterLaneID !== laneID.current && !lane.mute && (!anyLaneSoloed || lane.solo)
+              })
               .map((delimiterLaneID) => ({
                 laneID: delimiterLaneID,
-                pct: delimitersRef.current[delimiterIndex.current].lanes[delimiterLaneID],
+                pct: delimiter.lanes[delimiterLaneID],
               }))
               .sort((a, b) => (percentChange > 0 ? a.pct - b.pct : b.pct - a.pct))
             otherLanes.forEach((lane, i) => {
@@ -257,13 +271,15 @@ export default function useGlobalDrag(
                 percentChange > 0
                   ? Math.max(compensationSlice, -percentage.current[lane.laneID])
                   : Math.min(compensationSlice, 1 - percentage.current[lane.laneID])
-              delimitersRef.current[delimiterIndex.current].lanes[lane.laneID] = percentage.current[lane.laneID] + delta
+              delimiter.lanes[lane.laneID] = percentage.current[lane.laneID] + delta
               updateDOMHeight(lane.laneID, percentage.current[lane.laneID] + delta)
               compensationAmount -= delta
             })
           }
         } else if (draggingPlayhead.current) {
+          //
           // dragging playhead
+          //
           dragChanged.current = mx
           if (dragStart.current !== undefined) {
             if (dx) {
@@ -286,7 +302,9 @@ export default function useGlobalDrag(
             updateChosenLane(x)
           }
         } else if (draggingEnd.current) {
+          //
           // dragging transport end
+          //
           dragChanged.current = mx
           if (dragStart.current !== undefined) {
             if (dx) {

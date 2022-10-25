@@ -365,7 +365,8 @@ export default function App() {
     updateChosenLane,
     cancelClick,
     setEndPosition,
-    targetNoteStart
+    targetNoteStart,
+    anyLaneSoloed
   )
 
   // delimiters
