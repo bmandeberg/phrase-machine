@@ -58,7 +58,9 @@ export default function useGlobalDrag(
           event.target.classList.contains('note-drag-right') ||
           event.target.classList.contains('note-drag-left')
         ) {
+          //
           // dragging notes
+          //
           draggingNote.current = true
           setNoPointerEvents(true)
           let noteID, type
@@ -91,7 +93,9 @@ export default function useGlobalDrag(
             preselected: Object.values(selectedNotes).flat().includes(noteID),
           })
         } else if (event.target.closest('.delimiter') && !event.target.classList.contains('delimiter-x')) {
+          //
           // dragging delimiters
+          //
           setNoPointerEvents(true)
           setEwResizing(true)
           setSelectNotes({})
@@ -102,7 +106,9 @@ export default function useGlobalDrag(
           dragStart.current = delimiter.snap ? timeToPixels({ [delimiter.snap]: delimiter.snapNumber }) : delimiter.x
           snapStart.current = delimiter.snap
         } else if (event.target.classList.contains('delimiter-probability-bar-drag')) {
+          //
           // dragging probability bar
+          //
           setNoPointerEvents(true)
           setNsResizing(true)
           delimitersRef.current = delimiters
@@ -112,7 +118,9 @@ export default function useGlobalDrag(
           percentage.current = { ...delimiters[delimiterIndex.current].lanes }
           setChangingProbability(delimiterIndex.current)
         } else if (event.target.closest('#end')) {
+          //
           // dragging transport end
+          //
           setNoPointerEvents(true)
           setEwResizing(true)
           draggingEnd.current = uiState.end
@@ -120,7 +128,9 @@ export default function useGlobalDrag(
           snapStart.current = uiState.end.snap
         } else if (event.target.closest('#playhead') || event.target.closest('#transport-topbar')) {
           const topbarDrag = event.target.closest('#transport-topbar')
+          //
           // dragging playhead
+          //
           setNoPointerEvents(true)
           setEwResizing(true)
           draggingPlayhead.current = true
@@ -136,7 +146,9 @@ export default function useGlobalDrag(
             updateChosenLane(startX)
           }
         } else {
+          //
           // drag selecting
+          //
           dragSelecting.current = true
           setSelectingDimensions({
             x,
@@ -337,7 +349,9 @@ export default function useGlobalDrag(
     onDragEnd: ({ event }) => {
       if (event.button === 0) {
         if (dragSelecting.current) {
+          //
           // drag selecting
+          //
           const selectedNotes = {}
           // gather notes that intersect with selection bounds
           mainContainerRef.current?.querySelectorAll('.lane-container').forEach((lane, i) => {
@@ -370,14 +384,18 @@ export default function useGlobalDrag(
           dragSelecting.current = false
           setSelectingDimensions(null)
         } else if (draggingNote.current) {
+          //
           // dragging notes
+          //
           setStartNoteDrag(null)
           setNoPointerEvents(false)
           setGrabbing(false)
           setEwResizing(false)
           draggingNote.current = false
         } else if (draggingDelimiter !== null) {
+          //
           // dragging delimiters
+          //
           if (event.target.classList.contains('delimiter-grab')) {
             delimiterDragHover.current = draggingDelimiter
           }
@@ -389,19 +407,27 @@ export default function useGlobalDrag(
           dragDirection.current = 0
           overrideDefault.current = false
         } else if (changingProbability !== null) {
+          //
           // dragging probability bar
+          //
           setNoPointerEvents(false)
           setNsResizing(false)
           setDelimiters(delimitersRef.current)
           setUIState((uiState) => Object.assign({}, uiState, { delimiters }))
           setChangingProbability(null)
         } else if (draggingPlayhead.current) {
+          //
+          // dragging playhead
+          //
           setNoPointerEvents(false)
           setEwResizing(false)
           draggingPlayhead.current = false
           dragChanged.current = false
           dragDirection.current = 0
         } else if (draggingEnd.current) {
+          //
+          // dragging transport end
+          //
           setNoPointerEvents(false)
           setEwResizing(false)
           dragChanged.current = false

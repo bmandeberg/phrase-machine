@@ -285,6 +285,10 @@
           height: $delimiterDragHeight;
           background: transparent;
           cursor: ns-resize;
+
+          &.disabled {
+            pointer-events: none;
+          }
         }
       }
 

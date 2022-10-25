@@ -51,6 +51,7 @@ export default function Lane({
   targetNoteStart,
   targetNoteUpdate,
   setTargetNoteUpdate,
+  onlyAudibleLane,
 }) {
   const [laneLength, setLaneLength] = useState(lanePreset.laneLength)
   const [notes, updateNotes] = useState(lanePreset.notes)
@@ -467,14 +468,14 @@ export default function Lane({
             {delimiter.lanes[id].toFixed(2)}
           </div>
           <div
-            className="delimiter-probability-bar-drag"
+            className={classNames('delimiter-probability-bar-drag', { disabled: onlyAudibleLane })}
             delimiter-index={i}
             lane-id={id}
             full-height={laneHeight}></div>
         </div>
       </div>
     ))
-  }, [delimiters, draggingDelimiter, id, maxNote, minNote])
+  }, [delimiters, draggingDelimiter, id, maxNote, minNote, onlyAudibleLane])
 
   useEffect(() => {
     const probabilityEls = delimiterProbabilities.current.querySelectorAll('.delimiter-probability')
@@ -586,6 +587,7 @@ Lane.propTypes = {
   targetNoteStart: PropTypes.object,
   targetNoteUpdate: PropTypes.object,
   setTargetNoteUpdate: PropTypes.func,
+  onlyAudibleLane: PropTypes.bool,
 }
 
 const blackKeys = [false, true, false, true, false, false, true, false, true, false, true, false]

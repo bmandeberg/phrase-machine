@@ -779,6 +779,7 @@ export default function App() {
           targetNoteStart={targetNoteStart}
           targetNoteUpdate={targetNoteUpdate}
           setTargetNoteUpdate={setTargetNoteUpdate}
+          onlyAudibleLane={uiState.lanes.every((l) => l.id === lane.id || l.mute || (lane.solo && !l.solo))}
         />
       )),
     [
