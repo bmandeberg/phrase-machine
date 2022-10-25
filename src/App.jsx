@@ -528,13 +528,53 @@ export default function App() {
 
   const deleteLane = useCallback(
     (id) => {
+      const deleteLane = uiState.lanes.find((l) => l.id === id)
       // update delimiters
       const delimitersCopy = delimiters.map((d) => {
         const removePct = d.lanes[id]
         delete d.lanes[id]
         if (removePct) {
-          for (const lane in d.lanes) {
-            d.lanes[lane] = d.lanes[lane] / (1 - removePct)
+          // if the lane is soloed
+          if (deleteLane.solo) {
+            const totalNotMuted = Object.keys(d.lanes).reduce((prev, curr) => {
+              const laneObj = uiState.lanes.find((l) => l.id === curr)
+              return !laneObj.mute ? prev + d.lanes[curr] : prev
+            }, 0)
+            if (uiState.lanes.every((l) => l.id === id || !l.solo)) {
+              // if this is the only lane soloed
+              for (const lane in d.lanes) {
+                if (!uiState.lanes.find((l) => l.id === lane).mute) {
+                  d.lanes[lane] /= totalNotMuted
+                }
+              }
+              setAnyLaneSoloed(false)
+            } else {
+              // if there are others soloed
+              for (const lane in d.lanes) {
+                if (uiState.lanes.find((l) => l.id === lane).solo) {
+                  d.lanes[lane] /= 1 - removePct
+                }
+              }
+            }
+          } else {
+            // if the lane is muted via mute or another lane's solo
+            if (deleteLane.mute || anyLaneSoloed) {
+              for (const lane in d.lanes) {
+                const laneObj = uiState.lanes.find((l) => l.id === lane)
+                // each muted lane
+                if ((anyLaneSoloed && !laneObj.solo) || laneObj.mute) {
+                  const totalMuted = getTotalMuted(d, uiState, anyLaneSoloed)
+                  d.lanes[lane] = (d.lanes[lane] / totalMuted) * (totalMuted + removePct)
+                }
+              }
+            } else {
+              // no lanes soloed, deleted lane not muted or soloed
+              for (const lane in d.lanes) {
+                if (!uiState.lanes.find((l) => l.id === lane).mute) {
+                  d.lanes[lane] /= 1 - removePct
+                }
+              }
+            }
           }
         }
         return d
@@ -548,7 +588,7 @@ export default function App() {
         })
       )
     },
-    [delimiters]
+    [anyLaneSoloed, delimiters, uiState]
   )
 
   const [addLaneHover, setAddLaneHover] = useState(false)
