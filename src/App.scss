@@ -148,6 +148,7 @@
     margin-left: $leftOffset;
 
     #add-lane-button {
+      @extend .no-select;
       z-index: 1;
       position: sticky;
       left: $leftOffset;

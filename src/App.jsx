@@ -56,6 +56,7 @@ export default function App() {
   const [noteDrag, setNoteDrag] = useState({})
   const [startNoteDrag, setStartNoteDrag] = useState(null)
   const [targetNoteUpdate, setTargetNoteUpdate] = useState(null)
+  const [laneMinMax, setLaneMinMax] = useState({})
   const [changingProbability, setChangingProbability] = useState(null)
   const [anyLaneSoloed, setAnyLaneSoloed] = useState(uiState.lanes.some((l) => l.solo))
   const [chosenLane, setChosenLane] = useState()
@@ -366,7 +367,9 @@ export default function App() {
     cancelClick,
     setEndPosition,
     targetNoteStart,
-    anyLaneSoloed
+    anyLaneSoloed,
+    laneMinMax,
+    setLaneMinMax
   )
 
   // delimiters
@@ -779,6 +782,7 @@ export default function App() {
           targetNoteStart={targetNoteStart}
           targetNoteUpdate={targetNoteUpdate}
           setTargetNoteUpdate={setTargetNoteUpdate}
+          laneMinMax={laneMinMax}
           onlyAudibleLane={uiState.lanes.every((l) => l.id === lane.id || l.mute || (lane.solo && !l.solo))}
         />
       )),
@@ -796,6 +800,7 @@ export default function App() {
       grid,
       instrumentOn,
       instrumentType,
+      laneMinMax,
       midiOutRef,
       noPointerEvents,
       noteDrag,

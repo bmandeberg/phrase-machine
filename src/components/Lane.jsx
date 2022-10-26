@@ -51,6 +51,7 @@ export default function Lane({
   targetNoteStart,
   targetNoteUpdate,
   setTargetNoteUpdate,
+  laneMinMax,
   onlyAudibleLane,
 }) {
   const [laneLength, setLaneLength] = useState(lanePreset.laneLength)
@@ -254,6 +255,13 @@ export default function Lane({
     }
   }, [id, selectNotes, shiftPressed])
 
+  useEffect(() => {
+    if (laneMinMax?.id === id) {
+      setMinNote(laneMinMax.minNote)
+      setMaxNote(laneMinMax.maxNote)
+    }
+  }, [id, laneMinMax])
+
   const updateMuteSolo = useCallback(
     (id, update) => {
       if ('mute' in update) {
@@ -341,7 +349,7 @@ export default function Lane({
 
   // lane dragging
 
-  const { dragLaneStart, dragLane } = useLaneDrag(
+  const { dragLaneStart } = useLaneDrag(
     minNote,
     setMinNote,
     maxNote,
@@ -533,7 +541,7 @@ export default function Lane({
         '--lane-color-white': LANE_COLORS[colorIndex].white,
         '--lane-color-gray': LANE_COLORS[colorIndex].gray,
       }}>
-      <div className={classNames('keys', { grabbing })} {...dragLane()}>
+      <div className={classNames('keys', { grabbing })} min-note={minNote} max-note={maxNote} lane-id={id}>
         {keyEls}
       </div>
       {laneEl}
@@ -587,6 +595,7 @@ Lane.propTypes = {
   targetNoteStart: PropTypes.object,
   targetNoteUpdate: PropTypes.object,
   setTargetNoteUpdate: PropTypes.func,
+  laneMinMax: PropTypes.object,
   onlyAudibleLane: PropTypes.bool,
 }
 

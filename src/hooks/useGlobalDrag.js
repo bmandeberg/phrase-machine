@@ -1,7 +1,15 @@
 import { useRef } from 'react'
 import * as Tone from 'tone'
 import { useGesture } from 'react-use-gesture'
-import { NOTE_HEIGHT, EIGHTH_WIDTH, RATE_MULTS, MIN_DELIMITER_WIDTH, KEYS_WIDTH } from '../globals'
+import {
+  NOTE_HEIGHT,
+  EIGHTH_WIDTH,
+  RATE_MULTS,
+  MIN_DELIMITER_WIDTH,
+  KEYS_WIDTH,
+  MIN_MIDI_NOTE,
+  MAX_MIDI_NOTE,
+} from '../globals'
 import { boxesIntersect, timeToPixels, pixelsToTime, positionToPixels, snapPixels, constrain } from '../util'
 
 export default function useGlobalDrag(
@@ -33,7 +41,9 @@ export default function useGlobalDrag(
   cancelClick,
   setEndPosition,
   targetNoteStart,
-  anyLaneSoloed
+  anyLaneSoloed,
+  laneMinMax,
+  setLaneMinMax
 ) {
   const dragSelecting = useRef(false)
   const draggingNote = useRef(false)
@@ -49,6 +59,9 @@ export default function useGlobalDrag(
   const percentage = useRef()
   const draggingPlayhead = useRef(false)
   const draggingEnd = useRef(false)
+  const draggingLane = useRef(false)
+  const minNoteStart = useRef()
+  const maxNoteStart = useRef()
 
   const globalDrag = useGesture({
     onDragStart: ({ initial: [x, y], metaKey, event }) => {
@@ -145,6 +158,17 @@ export default function useGlobalDrag(
             setPlayheadPosition(startX)
             updateChosenLane(startX)
           }
+        } else if (event.target.closest('.keys')) {
+          //
+          // drag lane note range
+          //
+          setNoPointerEvents(true)
+          setGrabbing(true)
+          const keys = event.target.closest('.keys')
+          draggingLane.current = keys.getAttribute('lane-id')
+          minNoteStart.current = +keys.getAttribute('min-note')
+          maxNoteStart.current = +keys.getAttribute('max-note')
+          dragChanged.current = false
         } else {
           //
           // drag selecting
@@ -343,6 +367,28 @@ export default function useGlobalDrag(
             setEndPosition(x)
             Tone.Transport.loopEnd = snap ? { [snap]: snapNumber } : pixelsToTime(x)
           }
+        } else if (draggingLane.current) {
+          //
+          // drag lane note range
+          //
+          const newMinNote = minNoteStart.current + Math.round(my / NOTE_HEIGHT)
+          const newMaxNote = maxNoteStart.current + Math.round(my / NOTE_HEIGHT)
+          if (
+            minNoteStart.current &&
+            maxNoteStart.current &&
+            (minNoteStart.current !== newMinNote || maxNoteStart.current !== newMaxNote || dragChanged.current) &&
+            newMinNote >= MIN_MIDI_NOTE &&
+            newMaxNote <= MAX_MIDI_NOTE
+          ) {
+            const id = draggingLane.current
+            setLaneMinMax({
+              id,
+              minNote: newMinNote,
+              maxNote: newMaxNote,
+            })
+            dragChanged.current = true
+            cancelClick.current = true
+          }
         }
       }
     },
@@ -435,6 +481,27 @@ export default function useGlobalDrag(
           const end = { ...draggingEnd.current }
           setUIState((uiState) => Object.assign({}, uiState, { end }))
           draggingEnd.current = false
+        } else if (draggingLane.current) {
+          //
+          // drag lane note range
+          //
+          setNoPointerEvents(false)
+          setGrabbing(false)
+          if (dragChanged.current === true) {
+            const laneID = draggingLane.current
+            setUIState((uiState) => {
+              const uiStateCopy = { ...uiState }
+              const lane = uiStateCopy.lanes.find((l) => l.id === laneID)
+              lane.viewRange = {
+                min: laneMinMax.minNote,
+                max: laneMinMax.maxNote,
+              }
+              return uiStateCopy
+            })
+            dragChanged.current = false
+          }
+          cancelClick.current = false
+          draggingLane.current = false
         }
       }
     },

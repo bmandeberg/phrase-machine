@@ -1,6 +1,6 @@
 import { useRef } from 'react'
 import { useGesture } from 'react-use-gesture'
-import { NOTE_HEIGHT, MIN_MIDI_NOTE, MAX_MIDI_NOTE } from '../globals'
+import { NOTE_HEIGHT } from '../globals'
 
 const MIN_NOTE_LANES = 8
 
@@ -41,43 +41,5 @@ export default function useLaneDrag(
     },
   })
 
-  const maxNoteStart = useRef()
-  const dragLane = useGesture({
-    onDragStart: ({ event }) => {
-      event.stopPropagation()
-      setNoPointerEvents(true)
-      setGrabbing(true)
-      minNoteStart.current = minNote
-      maxNoteStart.current = maxNote
-      dragChanged.current = false
-    },
-    onDrag: ({ movement: [mx, my], event }) => {
-      event.stopPropagation()
-      const newMinNote = minNoteStart.current + Math.round(my / NOTE_HEIGHT)
-      const newMaxNote = maxNoteStart.current + Math.round(my / NOTE_HEIGHT)
-      if (
-        minNoteStart.current &&
-        maxNoteStart.current &&
-        newMinNote >= MIN_MIDI_NOTE &&
-        maxNote <= MAX_MIDI_NOTE &&
-        (newMinNote !== minNote || newMaxNote !== maxNote)
-      ) {
-        setMinNote(newMinNote)
-        setMaxNote(newMaxNote)
-        dragChanged.current = true
-        cancelClick.current = true
-      }
-    },
-    onDragEnd: ({ event }) => {
-      event.stopPropagation()
-      setNoPointerEvents(false)
-      setGrabbing(false)
-      if (dragChanged.current === true) {
-        dragChanged.current = false
-        updateLaneState()
-      }
-    },
-  })
-
-  return { dragLaneStart, dragLane }
+  return { dragLaneStart }
 }
