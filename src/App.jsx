@@ -318,10 +318,11 @@ export default function App() {
 
   // check current delimiter and update chosen lane if we're in a new delimiter
   const updateChosenLane = useCallback(
-    (x, newDelimiters) => {
+    (x, newDelimiters, forceUpdate) => {
       const d = newDelimiters ?? delimiters
       const newDelimiterIndex = getDelimiterIndex(d, x)
-      if (newDelimiterIndex !== chosenLane.delimiterIndex) {
+      if (newDelimiterIndex !== chosenLane.delimiterIndex || forceUpdate) {
+        console.log('update')
         setChosenLane({
           lane: chooseLane(d[newDelimiterIndex].lanes),
           delimiterIndex: newDelimiterIndex,
@@ -591,8 +592,11 @@ export default function App() {
           delimiters: delimitersCopy,
         })
       )
+      if (chosenLane.lane === id) {
+        updateChosenLane(null, null, true)
+      }
     },
-    [anyLaneSoloed, delimiters, uiState]
+    [anyLaneSoloed, chosenLane, delimiters, uiState, updateChosenLane]
   )
 
   const [addLaneHover, setAddLaneHover] = useState(false)
