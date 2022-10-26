@@ -75,6 +75,7 @@ export function chooseLane(lanes) {
     }
     probability += lanes[lane]
   }
+  return null
 }
 
 export function getDelimiterIndex(delimiters, x) {

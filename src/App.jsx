@@ -316,20 +316,37 @@ export default function App() {
 
   const windowLaneLength = useMemo(() => Math.max(calcLaneLength(window.innerWidth - 30), longestLane), [longestLane])
 
+  const delimiterAudibleLanes = useCallback(
+    (lanes) => {
+      const audibleLanes = {}
+      for (const lane in lanes) {
+        const laneObj = uiState.lanes.find((l) => l.id === lane)
+        if (!laneObj.mute && (!anyLaneSoloed || laneObj.solo)) {
+          audibleLanes[lane] = lanes[lane]
+        }
+      }
+      return audibleLanes
+    },
+    [anyLaneSoloed, uiState.lanes]
+  )
+  const delimiterAudibleLanesRef = useRef()
+  useEffect(() => {
+    delimiterAudibleLanesRef.current = delimiterAudibleLanes
+  }, [delimiterAudibleLanes])
+
   // check current delimiter and update chosen lane if we're in a new delimiter
   const updateChosenLane = useCallback(
     (x, newDelimiters, forceUpdate) => {
       const d = newDelimiters ?? delimiters
       const newDelimiterIndex = getDelimiterIndex(d, x)
       if (newDelimiterIndex !== chosenLane.delimiterIndex || forceUpdate) {
-        console.log('update')
         setChosenLane({
-          lane: chooseLane(d[newDelimiterIndex].lanes),
+          lane: chooseLane(delimiterAudibleLanes(d[newDelimiterIndex].lanes)),
           delimiterIndex: newDelimiterIndex,
         })
       }
     },
-    [chosenLane, delimiters]
+    [chosenLane, delimiterAudibleLanes, delimiters]
   )
 
   // global dragging
@@ -376,14 +393,14 @@ export default function App() {
   // delimiters
 
   useEffect(() => {
-    setChosenLane({ lane: chooseLane(delimiters[0].lanes), delimiterIndex: 0 })
+    setChosenLane({ lane: chooseLane(delimiterAudibleLanesRef.current(delimiters[0].lanes)), delimiterIndex: 0 })
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   const delimiterEvents = useMemo(
     () =>
       new Tone.Part((time, d) => {
-        setChosenLane({ lane: chooseLane(d.delimiter.lanes), delimiterIndex: d.i })
+        setChosenLane({ lane: chooseLane(delimiterAudibleLanesRef.current(d.delimiter.lanes)), delimiterIndex: d.i })
       }).start(0),
     []
   )
@@ -624,6 +641,7 @@ export default function App() {
       let anyLaneSoloedRef = anyLaneSoloed
       const uiStateCopy = deepStateCopy(uiState)
       const laneIndex = uiStateCopy.lanes.findIndex((l) => l.id === id)
+
       // total % of lanes that are audible
       function getTotalAudible(delimiter, excludeID) {
         return Object.keys(delimiter.lanes).reduce((prev, curr) => {
@@ -633,6 +651,7 @@ export default function App() {
             : prev
         }, 0)
       }
+
       // add solo or remove mute
       function addAudible(delimiters, onlySoloLane) {
         for (const delimiter of delimiters) {
@@ -650,6 +669,7 @@ export default function App() {
           }
         }
       }
+
       // remove solo or add mute
       function removeAudible(delimiters, delimiterTotalMuted, forceUseSolo, onlySolo) {
         delimiters.forEach((delimiter, i) => {
@@ -669,6 +689,7 @@ export default function App() {
           }
         })
       }
+
       function updateLane() {
         uiStateCopy.lanes[laneIndex] = { ...uiStateCopy.lanes[laneIndex], ...update }
         setUIState(uiStateCopy)
@@ -680,6 +701,7 @@ export default function App() {
           setAnyLaneSoloed(false)
         }
       }
+
       function handleSoloLanes(delimiters, add) {
         if (!anyLaneSoloedRef) {
           for (const delimiter of delimiters) {
@@ -697,6 +719,7 @@ export default function App() {
           }
         }
       }
+
       // pass if changing mute, but lane is already muted by a solo from another lane
       if (update.mute !== undefined && !update.solo && anyLaneSoloedRef && !uiStateCopy.lanes[laneIndex].solo) {
         updateLane()
@@ -717,6 +740,23 @@ export default function App() {
         if (update.mute === false || !uiStateCopy.lanes[laneIndex].mute) {
           addAudible(delimitersCopy, onlySoloLane)
         }
+        // choose a new lane if the current chosen lane isn't soloed (chosen meaning playing)
+        if (update.solo === true && chosenLane?.id !== id) {
+          const chosenLaneObj = chosenLane.lane && uiState.lanes.find((l) => l.id === chosenLane.lane)
+          if (chosenLaneObj && !chosenLaneObj.solo) {
+            const audibleLanes = {}
+            for (const lane in delimitersCopy[chosenLane.delimiterIndex].lanes) {
+              const laneObj = uiState.lanes.find((l) => l.id === lane)
+              if (!laneObj.mute && (laneObj.solo || lane === id)) {
+                audibleLanes[lane] = delimitersCopy[chosenLane.delimiterIndex].lanes[lane]
+              }
+            }
+            setChosenLane((chosenLane) => ({
+              lane: chooseLane(audibleLanes),
+              delimiterIndex: chosenLane.delimiterIndex,
+            }))
+          }
+        }
       } else if (update.solo === false || update.mute === true) {
         // removing solo or adding mute
         // get total previously muted before this change
@@ -734,10 +774,24 @@ export default function App() {
         if (update.mute === true || !uiStateCopy.lanes[laneIndex].mute) {
           removeAudible(delimitersCopy, delimiterTotalMuted, update.solo === false, onlySoloLane)
         }
+        // choose a new lane if we are muting the current chosen lane
+        if (update.mute === true && chosenLane?.lane === id) {
+          const audibleLanes = {}
+          for (const lane in delimitersCopy[chosenLane.delimiterIndex].lanes) {
+            const laneObj = uiState.lanes.find((l) => l.id === lane)
+            if (!laneObj.mute && (!anyLaneSoloed || laneObj.solo) && lane !== id) {
+              audibleLanes[lane] = delimitersCopy[chosenLane.delimiterIndex].lanes[lane]
+            }
+          }
+          setChosenLane((chosenLane) => ({
+            lane: chooseLane(audibleLanes),
+            delimiterIndex: chosenLane.delimiterIndex,
+          }))
+        }
       }
       setDelimiters(delimitersCopy)
     },
-    [anyLaneSoloed, delimiters, uiState]
+    [anyLaneSoloed, chosenLane, delimiters, uiState]
   )
 
   // elements
