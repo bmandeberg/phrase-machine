@@ -150,13 +150,13 @@ export default function useNoteDrag(
       if (altPressed.current) {
         // duplicating note(s) with alt key
         dragDuplicating.current = true
+        noteDataStart.current = selectedNotesRef.current.map((id) => ({
+          ...notesRef.current.find((note) => note.id === id),
+        }))
         // handle note selection
         if (!startNoteDrag.preselected) {
           const newSelectedNotes = draggingThisLane.current ? [currentDraggingNote.current] : []
           selectedNotesRef.current = newSelectedNotes
-          noteDataStart.current = selectedNotesRef.current.map((id) => ({
-            ...notesRef.current.find((note) => note.id === id),
-          }))
           setSelectedNotes(newSelectedNotes)
         }
       } else {
@@ -337,6 +337,7 @@ export default function useNoteDrag(
         noteStart.current = newNotes.current.map((d) => d.midiNote)
         snapStart.current = newNotes.current.map((d) => d.xSnap)
         const ids = newNotes.current.map((n) => n.id)
+        currentNote.current = newNotes.current.map((d) => d.midiNote)
         setSelectedNotes(ids)
         selectedNotesRef.current = ids
       }
@@ -346,127 +347,128 @@ export default function useNoteDrag(
         const i = selectedNotesRef.current.findIndex((id) => id === currentDraggingNote.current)
         const id = currentDraggingNote.current
         const note = notesRef.current.find((n) => n.id === id)
-        if (!note) return false
-        if (draggingNotes.current || dragDuplicating.current) {
-          /*
+        if (note) {
+          if (draggingNotes.current || dragDuplicating.current) {
+            /*
             dragging notes
           */
-          let newX = dragStart.current[i]
-          let newNote = noteStart.current[i]
-          let xSnapNumber = note.xSnapNumber
-          const shiftDirectionX = shiftPressed.current && Math.abs(mx) > Math.abs(my)
-          // note position
-          if (
-            dragStart.current[i] !== undefined &&
-            (Math.abs(mx) > 2 || overrideDefault.current) &&
-            (!shiftPressed.current || shiftDirectionX)
-          ) {
-            if (dx) {
-              dragDirection.current = dx
+            let newX = dragStart.current[i]
+            let newNote = noteStart.current[i]
+            let xSnapNumber = note.xSnapNumber
+            const shiftDirectionX = shiftPressed.current && Math.abs(mx) > Math.abs(my)
+            // note position
+            if (
+              dragStart.current[i] !== undefined &&
+              (Math.abs(mx) > 2 || overrideDefault.current) &&
+              (!shiftPressed.current || shiftDirectionX)
+            ) {
+              if (dx) {
+                dragDirection.current = dx
+              }
+              const lowerSnapBound = snapRef.current && snapPixels(dragStart.current[i], snapRef.current, -1).px
+              const upperSnapBound = snapRef.current && lowerSnapBound + EIGHTH_WIDTH * RATE_MULTS[snapRef.current]
+              const realX = dragStart.current[i] + mx
+              if (snapRef.current && !snapStart.current[i] && (realX < lowerSnapBound || realX > upperSnapBound)) {
+                snapStart.current[i] = snapRef.current
+              }
+              const direction = !snapStart.current[i] ? dragDirection.current : 0
+              const { px, snapNumber } = snapPixels(realX, snapRef.current, direction)
+              xSnapNumber = snapNumber
+              newX = Math.max(px, 0)
+              if (snapRef.current && newX !== dragStart.current[i]) {
+                overrideDefault.current = true
+              }
             }
-            const lowerSnapBound = snapRef.current && snapPixels(dragStart.current[i], snapRef.current, -1).px
-            const upperSnapBound = snapRef.current && lowerSnapBound + EIGHTH_WIDTH * RATE_MULTS[snapRef.current]
-            const realX = dragStart.current[i] + mx
-            if (snapRef.current && !snapStart.current[i] && (realX < lowerSnapBound || realX > upperSnapBound)) {
-              snapStart.current[i] = snapRef.current
+            // midi note, y-axis
+            if (noteStart.current[i] && (!shiftPressed.current || shiftDirectionX === false)) {
+              newNote = constrain(noteStart.current[i] - Math.round(my / NOTE_HEIGHT), MIN_MIDI_NOTE, MAX_MIDI_NOTE)
+              // play notes when dragging to a new note lane
+              if (newNote !== currentNote.current[i]) {
+                playNote({ ...note, midiNote: newNote })
+                currentNote.current[i] = newNote
+              }
             }
-            const direction = !snapStart.current[i] ? dragDirection.current : 0
-            const { px, snapNumber } = snapPixels(realX, snapRef.current, direction)
-            xSnapNumber = snapNumber
-            newX = Math.max(px, 0)
-            if (snapRef.current && newX !== dragStart.current[i]) {
-              overrideDefault.current = true
-            }
-          }
-          // midi note, y-axis
-          if (noteStart.current[i] && (!shiftPressed.current || shiftDirectionX === false)) {
-            newNote = constrain(noteStart.current[i] - Math.round(my / NOTE_HEIGHT), MIN_MIDI_NOTE, MAX_MIDI_NOTE)
-            // play notes when dragging to a new note lane
-            if (newNote !== currentNote.current[i]) {
-              playNote({ ...note, midiNote: newNote })
-              currentNote.current[i] = newNote
-            }
-          }
-          updateNotes[id] = Object.assign({}, note, {
-            x: newX,
-            xSnap: snapRef.current,
-            xSnapNumber,
-            endSnap: snapRef.current && note.widthSnap === snapRef.current ? snapRef.current : null,
-            midiNote: newNote,
-          })
-          setTargetNoteUpdate(updateNotes[id])
-        } else if (draggingRight.current) {
-          /*
-            drag-right
-          */
-          if (
-            dragEnd.current[i] !== undefined &&
-            widthStart.current[i] !== undefined &&
-            (Math.abs(mx) > 2 || overrideDefault.current) &&
-            (widthStart.current[i] + mx >= MIN_NOTE_WIDTH || note.width !== MIN_NOTE_WIDTH)
-          ) {
-            if (dx) {
-              dragDirection.current = dx
-            }
-            const lowerSnapBound = snapRef.current && snapPixels(dragEnd.current[i], snapRef.current, -1).px
-            const upperSnapBound = snapRef.current && lowerSnapBound + EIGHTH_WIDTH * RATE_MULTS[snapRef.current]
-            const realX = dragEnd.current[i] + mx
-            if (snapRef.current && !snapStart.current[i] && (realX < lowerSnapBound || realX > upperSnapBound)) {
-              snapStart.current[i] = snapRef.current
-            }
-            const direction = !snapStart.current[i] ? dragDirection.current : 0
-            const { px } = snapPixels(realX, snapRef.current, direction)
-            const newX = Math.max(px, MIN_NOTE_WIDTH)
-            if (!snapRef.current || newX !== dragEnd.current[i]) {
-              overrideDefault.current = true
-            }
-            const widthSnap = snapRef.current && snapRef.current === note.xSnap ? snapRef.current : null
-            const newWidth = newX - dragStart.current[i]
-            updateNotes[id] = Object.assign({}, note, {
-              width: newWidth,
-              endSnap: snapRef.current,
-              widthSnap,
-              widthSnapNumber: widthSnap ? Math.round(newWidth / (EIGHTH_WIDTH * RATE_MULTS[snapRef.current])) : null,
-            })
-            setTargetNoteUpdate(updateNotes[id])
-          }
-        } else if (draggingLeft.current) {
-          /*
-            drag-left
-          */
-          if (
-            widthStart.current[i] &&
-            (Math.abs(mx) > 2 || overrideDefault.current) &&
-            (widthStart.current[i] - mx >= MIN_NOTE_WIDTH || note.width !== MIN_NOTE_WIDTH)
-          ) {
-            if (dx) {
-              dragDirection.current = dx
-            }
-            const lowerSnapBound = snapRef.current && snapPixels(dragStart.current[i], snapRef.current, -1).px
-            const upperSnapBound = snapRef.current && lowerSnapBound + EIGHTH_WIDTH * RATE_MULTS[snapRef.current]
-            const realX = dragStart.current[i] + mx
-            if (snapRef.current && !snapStart.current[i] && (realX < lowerSnapBound || realX > upperSnapBound)) {
-              snapStart.current[i] = snapRef.current
-            }
-            const direction = !snapStart.current[i] ? dragDirection.current : 0
-            const { px, snapNumber } = snapPixels(realX, snapRef.current, direction)
-            const newX = Math.max(px, 0)
-            if (!snapRef.current || newX !== dragStart.current[i]) {
-              overrideDefault.current = true
-            }
-            const newWidth = dragStart.current[i] + widthStart.current[i] - newX
-            const widthSnapping = snapRef.current && snapRef.current === note.widthSnap
             updateNotes[id] = Object.assign({}, note, {
               x: newX,
-              width: newWidth,
               xSnap: snapRef.current,
-              xSnapNumber: snapNumber,
-              widthSnap: widthSnapping ? snapRef.current : null,
-              widthSnapNumber: widthSnapping
-                ? Math.round(newWidth / (EIGHTH_WIDTH * RATE_MULTS[snapRef.current]))
-                : null,
+              xSnapNumber,
+              endSnap: snapRef.current && note.widthSnap === snapRef.current ? snapRef.current : null,
+              midiNote: newNote,
             })
             setTargetNoteUpdate(updateNotes[id])
+          } else if (draggingRight.current) {
+            /*
+            drag-right
+          */
+            if (
+              dragEnd.current[i] !== undefined &&
+              widthStart.current[i] !== undefined &&
+              (Math.abs(mx) > 2 || overrideDefault.current) &&
+              (widthStart.current[i] + mx >= MIN_NOTE_WIDTH || note.width !== MIN_NOTE_WIDTH)
+            ) {
+              if (dx) {
+                dragDirection.current = dx
+              }
+              const lowerSnapBound = snapRef.current && snapPixels(dragEnd.current[i], snapRef.current, -1).px
+              const upperSnapBound = snapRef.current && lowerSnapBound + EIGHTH_WIDTH * RATE_MULTS[snapRef.current]
+              const realX = dragEnd.current[i] + mx
+              if (snapRef.current && !snapStart.current[i] && (realX < lowerSnapBound || realX > upperSnapBound)) {
+                snapStart.current[i] = snapRef.current
+              }
+              const direction = !snapStart.current[i] ? dragDirection.current : 0
+              const { px } = snapPixels(realX, snapRef.current, direction)
+              const newX = Math.max(px, MIN_NOTE_WIDTH)
+              if (!snapRef.current || newX !== dragEnd.current[i]) {
+                overrideDefault.current = true
+              }
+              const widthSnap = snapRef.current && snapRef.current === note.xSnap ? snapRef.current : null
+              const newWidth = newX - dragStart.current[i]
+              updateNotes[id] = Object.assign({}, note, {
+                width: newWidth,
+                endSnap: snapRef.current,
+                widthSnap,
+                widthSnapNumber: widthSnap ? Math.round(newWidth / (EIGHTH_WIDTH * RATE_MULTS[snapRef.current])) : null,
+              })
+              setTargetNoteUpdate(updateNotes[id])
+            }
+          } else if (draggingLeft.current) {
+            /*
+            drag-left
+          */
+            if (
+              widthStart.current[i] &&
+              (Math.abs(mx) > 2 || overrideDefault.current) &&
+              (widthStart.current[i] - mx >= MIN_NOTE_WIDTH || note.width !== MIN_NOTE_WIDTH)
+            ) {
+              if (dx) {
+                dragDirection.current = dx
+              }
+              const lowerSnapBound = snapRef.current && snapPixels(dragStart.current[i], snapRef.current, -1).px
+              const upperSnapBound = snapRef.current && lowerSnapBound + EIGHTH_WIDTH * RATE_MULTS[snapRef.current]
+              const realX = dragStart.current[i] + mx
+              if (snapRef.current && !snapStart.current[i] && (realX < lowerSnapBound || realX > upperSnapBound)) {
+                snapStart.current[i] = snapRef.current
+              }
+              const direction = !snapStart.current[i] ? dragDirection.current : 0
+              const { px, snapNumber } = snapPixels(realX, snapRef.current, direction)
+              const newX = Math.max(px, 0)
+              if (!snapRef.current || newX !== dragStart.current[i]) {
+                overrideDefault.current = true
+              }
+              const newWidth = dragStart.current[i] + widthStart.current[i] - newX
+              const widthSnapping = snapRef.current && snapRef.current === note.widthSnap
+              updateNotes[id] = Object.assign({}, note, {
+                x: newX,
+                width: newWidth,
+                xSnap: snapRef.current,
+                xSnapNumber: snapNumber,
+                widthSnap: widthSnapping ? snapRef.current : null,
+                widthSnapNumber: widthSnapping
+                  ? Math.round(newWidth / (EIGHTH_WIDTH * RATE_MULTS[snapRef.current]))
+                  : null,
+              })
+              setTargetNoteUpdate(updateNotes[id])
+            }
           }
         }
       }
