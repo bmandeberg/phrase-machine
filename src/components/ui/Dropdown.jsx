@@ -189,7 +189,7 @@ export default function Dropdown({
             </div>
           </div>
         </div>
-        <div className="dropdown-min-width">{longestText(options, graphicOptions)}</div>
+        {label && <div className="dropdown-min-width">{longestText(options, graphicOptions)}</div>}
       </div>
       {label && dropdownLabel}
       {setNum1 && numInputs}

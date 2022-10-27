@@ -27,7 +27,15 @@ import Modal from './components/ui/Modal'
 import useGlobalDrag from './hooks/useGlobalDrag'
 import useInstruments from './hooks/useInstruments'
 import useMIDI from './hooks/useMIDI'
-import { pixelsToTime, positionToPixels, snapPixels, chooseLane, getDelimiterIndex, timeToPixels } from './util'
+import {
+  pixelsToTime,
+  positionToPixels,
+  snapPixels,
+  chooseLane,
+  getDelimiterIndex,
+  timeToPixels,
+  noteString,
+} from './util'
 import addIcon from './assets/add-icon.svg'
 import addIconHover from './assets/add-icon-hover.svg'
 import playheadGraphic from './assets/playhead.svg'
@@ -947,8 +955,8 @@ export default function App() {
         const lane = uiState.lanes.find((l) => l.id === tooltip.content.laneID)
         return (
           <Tooltip x={tooltip.x} y={tooltip.y} setTooltip={setTooltip} minWidth={100}>
+            <p>{noteString(tooltip.content.note)} - MIDI CHANNEL OUT</p>
             <Dropdown
-              label="MIDI channel out"
               value={lane.midiChannels[tooltip.content.note] || 'all'}
               setValue={(value) => {
                 setUIState((uiState) => {
