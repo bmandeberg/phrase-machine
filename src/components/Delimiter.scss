@@ -44,17 +44,23 @@
     position: absolute;
     top: -11px;
     height: 13px;
+    width: 13px;
     left: -6px;
     cursor: pointer;
     opacity: 0;
-    stroke: $darkTextGray;
     transition: opacity $fastTransitionTime ease, top $fastTransitionTime ease;
+
+    svg {
+      height: 13px;
+      stroke: $darkTextGray;
+      pointer-events: none;
+    }
   }
 
   &.active {
     .delimiter-x {
       opacity: 1;
-      top: -17px;
+      top: -16px;
 
       &:hover g {
         stroke: $red;
