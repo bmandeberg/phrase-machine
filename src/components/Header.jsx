@@ -196,7 +196,7 @@ export default function Header({
         label="Swing"
         grabbing={grabbing}
         setGrabbing={setGrabbing}
-        inline
+        tiny
         mute={false}
         linearKnobs={linearKnobs}
         theme={theme}

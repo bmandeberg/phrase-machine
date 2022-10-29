@@ -94,7 +94,8 @@
       }
     }
   }
-  &.inline-knob {
+  &.inline-knob,
+  &.tiny-knob {
     margin-top: 8px;
     .knob {
       display: inline-block;

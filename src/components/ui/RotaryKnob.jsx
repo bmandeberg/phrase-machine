@@ -26,6 +26,7 @@ export default function RotaryKnob({
   stopChangingAxis,
   squeeze,
   inline,
+  tiny,
   detent,
   mute,
   linearKnobs,
@@ -110,12 +111,18 @@ export default function RotaryKnob({
     }
     if (inline) {
       return {
+        width: '39px',
+        height: '35px',
+      }
+    }
+    if (tiny) {
+      return {
         width: '34px',
         height: '30px',
       }
     }
     return {}
-  }, [axisKnob, axisKnobLarge, inline])
+  }, [axisKnob, axisKnobLarge, inline, tiny])
 
   const knobColor = useMemo(() => {
     switch (theme) {
@@ -461,6 +468,7 @@ export default function RotaryKnob({
         'axis-knob-large': axisKnobLarge,
         'knob-active': turningAxisKnob,
         'inline-knob': inline,
+        'tiny-knob': tiny,
         'hidden-knob': axisKnob && !rangeMode,
       })}>
       {axisKnob && axisKnobHelper}
@@ -487,6 +495,7 @@ RotaryKnob.propTypes = {
   stopChangingAxis: PropTypes.func,
   squeeze: PropTypes.number,
   inline: PropTypes.bool,
+  tiny: PropTypes.bool,
   detent: PropTypes.bool,
   mute: PropTypes.bool,
   linearKnobs: PropTypes.bool,
