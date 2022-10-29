@@ -21,7 +21,7 @@ import Header from './components/Header'
 import Delimiter from './components/Delimiter'
 import Ticks from './components/Ticks'
 import Tooltip from './components/ui/Tooltip'
-import Slider from './components/ui/Slider'
+import RangeSlider from './components/ui/RangeSlider'
 import Dropdown from './components/ui/Dropdown'
 import Modal from './components/ui/Modal'
 import useGlobalDrag from './hooks/useGlobalDrag'
@@ -943,7 +943,7 @@ export default function App() {
         // note velocity slider
         return (
           <Tooltip x={tooltip.x} y={tooltip.y} setTooltip={setTooltip}>
-            <Slider
+            <RangeSlider
               value={
                 uiState.lanes
                   .find((l) => l.id === tooltip.content.laneID)
@@ -959,6 +959,8 @@ export default function App() {
                 })
               }}
               setNsResizing={setNsResizing}
+              setGrabbing={setGrabbing}
+              grabbing={grabbing}
             />
             <p className="slider-label">VELOCITY</p>
           </Tooltip>
@@ -987,7 +989,7 @@ export default function App() {
       }
     }
     return null
-  }, [tooltip, uiState.lanes])
+  }, [grabbing, tooltip, uiState.lanes])
 
   const header = useMemo(
     () => (

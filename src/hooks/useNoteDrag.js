@@ -55,7 +55,10 @@ export default function useNoteDrag(
         const newNote = {
           id: tempNote.current,
           midiNote: laneNum + minNote,
-          velocity: 1,
+          velocity: {
+            min: 0.95,
+            max: 1,
+          },
           x: px,
           xSnap: snap,
           xSnapNumber: snapNumber,

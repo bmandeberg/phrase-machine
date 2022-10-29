@@ -78,6 +78,14 @@ export function chooseLane(lanes) {
   return null
 }
 
+export function randomWithinRange(range) {
+  return range.min + Math.random() * (range.max - range.min)
+}
+
+export function average(range) {
+  return (range.min + range.max) / 2
+}
+
 export function getDelimiterIndex(delimiters, x) {
   const position = x ?? positionToPixels(Tone.Transport.position)
   for (const [i, delimiter] of delimiters.entries()) {

@@ -8,7 +8,16 @@ import { NOTE_HEIGHT, EIGHTH_WIDTH, calcLaneLength, LANE_COLORS, RATE_MULTS, map
 import Ticks from './Ticks'
 import useNoteDrag from '../hooks/useNoteDrag'
 import useLaneDrag from '../hooks/useLaneDrag'
-import { noteString, getDelimiterIndex, timeToPixels, pixelsToTime, scaleToRange } from '../util'
+import {
+  noteString,
+  getDelimiterIndex,
+  timeToPixels,
+  pixelsToTime,
+  scaleToRange,
+  randomWithinRange,
+  average,
+  constrain,
+} from '../util'
 import './Lane.scss'
 
 export default function Lane({
@@ -113,13 +122,18 @@ export default function Lane({
             instrument.current &&
             (instrumentTypeRef.current === 'synth' || instrument.current.loaded)
           ) {
-            instrument.current.triggerAttackRelease(noteName, noteDurationSeconds, time, note.velocity)
+            instrument.current.triggerAttackRelease(
+              noteName,
+              noteDurationSeconds,
+              time,
+              randomWithinRange(note.velocity)
+            )
           }
           // play MIDI note
           if (midiOutObj) {
             midiOutObj.playNote(noteName, channel, {
               time: time * 1000 + clockOffset,
-              velocity: note.velocity,
+              velocity: randomWithinRange(note.velocity),
               duration: noteDurationSeconds,
             })
           }
@@ -167,12 +181,17 @@ export default function Lane({
         instrument.current &&
         (instrumentTypeRef.current === 'synth' || instrument.current.loaded)
       ) {
-        instrument.current.triggerAttackRelease(noteName, noteDurationSeconds, undefined, note.velocity)
+        instrument.current.triggerAttackRelease(
+          noteName,
+          noteDurationSeconds,
+          undefined,
+          randomWithinRange(note.velocity)
+        )
       }
       // play MIDI note
       if (midiOutObj) {
         midiOutObj.playNote(noteName, channel, {
-          velocity: note.velocity,
+          velocity: randomWithinRange(note.velocity),
           duration: noteDurationSeconds,
         })
       }
@@ -449,7 +468,7 @@ export default function Lane({
             left: note.x,
             bottom: (note.midiNote - minNote) * NOTE_HEIGHT + 1,
             width: note.width + 1,
-            opacity: scaleToRange(note.velocity, 0, 1, 0.5, 1),
+            opacity: constrain(scaleToRange(average(note.velocity), 0, 0.975, 0.5, 1), 0, 1),
           }}>
           <div className={classNames('note-drag-left', { outside: note.width < minNoteWidth })}></div>
           <div className={classNames('note-drag-right', { outside: note.width < minNoteWidth })}></div>
