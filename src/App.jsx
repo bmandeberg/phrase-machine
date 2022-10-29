@@ -962,7 +962,7 @@ export default function App() {
               setGrabbing={setGrabbing}
               grabbing={grabbing}
             />
-            <p className="slider-label">VELOCITY</p>
+            <p className="slider-label">VELOCITY<br/>RANGE</p>
           </Tooltip>
         )
       } else if (tooltip.content.type === 'key') {
