@@ -178,6 +178,7 @@ export const DEFAULT_PRESET = JSON.stringify({
     {
       lanes: { [laneID]: 1 },
       x: 0,
+      hidden: false,
     },
   ],
   end: {

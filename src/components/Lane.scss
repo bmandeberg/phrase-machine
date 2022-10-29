@@ -250,6 +250,10 @@
         pointer-events: none;
       }
 
+      &.hidden {
+        display: none;
+      }
+
       .delimiter-probability-bar {
         position: absolute;
         bottom: 1px;

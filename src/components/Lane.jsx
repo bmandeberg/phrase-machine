@@ -464,6 +464,7 @@ export default function Lane({
         key={uuid()}
         className={classNames('delimiter-probability', {
           disabled: draggingDelimiter,
+          hidden: delimiter.hidden,
         })}
         style={{
           left: delimiter.snap ? timeToPixels({ [delimiter.snap]: delimiter.snapNumber }) : delimiter.x,

@@ -171,6 +171,18 @@ export default function App() {
             laneID: e.target.closest('.lane-container').id.slice(5),
           },
         })
+      } else if (e.target.classList.contains('delimiter-grab')) {
+        e.preventDefault()
+        const i = +e.target.parentElement.getAttribute('index')
+        setDelimiters((delimiters) => {
+          const delimitersCopy = delimiters.slice()
+          delimitersCopy[i].hidden = !delimitersCopy[i].hidden
+          setUIState((uiState) => {
+            const uiStateCopy = Object.assign({}, uiState, { delimiters: delimitersCopy })
+            return uiStateCopy
+          })
+          return delimitersCopy
+        })
       }
     }
     function focus() {
@@ -451,6 +463,7 @@ export default function App() {
           snap,
           snapNumber,
           x: px,
+          hidden: false,
         })
         setDelimiters(delimitersCopy)
         setUIState((uiState) => Object.assign({}, uiState, { delimiters: delimitersCopy }))
