@@ -352,7 +352,7 @@ function themedIcon(icon, theme) {
         case 'light':
           return drums
         case 'dark':
-          return drums
+          return lightDrums
         case 'contrast':
           return darkDrums
         default:
@@ -363,7 +363,7 @@ function themedIcon(icon, theme) {
         case 'light':
           return drumMachine
         case 'dark':
-          return drumMachine
+          return lightDrumMachine
         case 'contrast':
           return darkDrumMachine
         default:
@@ -374,7 +374,7 @@ function themedIcon(icon, theme) {
         case 'light':
           return marimba
         case 'dark':
-          return marimba
+          return lightMarimba
         case 'contrast':
           return darkMarimba
         default:
@@ -385,7 +385,7 @@ function themedIcon(icon, theme) {
         case 'light':
           return piano
         case 'dark':
-          return piano
+          return lightPiano
         case 'contrast':
           return darkPiano
         default:
@@ -396,7 +396,7 @@ function themedIcon(icon, theme) {
         case 'light':
           return synth
         case 'dark':
-          return synth
+          return lightSynth
         case 'contrast':
           return darkSynth
         default:
@@ -407,7 +407,7 @@ function themedIcon(icon, theme) {
         case 'light':
           return bass
         case 'dark':
-          return bass
+          return lightBass
         case 'contrast':
           return darkBass
         default:
@@ -418,7 +418,7 @@ function themedIcon(icon, theme) {
         case 'light':
           return vibes
         case 'dark':
-          return vibes
+          return lightVibes
         case 'contrast':
           return darkVibes
         default:
@@ -429,7 +429,7 @@ function themedIcon(icon, theme) {
         case 'light':
           return harp
         case 'dark':
-          return harp
+          return lightHarp
         case 'contrast':
           return darkHarp
         default:
@@ -440,7 +440,7 @@ function themedIcon(icon, theme) {
         case 'light':
           return choral
         case 'dark':
-          return choral
+          return lightChoral
         case 'contrast':
           return darkChoral
         default:

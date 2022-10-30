@@ -41,9 +41,9 @@ export default function Instrument({
     () =>
       instrumentTypes.map((instr) => ({
         value: instr,
-        label: INSTRUMENT_TYPES[instr](theme),
+        label: INSTRUMENT_TYPES[instr]('light'),
       })),
-    [theme]
+    []
   )
 
   const splitButtonContent = useMemo(() => INSTRUMENT_TYPES[instrumentType](theme), [instrumentType, theme])

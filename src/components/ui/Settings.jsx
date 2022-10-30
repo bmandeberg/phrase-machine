@@ -103,7 +103,7 @@ export default function Settings({
           container=".settings"
         />
       </div>
-      <div className="settings-item">
+      <div className="settings-item" style={{ marginTop: 24 }}>
         <button onClick={clearLocalStorage} className="button red-button">
           Delete Presets and Settings
         </button>
