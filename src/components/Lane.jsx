@@ -555,6 +555,7 @@ export default function Lane({
         '--lane-color': LANE_COLORS[colorIndex].base,
         '--lane-color-hover': LANE_COLORS[colorIndex].hover,
         '--lane-color-lane': LANE_COLORS[colorIndex].lane,
+        '--lane-color-dark-lane': LANE_COLORS[colorIndex].darkLane,
         '--lane-color-light': LANE_COLORS[colorIndex].light,
         '--lane-color-lightest': LANE_COLORS[colorIndex].lightest,
         '--lane-color-dark': LANE_COLORS[colorIndex].dark,
@@ -625,5 +626,5 @@ function isBlackKey(i) {
 }
 
 function nextKeyIsWhite(i) {
-  return blackKeys[(i % 12) + 1]
+  return !blackKeys[(i % 12) + 1]
 }

@@ -37,10 +37,14 @@ import {
   noteString,
 } from './util'
 import addIcon from './assets/add-icon.svg'
+import addIconDark from './assets/add-icon-dark.svg'
 import addIconHover from './assets/add-icon-hover.svg'
 import playheadGraphic from './assets/playhead.svg'
+import playheadGraphicDark from './assets/playhead-dark.svg'
 import endGraphic from './assets/end-head.svg'
+import endGraphicDark from './assets/end-head-dark.svg'
 import './App.scss'
+import './dark-theme.scss'
 
 // load/set presets
 if (!window.localStorage.getItem('phrasePresets')) {
@@ -88,7 +92,7 @@ export default function App() {
     window.localStorage.setItem('linearKnobs', linearKnobs)
   }, [linearKnobs])
 
-  const [theme, setTheme] = useState(window.localStorage.getItem('theme') ?? 'light')
+  const [theme, setTheme] = useState(window.localStorage.getItem('theme') ?? 'dark')
 
   useEffect(() => {
     window.localStorage.setItem('theme', theme)
@@ -684,7 +688,7 @@ export default function App() {
       uiState.lanes.length < MAX_LANES ? (
         <div id="add-lane">
           <img
-            src={addLaneHover ? addIconHover : addIcon}
+            src={addLaneHover ? addIconHover : theme === 'dark' ? addIconDark : addIcon}
             alt=""
             id="add-lane-button"
             className={classNames({ 'no-lanes': !uiState.lanes.length })}
@@ -694,7 +698,7 @@ export default function App() {
           />
         </div>
       ) : null,
-    [addLane, addLaneHover, uiState.lanes.length]
+    [addLane, addLaneHover, theme, uiState.lanes.length]
   )
 
   // handle lane mute and solo probabilities at each delimiter
@@ -952,30 +956,36 @@ export default function App() {
               wasDragging={wasDraggingDelimiter}
               dragHover={delimiterDragHover}
               height={lanesHeight}
+              theme={theme}
             />
           ))}
         </div>
       </div>
     ),
-    [deleteDelimiter, delimiters, draggingDelimiter, lanesHeight]
+    [deleteDelimiter, delimiters, draggingDelimiter, lanesHeight, theme]
   )
 
   const playheadEl = useMemo(
     () => (
       <div id="playhead" ref={playhead} style={{ height: lanesHeight }}>
-        <img id="playhead-head" src={playheadGraphic} alt="" draggable="false" />
+        <img
+          id="playhead-head"
+          src={theme === 'dark' ? playheadGraphicDark : playheadGraphic}
+          alt=""
+          draggable="false"
+        />
       </div>
     ),
-    [lanesHeight]
+    [lanesHeight, theme]
   )
 
   const endEl = useMemo(
     () => (
       <div id="end" ref={end} style={{ height: lanesHeight }}>
-        <img id="end-head" src={endGraphic} alt="" draggable="false" />
+        <img id="end-head" src={theme === 'dark' ? endGraphicDark : endGraphic} alt="" draggable="false" />
       </div>
     ),
-    [lanesHeight]
+    [lanesHeight, theme]
   )
 
   const tooltipEl = useMemo(() => {
@@ -1104,7 +1114,12 @@ export default function App() {
   return (
     <div
       id="main-container"
-      className={classNames({ grabbing, 'ew-resizing': ewResizing, 'ns-resizing': nsResizing })}
+      className={classNames({
+        grabbing,
+        'ew-resizing': ewResizing,
+        'ns-resizing': nsResizing,
+        'dark-theme': theme === 'dark',
+      })}
       ref={mainContainerRef}
       style={{
         '--eighth-width': EIGHTH_WIDTH + 'px',

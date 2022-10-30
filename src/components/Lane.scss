@@ -52,7 +52,7 @@
       position: relative;
 
       &.e-key {
-        border-bottom: 1px solid $lightBlue;
+        border-top: 1px solid $lightBlue;
       }
 
       &.black-key {
@@ -86,7 +86,7 @@
       height: var(--note-height);
 
       &.e-key {
-        border-bottom: 1px solid var(--lane-color-lane);
+        border-top: 1px solid var(--lane-color-lane);
       }
 
       &.black-key {
@@ -94,7 +94,7 @@
       }
 
       &:last-of-type {
-        border-bottom: none;
+        border-top: none;
       }
     }
   }
@@ -387,8 +387,8 @@
 
   &.first {
     .lane {
-      border-top: none;
-      margin-top: 1px;
+      border-top: none !important;
+      margin-top: 1px !important;
     }
   }
 

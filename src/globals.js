@@ -56,6 +56,7 @@ export const LANE_COLORS = [
     base: '#008dff',
     hover: '#33a4ff',
     lane: '#e6f3fc',
+    darkLane: '#282c42',
     light: '#8fd2ff',
     lightest: '#b3ddff',
     dark: '#0247aa',
@@ -66,6 +67,7 @@ export const LANE_COLORS = [
     base: '#00DD69',
     hover: '#20f279',
     lane: '#e8f7eb',
+    darkLane: '#213022',
     light: '#82f9b2',
     lightest: '#a2fcc7',
     dark: '#03843a',
@@ -76,6 +78,7 @@ export const LANE_COLORS = [
     base: '#FF88E3',
     hover: '#ffabef',
     lane: '#ffeeff',
+    darkLane: '#3a2937',
     light: '#f9c7ef',
     lightest: '#fcd4f4',
     dark: '#c4009f',
@@ -86,6 +89,7 @@ export const LANE_COLORS = [
     base: '#7C00FF',
     hover: '#994aff',
     lane: '#efeeff',
+    darkLane: '#322a3f',
     light: '#c3a4ff',
     lightest: '#d4b8ff',
     dark: '#4600a0',
@@ -96,6 +100,7 @@ export const LANE_COLORS = [
     base: '#FF3154',
     hover: '#ff577b',
     lane: '#fff0f5',
+    darkLane: '#3d2a2f',
     light: '#f99bbd',
     lightest: '#fcb4cb',
     dark: '#bf0029',
@@ -106,6 +111,7 @@ export const LANE_COLORS = [
     base: '#FF9B00',
     hover: '#ffb452',
     lane: '#fff2e3',
+    darkLane: '#3a3227',
     light: '#ffd0a6',
     lightest: '#ffdebb',
     dark: '#af5300',
@@ -116,6 +122,7 @@ export const LANE_COLORS = [
     base: '#d600a9',
     hover: '#ef48cf',
     lane: '#f9edf9',
+    darkLane: '#3a2637',
     light: '#ff92f5',
     lightest: '#ffa9f3',
     dark: '#9b0085',
@@ -126,6 +133,7 @@ export const LANE_COLORS = [
     base: '#00c6a9',
     hover: '#40e2c7',
     lane: '#e1f9f4',
+    darkLane: '#1f302d',
     light: '#62efd4',
     lightest: '#80ffe7',
     dark: '#006b68',
@@ -289,7 +297,7 @@ function themedIcon(icon, theme) {
         case 'light':
           return sine
         case 'dark':
-          return lightSine
+          return sine
         case 'contrast':
           return darkSine
         default:
@@ -300,7 +308,7 @@ function themedIcon(icon, theme) {
         case 'light':
           return square
         case 'dark':
-          return lightSquare
+          return square
         case 'contrast':
           return darkSquare
         default:
@@ -311,7 +319,7 @@ function themedIcon(icon, theme) {
         case 'light':
           return triangle
         case 'dark':
-          return lightTriangle
+          return triangle
         case 'contrast':
           return darkTriangle
         default:
@@ -322,7 +330,7 @@ function themedIcon(icon, theme) {
         case 'light':
           return sawtooth
         case 'dark':
-          return lightSawtooth
+          return sawtooth
         case 'contrast':
           return darkSawtooth
         default:
@@ -333,7 +341,7 @@ function themedIcon(icon, theme) {
         case 'light':
           return pulse
         case 'dark':
-          return lightPulse
+          return pulse
         case 'contrast':
           return darkPulse
         default:
@@ -344,7 +352,7 @@ function themedIcon(icon, theme) {
         case 'light':
           return drums
         case 'dark':
-          return lightDrums
+          return drums
         case 'contrast':
           return darkDrums
         default:
@@ -355,7 +363,7 @@ function themedIcon(icon, theme) {
         case 'light':
           return drumMachine
         case 'dark':
-          return lightDrumMachine
+          return drumMachine
         case 'contrast':
           return darkDrumMachine
         default:
@@ -366,7 +374,7 @@ function themedIcon(icon, theme) {
         case 'light':
           return marimba
         case 'dark':
-          return lightMarimba
+          return marimba
         case 'contrast':
           return darkMarimba
         default:
@@ -377,7 +385,7 @@ function themedIcon(icon, theme) {
         case 'light':
           return piano
         case 'dark':
-          return lightPiano
+          return piano
         case 'contrast':
           return darkPiano
         default:
@@ -388,7 +396,7 @@ function themedIcon(icon, theme) {
         case 'light':
           return synth
         case 'dark':
-          return lightSynth
+          return synth
         case 'contrast':
           return darkSynth
         default:
@@ -399,7 +407,7 @@ function themedIcon(icon, theme) {
         case 'light':
           return bass
         case 'dark':
-          return lightBass
+          return bass
         case 'contrast':
           return darkBass
         default:
@@ -410,7 +418,7 @@ function themedIcon(icon, theme) {
         case 'light':
           return vibes
         case 'dark':
-          return lightVibes
+          return vibes
         case 'contrast':
           return darkVibes
         default:
@@ -421,7 +429,7 @@ function themedIcon(icon, theme) {
         case 'light':
           return harp
         case 'dark':
-          return lightHarp
+          return harp
         case 'contrast':
           return darkHarp
         default:
@@ -432,7 +440,7 @@ function themedIcon(icon, theme) {
         case 'light':
           return choral
         case 'dark':
-          return lightChoral
+          return choral
         case 'contrast':
           return darkChoral
         default:
@@ -450,7 +458,7 @@ export function themedSwitch(component, theme, mute) {
         case 'light':
           return '#a8d6ff'
         case 'dark':
-          return '#45454c'
+          return '#0050af'
         case 'contrast':
           return '#45454C'
         default:
@@ -461,7 +469,7 @@ export function themedSwitch(component, theme, mute) {
         case 'light':
           return '#a8d6ff'
         case 'dark':
-          return '#45454c'
+          return '#0050af'
         case 'contrast':
           return '#45454C'
         default:
@@ -483,7 +491,7 @@ export function themedSwitch(component, theme, mute) {
         case 'light':
           return '#ff88e3'
         case 'dark':
-          return '#00c591'
+          return '#ff88e3'
         case 'contrast':
           return '#33ff00'
         default:

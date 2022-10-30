@@ -9,9 +9,12 @@ import RotaryKnob from './ui/RotaryKnob'
 import { RATES, themedSwitch } from '../globals'
 import { midiStartContinue, midiStop } from '../hooks/useMIDI'
 import logo from '../assets/logo.png'
+import logoDark from '../assets/logo-dark.png'
 import play from '../assets/play.svg'
+import playDark from '../assets/play-dark.svg'
 import playHover from '../assets/play-hover.svg'
 import stop from '../assets/stop.svg'
+import stopDark from '../assets/stop-dark.svg'
 import stopHover from '../assets/stop-hover.svg'
 import './Header.scss'
 
@@ -105,19 +108,20 @@ export default function Header({
     }
   }, [playStop])
 
-  const playGraphic = useMemo(
-    () => (
+  const playGraphic = useMemo(() => {
+    const playGraphic = theme === 'dark' ? playDark : play
+    const stopGraphic = theme === 'dark' ? stopDark : stop
+    return (
       <img
-        src={playing ? (hoverPlayStop ? stopHover : stop) : hoverPlayStop ? playHover : play}
+        src={playing ? (hoverPlayStop ? stopHover : stopGraphic) : hoverPlayStop ? playHover : playGraphic}
         alt="play/pause"
         id="play-pause"
         onMouseEnter={() => setHoverPlayStop(true)}
         onMouseLeave={() => setHoverPlayStop(false)}
         onClick={playStop}
       />
-    ),
-    [hoverPlayStop, playStop, playing]
-  )
+    )
+  }, [hoverPlayStop, playStop, playing, theme])
 
   const snapOptions = useMemo(() => RATES.map((rate) => ({ value: rate, label: rate })), [])
 
@@ -128,7 +132,7 @@ export default function Header({
 
   return (
     <div id="header">
-      <img src={logo} alt="Phrase Machine" id="logo" />
+      <img src={theme === 'dark' ? logoDark : logo} alt="Phrase Machine" id="logo" />
       {playGraphic}
       <NumInput className="header-item" label="Tempo" value={tempo} setValue={setTempo} min={0} max={300} small />
       <NumInput

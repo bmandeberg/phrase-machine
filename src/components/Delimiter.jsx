@@ -4,9 +4,10 @@ import classNames from 'classnames'
 import { useHover } from 'react-use-gesture'
 import { timeToPixels } from '../util'
 import delimiterGraphic from '../assets/delimiter.svg'
+import delimiterGraphicDark from '../assets/delimiter-dark.svg'
 import './Delimiter.scss'
 
-export default function Delimiter({ delimiter, i, deleteDelimiter, dragging, wasDragging, dragHover, height }) {
+export default function Delimiter({ delimiter, i, deleteDelimiter, dragging, wasDragging, dragHover, height, theme }) {
   const [active, setActive] = useState(dragging || wasDragging.current === i)
   const [hovering, setHovering] = useState(dragHover.current === i)
   const hoveringRef = useRef(hovering)
@@ -50,7 +51,12 @@ export default function Delimiter({ delimiter, i, deleteDelimiter, dragging, was
       index={i}
       {...hover()}
       style={{ left, '--delimiter-height': height + 'px' }}>
-      <img className="delimiter-head" src={delimiterGraphic} alt="" draggable="false" />
+      <img
+        className="delimiter-head"
+        src={theme === 'dark' ? delimiterGraphicDark : delimiterGraphic}
+        alt=""
+        draggable="false"
+      />
       <div className="delimiter-grab"></div>
       <div className="delimiter-x" onClick={() => deleteDelimiter(i)}>
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" className="humbleicons hi-times">
@@ -70,4 +76,5 @@ Delimiter.propTypes = {
   wasDragging: PropTypes.object,
   dragHover: PropTypes.object,
   height: PropTypes.number,
+  theme: PropTypes.string,
 }

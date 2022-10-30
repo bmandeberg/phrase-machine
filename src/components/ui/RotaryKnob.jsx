@@ -129,7 +129,7 @@ export default function RotaryKnob({
       case 'light':
         return mute ? 'D8D8D8' : 'a8d6ff'
       case 'dark':
-        return mute ? '39393f' : '45454c'
+        return mute ? '39393f' : '0050af'
       case 'contrast':
         return mute ? 'aab1cc' : 'CCD0FF'
       default:
@@ -142,7 +142,7 @@ export default function RotaryKnob({
       case 'light':
         return 'FFFFFF'
       case 'dark':
-        return '090c10'
+        return '0d1421'
       case 'contrast':
         return '090C10'
       default:
@@ -168,7 +168,7 @@ export default function RotaryKnob({
       case 'light':
         return '0247aa'
       case 'dark':
-        return 'a0a0b4'
+        return '0d1421'
       case 'contrast':
         return mute ? '1C1C23' : '383842'
       default:

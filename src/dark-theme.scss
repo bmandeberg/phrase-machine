@@ -1,0 +1,453 @@
+@import './sass-globals.scss';
+
+$darkBackground: #0d1421;
+$majorTick: #000000;
+$darkBlue: #0050af;
+$darkLightGray: #a0a0b4;
+$transportColor: #46494c;
+$blackLane: #1d1e23;
+$lightLane: #2b2d35;
+
+.dark-theme {
+  background: $darkBackground !important;
+
+  button {
+    color: #000000 !important;
+  }
+
+  .dropdown-arrow {
+    border-color: $darkBlue !important;
+  }
+
+  .dropdown-arrow-wrapper {
+    background-color: $darkBackground !important;
+    &:hover .dropdown-arrow {
+      border-color: $darkBlue !important;
+    }
+  }
+
+  .dropdown-menu {
+    background-color: $darkBackground !important;
+    border: 2px solid $darkBlue !important;
+  }
+
+  .dropdown-menu .dropdown-group > .dropdown-title {
+    color: $darkLightGray !important;
+  }
+
+  .dropdown-option {
+    color: $darkLightGray !important;
+  }
+
+  .dropdown-option:hover,
+  .dropdown-option.selected {
+    background-color: darken($darkBlue, 15%) !important;
+    color: $pink !important;
+  }
+
+  .dropdown-noresults {
+    color: $darkLightGray !important;
+  }
+
+  .dropdown-container {
+    &.small-dropdown {
+      .dropdown-control {
+        background-color: $darkBackground !important;
+        border: 2px solid $darkBlue !important;
+      }
+      .dropdown-arrow {
+        border-color: $darkBlue !important;
+      }
+    }
+    &.graphic-options {
+      .dropdown-option {
+        color: $blue !important;
+      }
+    }
+  }
+
+  .dropdown-control {
+    background-color: $darkBackground !important;
+    border: 2px solid $darkBlue !important;
+
+    &:hover {
+      .dropdown-arrow {
+        border-color: $blue !important;
+      }
+    }
+  }
+
+  .react-numeric-input {
+    input {
+      background-color: $darkBackground !important;
+      border: 2px solid $darkBlue !important;
+    }
+    b {
+      i {
+        border-color: $darkBlue !important;
+      }
+      &:hover {
+        i {
+          border-color: $blue !important;
+        }
+      }
+    }
+  }
+
+  .num-input.small-input {
+    input {
+      border: 2px solid $darkBlue !important;
+    }
+    b {
+      i {
+        border-color: $darkBlue !important;
+      }
+    }
+  }
+
+  .split-button {
+    border: 2px solid $darkBlue !important;
+    background-color: $darkBackground !important;
+
+    .split-button-content {
+      &:hover {
+        background-color: lighten($darkBackground, 8%) !important;
+      }
+      &:active {
+        background-color: lighten($darkBackground, 4%) !important;
+      }
+    }
+
+    .split-button-actions {
+      border-left: 2px solid $darkBlue !important;
+
+      .split-button-action {
+        &.split-button-arrow-up::before,
+        &.split-button-arrow-down::before {
+          border-color: $darkBlue !important;
+        }
+
+        &:hover {
+          &.split-button-arrow-up::before,
+          &.split-button-arrow-down::before {
+            border-color: $blue !important;
+          }
+        }
+
+        &:first-of-type {
+          border-bottom: 2px solid $darkBlue !important;
+        }
+      }
+    }
+  }
+
+  .slider {
+    background-color: #0247aa;
+
+    .slider-bar {
+      background-color: $blue;
+    }
+
+    .slider-number {
+      color: lighten($blue, 7%);
+    }
+  }
+
+  .modal-window {
+    color: $darkLightGray !important;
+    background-color: $darkBackground !important;
+    box-shadow: 0px 0px 6px $darkBlue;
+  }
+
+  .instrument-modal {
+    $instrumentBorder: #282f3a;
+    .controls-row {
+      border-top: 1px solid $instrumentBorder;
+    }
+    .controls-module {
+      border-right: 1px solid $instrumentBorder;
+      &:last-of-type {
+        border-right: none;
+      }
+    }
+    .controls-label {
+      color: darken($darkLightGray, 22%);
+    }
+  }
+
+  #playhead {
+    box-shadow: 0 0 3px darken($orange, 15%) !important;
+  }
+
+  .ticks {
+    .tick-measure-num {
+      color: $darkBackground;
+    }
+
+    .tick {
+      border-left: 1px solid #121212;
+
+      &.minor {
+        border-color: $blackLane;
+      }
+
+      &.major {
+        border-color: #000000;
+      }
+
+      &:first-of-type,
+      &.hidden {
+        border-left: none;
+      }
+    }
+  }
+
+  #header-background {
+    background: $darkBackground !important;
+  }
+
+  #transport-topbar {
+    .ticks {
+      background: $transportColor !important;
+      border: 1px solid $transportColor !important;
+
+      .tick {
+        &:first-of-type {
+          border-left: 1px solid $majorTick !important;
+        }
+      }
+    }
+
+    .lane-overflow {
+      background: linear-gradient(to right, rgba(13, 20, 33, 1), rgba(13, 20, 33, 0.2)) !important;
+
+      &.hide-overflow {
+        background: $darkBackground !important;
+      }
+    }
+  }
+
+  .empty-lane {
+    background-color: $darkBackground !important;
+
+    &:hover {
+      background-color: darken($darkBackground, 2%) !important;
+    }
+  }
+
+  #lane-overflow {
+    background: linear-gradient(to right, rgba(13, 20, 33, 1), rgba(13, 20, 33, 0.2)) !important;
+  }
+
+  #header {
+    .divided-by {
+      &::before {
+        background-color: #888888;
+      }
+    }
+
+    .header-aux {
+      .header-settings {
+        background: transparent url('./assets/gear-dark.png') center center;
+        background-size: 22px;
+      }
+    }
+  }
+
+  .tooltip {
+    background-color: $darkBackground;
+    box-shadow: 0 0 5px $darkBlue;
+    z-index: 4;
+
+    .slider-label,
+    p {
+      color: $darkLightGray;
+    }
+  }
+
+  .lane-container {
+    box-shadow: 0 3px 3px -2px lighten($darkBackground, 10%);
+
+    .keys {
+      border-color: $darkBackground;
+      box-shadow: 1px 0px 3px $blackLane;
+      .key {
+        &.e-key {
+          border-top: 1px solid $blackLane;
+        }
+
+        .note-name {
+          color: $darkGray;
+        }
+
+        &:first-of-type {
+          border-top: none;
+        }
+      }
+    }
+
+    .lane {
+      border-color: $darkBackground;
+
+      .note-lane {
+        background: $lightLane;
+
+        &.e-key {
+          border-top: 1px solid $blackLane;
+        }
+
+        &.black-key {
+          background: $blackLane;
+        }
+
+        &:first-of-type {
+          border-top: none;
+        }
+      }
+    }
+
+    .notes {
+      .note {
+        box-shadow: 0px 0px 2px var(--lane-color-dark);
+        border: 1px solid var(--lane-color-dark);
+
+        &.selected {
+          border: 2px solid var(--lane-color);
+          background-color: var(--lane-color-lightest);
+
+          &:hover {
+            background-color: var(--lane-color-light);
+          }
+
+          &.highlight {
+            background-color: var(--lane-color-lightest);
+          }
+        }
+      }
+    }
+
+    .delimiter-probabilities {
+      .delimiter-probability {
+        background: var(--lane-color-dark);
+
+        .delimiter-probability-bar {
+          background: var(--lane-color);
+
+          .delimiter-probability-number {
+            color: var(--lane-color-light);
+
+            &.number-below {
+              color: #ffffff;
+            }
+          }
+        }
+      }
+    }
+
+    .delimiter-highlight-container {
+      .delimiter-highlight {
+        background: $blackLane;
+        opacity: 0.75;
+      }
+    }
+
+    .lane-controls {
+      $laneActionHeight: 14px;
+      .lane-action {
+        cursor: pointer;
+        width: 100%;
+        height: $laneActionHeight;
+        margin-bottom: 8px;
+
+        &.mute {
+          background: transparent url('./assets/m-icon-dark.png') no-repeat center center;
+          background-size: auto $laneActionHeight;
+
+          &:hover,
+          &.active {
+            background: transparent url('./assets/m-icon-red.png') no-repeat center center;
+            background-size: auto $laneActionHeight;
+          }
+        }
+
+        &.solo {
+          background: transparent url('./assets/s-icon-dark.png') no-repeat center center;
+          background-size: auto $laneActionHeight;
+
+          &:hover,
+          &.active {
+            background: transparent url('./assets/s-icon-green.png') no-repeat center center;
+            background-size: auto $laneActionHeight;
+          }
+        }
+
+        &.trash {
+          background: transparent url('./assets/trash-icon-dark.png') no-repeat center center;
+          background-size: auto $laneActionHeight;
+
+          &:hover {
+            background: transparent url('./assets/trash-icon-red.png') no-repeat center center;
+            background-size: auto $laneActionHeight;
+          }
+        }
+
+        &.duplicate {
+          background: transparent url('./assets/plus-icon-dark.png') no-repeat center center;
+          background-size: auto $laneActionHeight;
+
+          &:hover {
+            background: transparent url('./assets/plus-icon-green.png') no-repeat center center;
+            background-size: auto $laneActionHeight;
+          }
+        }
+      }
+    }
+
+    &.mute {
+      $muteGray: #9a9a9a;
+      .keys::before {
+        background-color: $muteGray;
+      }
+
+      .key.black-key {
+        background-color: #333333;
+      }
+
+      .note-lane.black-key {
+        background: $blackLane;
+      }
+
+      .delimiter-probability {
+        background: $darkGray;
+
+        .delimiter-probability-bar {
+          background: $muteGray;
+
+          .delimiter-probability-number {
+            color: $mediumGray;
+          }
+        }
+      }
+
+      .note {
+        $muteNoteColor: #a2a2a2;
+        background: $muteNoteColor;
+        box-shadow: 0px 0px 2px $darkGray;
+        border: 1px solid $darkGray;
+
+        &:hover {
+          background: #b0b0b0;
+        }
+
+        &.selected {
+          border: 2px solid $muteNoteColor;
+          background: $lightMediumGray;
+
+          &:hover {
+            background: #d4d4d4;
+          }
+        }
+      }
+    }
+  }
+}

@@ -4,7 +4,7 @@ import classNames from 'classnames'
 import Switch from 'react-switch'
 import SplitButton from './SplitButton'
 import Dropdown from './Dropdown'
-import { INSTRUMENT_TYPES } from '../../globals'
+import { INSTRUMENT_TYPES, themedSwitch } from '../../globals'
 import './Instrument.scss'
 
 const instrumentTypes = Object.keys(INSTRUMENT_TYPES)
@@ -90,6 +90,11 @@ export default function Instrument({
     splitButtonRight,
   ])
 
+  const offColor = useMemo(() => themedSwitch('offColor', theme), [theme])
+  const onColor = useMemo(() => themedSwitch('onColor', theme), [theme])
+  const offHandleColor = useMemo(() => themedSwitch('offHandleColor', theme, false), [theme])
+  const onHandleColor = useMemo(() => themedSwitch('onHandleColor', theme), [theme])
+
   return (
     <div className={classNames('instrument', className)}>
       {inModal && (
@@ -102,10 +107,10 @@ export default function Instrument({
               checked={instrumentOn}
               uncheckedIcon={false}
               checkedIcon={false}
-              offColor={'#a8d6ff'}
-              onColor={'#a8d6ff'}
-              offHandleColor={'#008dff'}
-              onHandleColor={'#ff88e3'}
+              offColor={offColor}
+              onColor={onColor}
+              offHandleColor={offHandleColor}
+              onHandleColor={onHandleColor}
               width={48}
               height={24}
             />

@@ -120,7 +120,7 @@ export default function Modal({
   )
 
   return (
-    <div className="modal-container" onClick={closeModal}>
+    <div className="modal-container">
       <div className={classNames('modal-buffer', { 'small-buffer': modalTypeRef.current === 'about' })}>
         <div className="modal-window">
           <div className="modal-header">
