@@ -52,6 +52,8 @@ export default function Header({
   grabbing,
   setGrabbing,
   linearKnobs,
+  playheadResetRef,
+  playheadStartPosition,
 }) {
   const [hoverPlayStop, setHoverPlayStop] = useState(false)
 
@@ -67,17 +69,23 @@ export default function Header({
         await Tone.start()
         initialized.current = true
       }
+      if (playheadResetRef.current) {
+        playheadStartPosition.current = Tone.Transport.position
+      }
       Tone.Transport.start()
       // MIDI out
       midiStartContinue(midiOutRef.current, midiInRef.current)
     } else {
       Tone.Transport.pause()
+      if (playheadResetRef.current) {
+        Tone.Transport.position = playheadStartPosition.current
+      }
       // MIDI out
       midiStop(midiOutRef.current, midiInRef.current)
     }
     setPlaying((playing) => !playing)
     playingRef.current = !playingRef.current
-  }, [midiInRef, midiOutRef, setPlaying])
+  }, [midiInRef, midiOutRef, playheadResetRef, playheadStartPosition, setPlaying])
 
   useEffect(() => {
     function keydown(e) {
@@ -236,4 +244,6 @@ Header.propTypes = {
   grabbing: PropTypes.bool,
   setGrabbing: PropTypes.func,
   linearKnobs: PropTypes.bool,
+  playheadResetRef: PropTypes.object,
+  playheadStartPosition: PropTypes.object,
 }

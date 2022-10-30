@@ -94,6 +94,15 @@ export default function App() {
     window.localStorage.setItem('theme', theme)
   }, [theme])
 
+  const playheadStartPosition = useRef(0)
+  const [playheadReset, setPlayheadReset] = useState(JSON.parse(window.localStorage.getItem('playheadReset')) ?? true)
+  const playheadResetRef = useRef(playheadReset)
+
+  useEffect(() => {
+    playheadResetRef.current = playheadReset
+    window.localStorage.setItem('playheadReset', playheadReset)
+  }, [playheadReset])
+
   const snap = useMemo(() => (snapToGrid ? grid : null), [grid, snapToGrid])
 
   const setPlayheadPosition = useCallback((position) => {
@@ -101,6 +110,11 @@ export default function App() {
       playhead.current.style.left = 43 + position + 'px'
     }
   }, [])
+
+  const resetTransport = useCallback(() => {
+    Tone.Transport.position = 0
+    setPlayheadPosition(0)
+  }, [setPlayheadPosition])
 
   const setEndPosition = useCallback((position) => {
     if (end.current) {
@@ -125,8 +139,7 @@ export default function App() {
       } else if (e.key === 'Meta') {
         metaPressed.current = true
       } else if (e.key === 'Enter') {
-        Tone.Transport.position = 0
-        setPlayheadPosition(0)
+        resetTransport()
       } else if (e.key === 'a') {
         // select all notes
         if (metaPressed.current) {
@@ -201,7 +214,7 @@ export default function App() {
       document.removeEventListener('contextmenu', contextmenu)
       window.onfocus = null
     }
-  }, [setPlayheadPosition])
+  }, [resetTransport, setPlayheadPosition])
 
   useEffect(() => {
     window.localStorage.setItem('phrasePresets', JSON.stringify(uiState))
@@ -239,8 +252,16 @@ export default function App() {
   // init
   const endPos = useRef(uiState.end)
   useEffect(() => {
+    function onPause() {
+      if (playheadResetRef.current) {
+        setTimeout(() => {
+          updateChosenLaneRef.current(null, null, true)
+        })
+      }
+    }
     Tone.Transport.loop = true
     Tone.Transport.loopStart = 0
+    Tone.Transport.on('pause', onPause)
     // animation callback
     const animationRepeat = Tone.Transport.scheduleRepeat((time) => {
       Tone.Draw.schedule(() => {
@@ -256,6 +277,7 @@ export default function App() {
     // cleanup
     return () => {
       Tone.Transport.clear(animationRepeat)
+      Tone.Transport.off('pause', onPause)
     }
   }, [setEndPosition, setPlayheadPosition])
 
@@ -280,7 +302,12 @@ export default function App() {
 
   // MIDI
 
-  const { midiOutRef, midiInRef, midiOuts, midiOut, setMidiOut, midiIns, midiIn, setMidiIn } = useMIDI(setPlaying)
+  const { midiOutRef, midiInRef, midiOuts, midiOut, setMidiOut, midiIns, midiIn, setMidiIn } = useMIDI(
+    setPlaying,
+    resetTransport,
+    playheadResetRef,
+    playheadStartPosition
+  )
 
   // modal window
 
@@ -368,6 +395,11 @@ export default function App() {
     },
     [chosenLane, delimiterAudibleLanes, delimiters]
   )
+
+  const updateChosenLaneRef = useRef(updateChosenLane)
+  useEffect(() => {
+    updateChosenLaneRef.current = updateChosenLane
+  }, [updateChosenLane])
 
   // global dragging
 
@@ -962,7 +994,11 @@ export default function App() {
               setGrabbing={setGrabbing}
               grabbing={grabbing}
             />
-            <p className="slider-label">VELOCITY<br/>RANGE</p>
+            <p className="slider-label">
+              VELOCITY
+              <br />
+              RANGE
+            </p>
           </Tooltip>
         )
       } else if (tooltip.content.type === 'key') {
@@ -1025,6 +1061,8 @@ export default function App() {
         grabbing={grabbing}
         setGrabbing={setGrabbing}
         linearKnobs={linearKnobs}
+        playheadResetRef={playheadResetRef}
+        playheadStartPosition={playheadStartPosition}
       />
     ),
     [

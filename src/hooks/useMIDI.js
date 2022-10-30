@@ -7,7 +7,7 @@ const MIDI_IO_CHANGED = {
   OUT: 0,
 }
 
-export default function useMIDI(setPlaying, setResetTransport) {
+export default function useMIDI(setPlaying, resetTransport, playheadResetRef, playheadStartPosition) {
   const [midiEnabled, setMidiEnabled] = useState(false)
   const [midiOut, setMidiOut] = useState(null)
   const midiOutRef = useRef()
@@ -117,6 +117,9 @@ export default function useMIDI(setPlaying, setResetTransport) {
       })
       midiInRef.current.addListener('start', 'all', (e) => {
         if (WebMidi.midiClockIn) {
+          if (playheadResetRef.current) {
+            playheadStartPosition.current = Tone.Transport.position
+          }
           Tone.Transport.start()
           setPlaying(true)
           // MIDI out
@@ -125,6 +128,9 @@ export default function useMIDI(setPlaying, setResetTransport) {
       })
       midiInRef.current.addListener('continue', 'all', (e) => {
         if (WebMidi.midiClockIn) {
+          if (playheadResetRef.current) {
+            playheadStartPosition.current = Tone.Transport.position
+          }
           Tone.Transport.start()
           setPlaying(true)
           // MIDI out
@@ -134,6 +140,9 @@ export default function useMIDI(setPlaying, setResetTransport) {
       midiInRef.current.addListener('stop', 'all', (e) => {
         if (WebMidi.midiClockIn) {
           Tone.Transport.pause()
+          if (playheadResetRef.current) {
+            Tone.Transport.position = playheadStartPosition.current
+          }
           setPlaying(false)
           // MIDI out
           midiStop(midiOutRef.current, midiIn)
@@ -141,9 +150,7 @@ export default function useMIDI(setPlaying, setResetTransport) {
       })
       midiInRef.current.addListener('songposition', 'all', (e) => {
         if (WebMidi.midiClockIn && e.data && e.data[0] === 242 && e.data[1] === 0) {
-          if (setResetTransport) {
-            setResetTransport(true)
-          }
+          resetTransport()
           // MIDI out
           midiSongpositionReset(midiOutRef.current, midiIn)
         }
@@ -152,7 +159,7 @@ export default function useMIDI(setPlaying, setResetTransport) {
       midiInRef.current = null
     }
     MIDI_IO_CHANGED.IN++
-  }, [midiIn, setPlaying, setResetTransport])
+  }, [midiIn, setPlaying, resetTransport, playheadResetRef, playheadStartPosition])
 
   useEffect(() => {
     if (midiOut && midiInRef.current && midiOut === midiInRef.current.name && MIDI_IO_CHANGED.OUT > 2) {
