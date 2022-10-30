@@ -280,7 +280,7 @@ export const RATE_TICKS = {
 
 export const RATES = Object.keys(RATE_MULTS)
 
-export const THEMES = ['dark', 'light', 'contrast']
+export const THEMES = ['dark', 'light']
 
 function themedIcon(icon, theme) {
   switch (icon) {
@@ -448,7 +448,7 @@ export function themedSwitch(component, theme, mute) {
     case 'offColor':
       switch (theme) {
         case 'light':
-          return '#e6e6e6'
+          return '#a8d6ff'
         case 'dark':
           return '#45454c'
         case 'contrast':
@@ -459,7 +459,7 @@ export function themedSwitch(component, theme, mute) {
     case 'onColor':
       switch (theme) {
         case 'light':
-          return '#e6e6e6'
+          return '#a8d6ff'
         case 'dark':
           return '#45454c'
         case 'contrast':
@@ -470,7 +470,7 @@ export function themedSwitch(component, theme, mute) {
     case 'offHandleColor':
       switch (theme) {
         case 'light':
-          return '#666666'
+          return '#008dff'
         case 'dark':
           return '#a0a0b4'
         case 'contrast':
@@ -481,7 +481,7 @@ export function themedSwitch(component, theme, mute) {
     case 'onHandleColor':
       switch (theme) {
         case 'light':
-          return '#33ff00'
+          return '#ff88e3'
         case 'dark':
           return '#00c591'
         case 'contrast':

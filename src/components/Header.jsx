@@ -6,7 +6,7 @@ import NumInput from './ui/NumInput'
 import Dropdown from './ui/Dropdown'
 import Instrument from './ui/Instrument'
 import RotaryKnob from './ui/RotaryKnob'
-import { RATES } from '../globals'
+import { RATES, themedSwitch } from '../globals'
 import { midiStartContinue, midiStop } from '../hooks/useMIDI'
 import logo from '../assets/logo.png'
 import play from '../assets/play.svg'
@@ -54,6 +54,7 @@ export default function Header({
   linearKnobs,
   playheadResetRef,
   playheadStartPosition,
+  setModalType,
 }) {
   const [hoverPlayStop, setHoverPlayStop] = useState(false)
 
@@ -120,6 +121,11 @@ export default function Header({
 
   const snapOptions = useMemo(() => RATES.map((rate) => ({ value: rate, label: rate })), [])
 
+  const offColor = useMemo(() => themedSwitch('offColor', theme), [theme])
+  const onColor = useMemo(() => themedSwitch('onColor', theme), [theme])
+  const offHandleColor = useMemo(() => themedSwitch('offHandleColor', theme, false), [theme])
+  const onHandleColor = useMemo(() => themedSwitch('onHandleColor', theme), [theme])
+
   return (
     <div id="header">
       <img src={logo} alt="Phrase Machine" id="logo" />
@@ -149,10 +155,10 @@ export default function Header({
           checked={snapToGrid}
           uncheckedIcon={false}
           checkedIcon={false}
-          offColor={'#a8d6ff'}
-          onColor={'#a8d6ff'}
-          offHandleColor={'#008dff'}
-          onHandleColor={'#ff88e3'}
+          offColor={offColor}
+          onColor={onColor}
+          offHandleColor={offHandleColor}
+          onHandleColor={onHandleColor}
           width={48}
           height={24}
         />
@@ -209,6 +215,9 @@ export default function Header({
         linearKnobs={linearKnobs}
         theme={theme}
       />
+      <div className="header-aux">
+        <div className="aux-item header-settings" onClick={() => setModalType('settings')} title="Settings"></div>
+      </div>
     </div>
   )
 }
@@ -246,4 +255,5 @@ Header.propTypes = {
   linearKnobs: PropTypes.bool,
   playheadResetRef: PropTypes.object,
   playheadStartPosition: PropTypes.object,
+  setModalType: PropTypes.func,
 }

@@ -3,12 +3,11 @@ import PropTypes from 'prop-types'
 import InstrumentModal from './InstrumentModal'
 import classNames from 'classnames'
 import './Modal.scss'
+import Settings from './Settings'
 
 export default function Modal({
   modalType,
   setModalType,
-  linearKnobs,
-  theme,
   modalContent,
   instrumentOn,
   setInstrumentOn,
@@ -21,6 +20,16 @@ export default function Modal({
   effects,
   grabbing,
   setGrabbing,
+  linearKnobs,
+  setLinearKnobs,
+  theme,
+  setTheme,
+  midiClockIn,
+  setMidiClockIn,
+  midiClockOut,
+  setMidiClockOut,
+  playheadReset,
+  setPlayheadReset,
 }) {
   const modalTypeRef = useRef()
 
@@ -45,6 +54,35 @@ export default function Modal({
       modalTypeRef.current = modalType
     }
   }, [modalType])
+
+  const settingsEl = useMemo(
+    () => (
+      <Settings
+        linearKnobs={linearKnobs}
+        setLinearKnobs={setLinearKnobs}
+        theme={theme}
+        setTheme={setTheme}
+        midiClockIn={midiClockIn}
+        setMidiClockIn={setMidiClockIn}
+        midiClockOut={midiClockOut}
+        setMidiClockOut={setMidiClockOut}
+        playheadReset={playheadReset}
+        setPlayheadReset={setPlayheadReset}
+      />
+    ),
+    [
+      linearKnobs,
+      midiClockIn,
+      midiClockOut,
+      playheadReset,
+      setLinearKnobs,
+      setMidiClockIn,
+      setMidiClockOut,
+      setPlayheadReset,
+      setTheme,
+      theme,
+    ]
+  )
 
   const instrumentEl = useMemo(
     () => (
@@ -82,7 +120,7 @@ export default function Modal({
   )
 
   return (
-    <div className="modal-container">
+    <div className="modal-container" onClick={closeModal}>
       <div className={classNames('modal-buffer', { 'small-buffer': modalTypeRef.current === 'about' })}>
         <div className="modal-window">
           <div className="modal-header">
@@ -91,6 +129,7 @@ export default function Modal({
           </div>
           <div className={classNames('modal-content', { 'full-modal': modalTypeRef.current === 'about' })}>
             {modalTypeRef.current === 'instrument' && modalContent && instrumentEl}
+            {modalTypeRef.current === 'settings' && modalContent && settingsEl}
           </div>
         </div>
       </div>
@@ -139,4 +178,6 @@ Modal.propTypes = {
   setIgnorePresetsTempo: PropTypes.func,
   presetsStopTransport: PropTypes.bool,
   setPresetsStopTransport: PropTypes.func,
+  playheadReset: PropTypes.bool,
+  setPlayheadReset: PropTypes.func,
 }

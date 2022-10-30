@@ -1,0 +1,62 @@
+@import '../../sass-globals.scss';
+
+.settings {
+  width: 280px;
+  .settings-item {
+    margin-top: 10px;
+    p {
+      @extend .no-select;
+    }
+    .settings-label,
+    .instrument-switch {
+      display: inline-block;
+      vertical-align: middle;
+      height: 24px;
+    }
+    .instrument-switch,
+    .switch-container {
+      float: right;
+      margin-top: -2px;
+    }
+    &:first-of-type {
+      margin-top: 0;
+    }
+    .dropdown-container {
+      display: inline-block;
+      vertical-align: top;
+      margin-top: 0;
+    }
+    &.dropdown {
+      height: 28px;
+      display: flex;
+      justify-content: space-between;
+      .settings-label {
+        line-height: 34px;
+      }
+    }
+    .presets-action {
+      margin-bottom: 5px;
+    }
+    textarea {
+      width: 100%;
+      min-height: 75px;
+      resize: vertical;
+    }
+    .switch-container {
+      height: 24px;
+      .switch-label {
+        font-size: 16px;
+        display: inline-block;
+        vertical-align: middle;
+        cursor: pointer;
+        &.label-left {
+          margin-left: 0;
+          margin-right: 8px;
+        }
+      }
+    }
+    button {
+      width: 100%;
+    }
+  }
+}

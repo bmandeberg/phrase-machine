@@ -302,12 +302,20 @@ export default function App() {
 
   // MIDI
 
-  const { midiOutRef, midiInRef, midiOuts, midiOut, setMidiOut, midiIns, midiIn, setMidiIn } = useMIDI(
-    setPlaying,
-    resetTransport,
-    playheadResetRef,
-    playheadStartPosition
-  )
+  const {
+    midiOutRef,
+    midiInRef,
+    midiOuts,
+    midiOut,
+    setMidiOut,
+    midiIns,
+    midiIn,
+    setMidiIn,
+    midiClockIn,
+    setMidiClockIn,
+    midiClockOut,
+    setMidiClockOut,
+  } = useMIDI(setPlaying, resetTransport, playheadResetRef, playheadStartPosition)
 
   // modal window
 
@@ -439,7 +447,8 @@ export default function App() {
     targetNoteStart,
     anyLaneSoloed,
     laneMinMax,
-    setLaneMinMax
+    setLaneMinMax,
+    modalType
   )
 
   // delimiters
@@ -1019,6 +1028,7 @@ export default function App() {
               }}
               options={['all'].concat([...Array(16).keys()].map((n) => n + 1))}
               small
+              noMinWidth
             />
           </Tooltip>
         )
@@ -1063,6 +1073,7 @@ export default function App() {
         linearKnobs={linearKnobs}
         playheadResetRef={playheadResetRef}
         playheadStartPosition={playheadStartPosition}
+        setModalType={setModalType}
       />
     ),
     [
@@ -1159,6 +1170,7 @@ export default function App() {
           modalType={modalType}
           setModalType={setModalType}
           theme={theme}
+          setTheme={setTheme}
           instrumentOn={instrumentOn}
           setInstrumentOn={setInstrumentOn}
           instrumentType={instrumentType}
@@ -1171,6 +1183,13 @@ export default function App() {
           grabbing={grabbing}
           setGrabbing={setGrabbing}
           linearKnobs={linearKnobs}
+          setLinearKnobs={setLinearKnobs}
+          midiClockIn={midiClockIn}
+          setMidiClockIn={setMidiClockIn}
+          midiClockOut={midiClockOut}
+          setMidiClockOut={setMidiClockOut}
+          playheadReset={playheadReset}
+          setPlayheadReset={setPlayheadReset}
         />
       </CSSTransition>
     </div>

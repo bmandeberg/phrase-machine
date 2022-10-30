@@ -80,4 +80,25 @@ $headerHeight: 40px;
       margin-top: -5px;
     }
   }
+
+  .header-aux {
+    position: fixed;
+    top: 24px;
+    right: 19px;
+    .aux-item {
+      width: 22px;
+      height: 22px;
+      display: inline-block;
+      vertical-align: top;
+      margin-left: 10px;
+      cursor: pointer;
+    }
+    .header-settings {
+      background: transparent url('../assets/gear.png') center center;
+      background-size: 22px;
+      &:hover {
+        opacity: 0.75;
+      }
+    }
+  }
 }

@@ -43,7 +43,8 @@ export default function useGlobalDrag(
   targetNoteStart,
   anyLaneSoloed,
   laneMinMax,
-  setLaneMinMax
+  setLaneMinMax,
+  modalType
 ) {
   const dragSelecting = useRef(false)
   const draggingNote = useRef(false)
@@ -65,6 +66,9 @@ export default function useGlobalDrag(
 
   const globalDrag = useGesture({
     onDragStart: ({ initial: [x, y], metaKey, event }) => {
+      if (modalType) {
+        return false
+      }
       if (!metaKey && event.button === 0 && !event.target.closest('.knob')) {
         if (
           event.target.classList.contains('note') ||

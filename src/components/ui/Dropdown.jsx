@@ -43,6 +43,7 @@ export default function Dropdown({
   showNumInputs,
   container,
   minWidth,
+  noMinWidth,
 }) {
   const [open, setOpen] = useState(false)
   const [menuAbove, setMenuAbove] = useState(false)
@@ -189,7 +190,7 @@ export default function Dropdown({
             </div>
           </div>
         </div>
-        {label && <div className="dropdown-min-width">{longestText(options, graphicOptions)}</div>}
+        {!noMinWidth && <div className="dropdown-min-width">{longestText(options, graphicOptions)}</div>}
       </div>
       {label && dropdownLabel}
       {setNum1 && numInputs}
@@ -215,4 +216,5 @@ Dropdown.propTypes = {
   showNumInputs: PropTypes.bool,
   container: PropTypes.string,
   minWidth: PropTypes.number,
+  noMinWidth: PropTypes.bool,
 }
