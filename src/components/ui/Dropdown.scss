@@ -7,26 +7,8 @@
   }
 }
 
-.dropdown-control {
-  @extend .no-select;
-  position: relative;
-  overflow: hidden;
-  background-color: $lightestBlue;
-  border: 2px solid $mediumBlue;
-  border-radius: 8px;
-  box-sizing: border-box;
-  color: $blue;
-  cursor: pointer;
-  outline: none;
-  min-width: 52px;
-  height: 30px;
-  padding: 4px 32px 4px 5px;
-  font-size: 19px;
-  text-transform: uppercase;
-}
-
 .dropdown-arrow {
-  border-color: $darkGray transparent transparent;
+  border-color: $mediumBlue transparent transparent;
   border-style: solid;
   display: block;
   height: 8px;
@@ -50,9 +32,6 @@
   position: absolute;
   right: 0;
   top: 0;
-  &:hover .dropdown-arrow {
-    border-color: $blue;
-  }
 }
 
 .dropdown-menu-wrapper {
@@ -174,11 +153,6 @@
       height: 20px;
       border: none;
       background-color: transparent;
-      &:hover {
-        .dropdown-arrow {
-          border-color: $blue;
-        }
-      }
       &:active {
         .dropdown-arrow {
           border-color: $blueHover;
@@ -288,6 +262,30 @@
     .wave-icon {
       max-height: 18px;
       max-width: 34px;
+    }
+  }
+
+  .dropdown-control {
+    @extend .no-select;
+    position: relative;
+    overflow: hidden;
+    background-color: $lightestBlue;
+    border: 2px solid $mediumBlue;
+    border-radius: 8px;
+    box-sizing: border-box;
+    color: $blue;
+    cursor: pointer;
+    outline: none;
+    min-width: 52px;
+    height: 30px;
+    padding: 4px 32px 4px 5px;
+    font-size: 19px;
+    text-transform: uppercase;
+
+    &:hover {
+      .dropdown-arrow {
+        border-color: $blue;
+      }
     }
   }
 }

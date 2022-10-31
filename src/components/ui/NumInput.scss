@@ -40,7 +40,7 @@
     }
     &:hover {
       i {
-        border-color: $blue;
+        border-color: $blue !important;
       }
     }
     &:active {

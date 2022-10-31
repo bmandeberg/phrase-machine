@@ -77,6 +77,17 @@ $lightLane: #2b2d35;
     }
   }
 
+  .num-input.small-input {
+    input {
+      border: 2px solid $darkBlue !important;
+    }
+    b {
+      i {
+        border-color: $darkBlue !important;
+      }
+    }
+  }
+
   .react-numeric-input {
     input {
       background-color: $darkBackground !important;
@@ -90,17 +101,6 @@ $lightLane: #2b2d35;
         i {
           border-color: $blue !important;
         }
-      }
-    }
-  }
-
-  .num-input.small-input {
-    input {
-      border: 2px solid $darkBlue !important;
-    }
-    b {
-      i {
-        border-color: $darkBlue !important;
       }
     }
   }
