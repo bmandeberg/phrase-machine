@@ -265,6 +265,18 @@ $lightLane: #2b2d35;
     }
   }
 
+  #drag-select {
+    &::before {
+      border: 1px solid darken($pink, 15%);
+    }
+  }
+
+  .delimiter-x {
+    svg {
+      stroke: $darkLightGray;
+    }
+  }
+
   .lane-container {
     box-shadow: 0 3px 3px -2px lighten($darkBackground, 10%);
 
@@ -314,6 +326,7 @@ $lightLane: #2b2d35;
         &.selected {
           border: 2px solid var(--lane-color);
           background-color: var(--lane-color-lightest);
+          box-shadow: 0px 0px 2px var(--lane-color);
 
           &:hover {
             background-color: var(--lane-color-light);
@@ -442,6 +455,7 @@ $lightLane: #2b2d35;
         &.selected {
           border: 2px solid $muteNoteColor;
           background: $lightMediumGray;
+          box-shadow: 0px 0px 2px $muteNoteColor;
 
           &:hover {
             background: #d4d4d4;
