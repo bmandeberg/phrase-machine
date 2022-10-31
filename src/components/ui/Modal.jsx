@@ -37,6 +37,15 @@ export default function Modal({
     setModalType(null)
   }, [setModalType])
 
+  const clickScrim = useCallback(
+    (e) => {
+      if (e.target.classList.contains('modal-container')) {
+        closeModal()
+      }
+    },
+    [closeModal]
+  )
+
   useEffect(() => {
     function keydown(e) {
       if (e.key === 'Escape') {
@@ -120,7 +129,7 @@ export default function Modal({
   )
 
   return (
-    <div className="modal-container">
+    <div className="modal-container" onClick={clickScrim}>
       <div className={classNames('modal-buffer', { 'small-buffer': modalTypeRef.current === 'about' })}>
         <div className="modal-window">
           <div className="modal-header">
