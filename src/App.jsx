@@ -194,11 +194,13 @@ export default function App() {
         setDelimiters((delimiters) => {
           const delimitersCopy = delimiters.slice()
           delimitersCopy[i].hidden = !delimitersCopy[i].hidden
-          setUIState((uiState) => {
-            const uiStateCopy = Object.assign({}, uiState, { delimiters: delimitersCopy })
-            return uiStateCopy
-          })
           return delimitersCopy
+        })
+        setUIState((uiState) => {
+          const delimitersCopy = uiState.delimiters.slice()
+          delimitersCopy[i].hidden = !delimitersCopy[i].hidden
+          const uiStateCopy = Object.assign({}, uiState, { delimiters: delimitersCopy })
+          return uiStateCopy
         })
       }
     }
