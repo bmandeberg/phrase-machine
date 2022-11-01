@@ -191,7 +191,6 @@ export default function App() {
       } else if (e.target.classList.contains('delimiter-grab')) {
         e.preventDefault()
         const i = +e.target.parentElement.getAttribute('index')
-        console.log(e.target, e.target.parentElement)
         setDelimiters((delimiters) => {
           const delimitersCopy = delimiters.slice()
           delimitersCopy[i] = { ...delimitersCopy[i], hidden: !delimitersCopy[i].hidden }
@@ -200,7 +199,6 @@ export default function App() {
         setUIState((uiState) => {
           const uiStateCopy = deepStateCopy(uiState)
           uiStateCopy.delimiters[i] = { ...uiStateCopy.delimiters[i], hidden: !uiStateCopy.delimiters[i].hidden }
-          console.log(uiStateCopy)
           return uiStateCopy
         })
       }
